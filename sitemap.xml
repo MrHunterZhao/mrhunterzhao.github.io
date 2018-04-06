@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://hunterzhao.io/about/index.html</loc>
+    
+    <lastmod>2018-04-06T17:44:17.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://hunterzhao.io/post/2017/08/30/start-up-a-file-server-using-one-python-command.html</loc>
     
     <lastmod>2018-04-06T17:13:39.000Z</lastmod>
@@ -30,13 +37,6 @@
   </url>
   
   <url>
-    <loc>http://hunterzhao.io/about/index.html</loc>
-    
-    <lastmod>2018-03-29T16:08:01.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://hunterzhao.io/books/index.html</loc>
     
     <lastmod>2018-03-29T15:45:28.000Z</lastmod>
@@ -44,21 +44,7 @@
   </url>
   
   <url>
-    <loc>http://hunterzhao.io/post/2014/01/20/configure-vim-syntax-highlight-on-mac.html</loc>
-    
-    <lastmod>2018-03-27T19:04:41.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://hunterzhao.io/post/2014/01/20/install-and-configure-mysql-on-centos.html</loc>
-    
-    <lastmod>2018-03-27T19:04:41.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://hunterzhao.io/post/2014/12/01/analyse-jvm-startup-flow-through-source-code-create.html</loc>
+    <loc>http://hunterzhao.io/post/2011/01/10/hello-world.html</loc>
     
     <lastmod>2018-03-27T19:04:41.000Z</lastmod>
     
@@ -72,7 +58,14 @@
   </url>
   
   <url>
-    <loc>http://hunterzhao.io/post/2014/11/08/compile-jdk7-source-code-on-centos.html</loc>
+    <loc>http://hunterzhao.io/post/2014/01/20/configure-vim-syntax-highlight-on-mac.html</loc>
+    
+    <lastmod>2018-03-27T19:04:41.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://hunterzhao.io/post/2014/12/01/analyse-jvm-startup-flow-through-source-code-create.html</loc>
     
     <lastmod>2018-03-27T19:04:41.000Z</lastmod>
     
@@ -80,6 +73,13 @@
   
   <url>
     <loc>http://hunterzhao.io/post/2014/11/19/build-hotspot-jvm-debug-environment-on-linux.html</loc>
+    
+    <lastmod>2018-03-27T19:04:41.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://hunterzhao.io/post/2014/11/08/compile-jdk7-source-code-on-centos.html</loc>
     
     <lastmod>2018-03-27T19:04:41.000Z</lastmod>
     
@@ -100,7 +100,7 @@
   </url>
   
   <url>
-    <loc>http://hunterzhao.io/post/2011/01/10/hello-world.html</loc>
+    <loc>http://hunterzhao.io/post/2014/01/20/install-and-configure-mysql-on-centos.html</loc>
     
     <lastmod>2018-03-27T19:04:41.000Z</lastmod>
     
