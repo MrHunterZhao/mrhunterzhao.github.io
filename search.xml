@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[在Mac上编译OpenJDK10源码]]></title>
+    <url>%2Fpost%2F2018%2F04%2F29%2Fcompile-openjdk10-source-code-on-mac.html</url>
+    <content type="text"><![CDATA[以前尝试编译过OpenJDK8和9，由于源代码中存在诸多BUG，导致各种编译问题，解决来解决去，还是很难编译通过，很是不爽。 今天抱着试试看的态度又服用了一个疗程，拿起桌上的OpenJDK10，反手就是一次编译，你猜怎么着？像德芙一样丝滑，一次通过^_^ 软件环境 OS：macOS Sierra 10.12 Xcode: 8.3.3 Oracle JDK: 1.8.0_151 前置条件先确保系统已安装freetype和ccache1$ brew install freetype ccache 拉取代码1$ hg clone http://hg.openjdk.java.net/jdk10/master openjdk10 配置参数 --with-debug-level=fastdebug 启用fastdebug级别调试 --enable-dtrace 启用dtrace --with-jvm-variants=server 编译server类型JVM --with-target-bits=64 指定JVM为64位 --enable-ccache 启用ccache，加快编译 --with-num-cores=8 编译使用CPU核心数 --with-memory-size=8000 编译使用内存 --disable-warnings-as-errors 忽略警告 1234567891011121314151617181920212223242526$ bash configure --with-debug-level=fastdebug --enable-dtrace --with-jvm-variants=server --with-target-bits=64 --enable-ccache --with-num-cores=8 --with-memory-size=8000 --disable-warnings-as-errors...A new configuration has been successfully created in/Users/hunterzhao/tmp/openjdk10/build/macosx-x86_64-normal-server-fastdebugusing configure arguments '--with-debug-level=fastdebug --enable-dtrace --with-jvm-variants=server --with-target-bits=64 --enable-ccache --with-num-cores=8 --with-memory-size=8000 --disable-warnings-as-errors'.Configuration summary:* Debug level: fastdebug* HS debug level: fastdebug* JDK variant: normal* JVM variants: server* OpenJDK target: OS: macosx, CPU architecture: x86, address length: 64* Version string: 10-internal+0-adhoc.hunterzhao.openjdk10 (10-internal)Tools summary:* Boot JDK: java version "1.8.0_151" Java(TM) SE Runtime Environment (build 1.8.0_151-b12) Java HotSpot(TM) 64-Bit Server VM (build 25.151-b12, mixed mode) (at /Library/Java/JavaVirtualMachines/jdk1.8.0_151.jdk/Contents/Home)* Toolchain: clang (clang/LLVM from Xcode 8.3.3)* C Compiler: Version 8.1.0 (at /usr/bin/clang)* C++ Compiler: Version 8.1.0 (at /usr/bin/clang++)Build performance summary:* Cores to use: 7* Memory limit: 8000 MB* ccache status: Active (3.3.5) 执行编译123456789101112131415161718192021222324$ make images...Creating support/classlist.jarCreating images/jmods/jdk.jlink.jmodCreating support/demos/image/jfc/CodePointIM/CodePointIM.jarCreating support/demos/image/applets/MoleculeViewer/MoleculeViewer.jarCreating support/demos/image/jfc/SwingApplet/SwingApplet.jarCreating support/demos/image/applets/WireFrame/WireFrame.jarCreating support/demos/image/jfc/FileChooserDemo/FileChooserDemo.jarCreating support/demos/image/jfc/Font2DTest/Font2DTest.jarCreating support/demos/image/jfc/Metalworks/Metalworks.jarCreating support/demos/image/jfc/Notepad/Notepad.jarCreating support/demos/image/jfc/SampleTree/SampleTree.jarCreating support/demos/image/jfc/TableExample/TableExample.jarCreating support/demos/image/jfc/TransparentRuler/TransparentRuler.jarCreating images/jmods/java.base.jmodCreating jre jimageCreating jdk jimageWARNING: Using incubator modules: jdk.incubator.httpclientWARNING: Using incubator modules: jdk.incubator.httpclientStopping sjavac serverFinished building target &apos;images&apos; in configuration &apos;macosx-x86_64-normal-server-fastdebug&apos; 测试1234$ ./build/macosx-x86_64-normal-server-fastdebug/jdk/bin/java -versionopenjdk version "10-internal"OpenJDK Runtime Environment (fastdebug build 10-internal+0-adhoc.hunterzhao.openjdk10)OpenJDK 64-Bit Server VM (fastdebug build 10-internal+0-adhoc.hunterzhao.openjdk10, mixed mode)]]></content>
+      <categories>
+        <category>OpenJDK</category>
+      </categories>
+      <tags>
+        <tag>OpenJDK</tag>
+        <tag>JVM</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[一行Python命令开启简单的静态文件服务器]]></title>
     <url>%2Fpost%2F2017%2F08%2F30%2Fstart-up-a-file-server-using-one-python-command.html</url>
     <content type="text"><![CDATA[在开发过程当中，常常会需要启动一个静态文件服务器用来访问静态资源或传输文件，安装Nginx？安装Tomcat？ No！都太重了。只需要执行一个Python命令即可马上拥有一个轻量级静态服务器。 如果你使用的是Python2.x12$ python -m SimpleHTTPServerServing HTTP on 0.0.0.0 port 8000 ... 如果你使用的是Python3.x1$ python -m http.server 打开浏览器即可访问http://localhost:8000，也可在后面追加指定目标端口，如：python -m SimpleHTTPServer 9000]]></content>
@@ -66,10 +78,10 @@
         <category>OpenJDK</category>
       </categories>
       <tags>
-        <tag>CentOS</tag>
         <tag>Linux</tag>
         <tag>OpenJDK</tag>
         <tag>JVM</tag>
+        <tag>CentOS</tag>
       </tags>
   </entry>
   <entry>
@@ -80,9 +92,9 @@
         <category>OpenJDK</category>
       </categories>
       <tags>
-        <tag>CentOS</tag>
         <tag>OpenJDK</tag>
         <tag>JVM</tag>
+        <tag>CentOS</tag>
       </tags>
   </entry>
   <entry>
@@ -93,8 +105,8 @@
         <category>MySQL</category>
       </categories>
       <tags>
-        <tag>MySQL</tag>
         <tag>CentOS</tag>
+        <tag>MySQL</tag>
       </tags>
   </entry>
   <entry>
