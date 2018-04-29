@@ -44,13 +44,6 @@
   </url>
   
   <url>
-    <loc>http://hunterzhao.io/works/index.html</loc>
-    
-    <lastmod>2018-03-31T16:27:09.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://hunterzhao.io/post/2015/12/03/design-of-intellij-plugin-open-terminal-here.html</loc>
     
     <lastmod>2018-03-29T19:08:43.000Z</lastmod>
@@ -58,7 +51,21 @@
   </url>
   
   <url>
+    <loc>http://hunterzhao.io/post/2011/01/10/hello-world.html</loc>
+    
+    <lastmod>2018-03-27T19:04:41.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://hunterzhao.io/post/2014/01/20/install-and-configure-mysql-on-centos.html</loc>
+    
+    <lastmod>2018-03-27T19:04:41.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://hunterzhao.io/post/2014/01/20/configure-vim-syntax-highlight-on-mac.html</loc>
     
     <lastmod>2018-03-27T19:04:41.000Z</lastmod>
     
@@ -86,14 +93,7 @@
   </url>
   
   <url>
-    <loc>http://hunterzhao.io/post/2011/01/10/hello-world.html</loc>
-    
-    <lastmod>2018-03-27T19:04:41.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://hunterzhao.io/post/2014/01/20/configure-vim-syntax-highlight-on-mac.html</loc>
+    <loc>http://hunterzhao.io/post/2014/12/01/analyse-jvm-startup-flow-through-source-code-initialize.html</loc>
     
     <lastmod>2018-03-27T19:04:41.000Z</lastmod>
     
@@ -108,13 +108,6 @@
   
   <url>
     <loc>http://hunterzhao.io/tags/index.html</loc>
-    
-    <lastmod>2018-03-27T19:04:41.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://hunterzhao.io/post/2014/12/01/analyse-jvm-startup-flow-through-source-code-initialize.html</loc>
     
     <lastmod>2018-03-27T19:04:41.000Z</lastmod>
     
