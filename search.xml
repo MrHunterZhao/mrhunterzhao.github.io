@@ -2,7 +2,7 @@
 <search>
   <entry>
     <title><![CDATA[【JVM源码探秘】在Mac上搭建OpenJDK10源码调试环境]]></title>
-    <url>%2Fpost%2F2018%2F04%2F30%2Fdebug-openjdk10-on-mac-with-clion-ide.html</url>
+    <url>%2Fpost%2F2018%2F04%2F30%2Fdebug-openjdk10-source-code-on-mac-with-clion-ide.html</url>
     <content type="text"><![CDATA[前面文章已经介绍了如何在Mac上编译OpenJDK10源码，拥有了自己的JDK版本， 为了深入了解Java实例的创建、初始化和执行流程以及内部实现原理，DEBUG是必不可少的必杀技。 所以，本篇文章继续介绍在Mac上搭建OpenJDK10源码调试环境，黑喂狗。 软件环境 OS: macOS Sierra 10.12 IDE: Clion 2018.1 Code: OpenJDK 10 下载IDE从JetBrains官网下载Clion，安装。 导入项目打开Clion依次选择File &gt; Import Project 编辑配置如下图编辑DEBUG配置信息 Executable 选择之前build出的镜像里的java可执行文件（i.e. build/macosx-x86_64-normal-server-slowdebug/jdk/bin/java） Program arguments 填写-version，输出Java版本 Before launch 注意：这里一定要移除Build，否则会报错无法调试 调试源码在hotspot/share/runtime/thread.cpp文件的Threads::create_vm方法内部打断点， 点击DEBUG按钮，不出意外会发现进入如下界面，congrats！ 接下来，泡杯咖啡，Step by step慢慢DEBUG吧，后面的文章将陆续介绍JVM创建及初始化流程。]]></content>
       <categories>
         <category>OpenJDK</category>
@@ -90,8 +90,8 @@
         <category>OpenJDK</category>
       </categories>
       <tags>
-        <tag>Linux</tag>
         <tag>CentOS</tag>
+        <tag>Linux</tag>
         <tag>OpenJDK</tag>
         <tag>JVM</tag>
       </tags>
