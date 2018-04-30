@@ -119,7 +119,7 @@
 <meta property="og:description" content="以前尝试编译过OpenJDK7、8和9，由于源代码中存在诸多BUG，导致各种编译问题，解决来解决去，还是很难编译通过，很是不爽。 今天抱着试试看的态度又服用了一个疗程，拿起桌上的OpenJDK10，反手就是一次编译，居然像德芙一样丝滑，一次通过。">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://hunterzhao.io/images/post/2018/01/29/openjdk-logo.jpg">
-<meta property="og:updated_time" content="2018-04-30T02:12:18.000Z">
+<meta property="og:updated_time" content="2018-04-30T05:30:11.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【JVM源码探秘】在Mac上编译OpenJDK10源码">
 <meta name="twitter:description" content="以前尝试编译过OpenJDK7、8和9，由于源代码中存在诸多BUG，导致各种编译问题，解决来解决去，还是很难编译通过，很是不爽。 今天抱着试试看的态度又服用了一个疗程，拿起桌上的OpenJDK10，反手就是一次编译，居然像德芙一样丝滑，一次通过。">
@@ -254,7 +254,7 @@
           
   <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档<span class="badge">12</span>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档<span class="badge">13</span>
       </a>
 </li>
 
@@ -466,7 +466,7 @@
                 
                   <span class="post-meta-item-text">字数统计：</span>
                 
-                <span title="字数统计">3.6k</span>
+                <span title="字数统计">3.7k</span>
               
 
               
@@ -527,6 +527,7 @@
 </ul>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">$ bash configure --with-debug-level=slowdebug --<span class="built_in">enable</span>-dtrace --with-jvm-variants=server --with-target-bits=64 --<span class="built_in">enable</span>-ccache --with-num-cores=8 --with-memory-size=8000  --<span class="built_in">disable</span>-warnings-as-errors</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">====================================================</span><br><span class="line">A new configuration has been successfully created <span class="keyword">in</span></span><br><span class="line">/Users/hunterzhao/CLionProjects/OpenJDK10/build/macosx-x86_64-normal-server-slowdebug</span><br><span class="line">using configure arguments <span class="string">'--with-debug-level=slowdebug --enable-dtrace --with-jvm-variants=server --with-target-bits=64 --enable-ccache --with-num-cores=8 --with-memory-size=8000 --disable-warnings-as-errors'</span>.</span><br><span class="line"></span><br><span class="line">Configuration summary:</span><br><span class="line">* Debug level:    slowdebug</span><br><span class="line">* HS debug level: debug</span><br><span class="line">* JDK variant:    normal</span><br><span class="line">* JVM variants:   server</span><br><span class="line">* OpenJDK target: OS: macosx, CPU architecture: x86, address length: 64</span><br><span class="line">* Version string: 10-internal+0-adhoc.hunterzhao.OpenJDK10 (10-internal)</span><br><span class="line"></span><br><span class="line">Tools summary:</span><br><span class="line">* Boot JDK:       java version <span class="string">"1.8.0_151"</span> Java(TM) SE Runtime Environment (build 1.8.0_151-b12) Java HotSpot(TM) 64-Bit Server VM (build 25.151-b12, mixed mode)  (at /Library/Java/JavaVirtualMachines/jdk1.8.0_151.jdk/Contents/Home)</span><br><span class="line">* Toolchain:      clang (clang/LLVM from Xcode 8.3.3)</span><br><span class="line">* C Compiler:     Version 8.1.0 (at /usr/bin/clang)</span><br><span class="line">* C++ Compiler:   Version 8.1.0 (at /usr/bin/clang++)</span><br><span class="line"></span><br><span class="line">Build performance summary:</span><br><span class="line">* Cores to use:   7</span><br><span class="line">* Memory <span class="built_in">limit</span>:   8000 MB</span><br><span class="line">* ccache status:  Active (3.3.5)</span><br></pre></td></tr></table></figure>
 <h1 id="执行编译"><a href="#执行编译" class="headerlink" title="执行编译"></a>执行编译</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">$ make images</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">Creating support/demos/image/jfc/CodePointIM/CodePointIM.jar</span><br><span class="line">Creating support/demos/image/applets/MoleculeViewer/MoleculeViewer.jar</span><br><span class="line">Creating support/demos/image/applets/WireFrame/WireFrame.jar</span><br><span class="line">Creating support/demos/image/jfc/SwingApplet/SwingApplet.jar</span><br><span class="line">Creating support/demos/image/jfc/FileChooserDemo/FileChooserDemo.jar</span><br><span class="line">Creating support/demos/image/jfc/Font2DTest/Font2DTest.jar</span><br><span class="line">Creating support/demos/image/jfc/Metalworks/Metalworks.jar</span><br><span class="line">Creating support/demos/image/jfc/Notepad/Notepad.jar</span><br><span class="line">Creating support/demos/image/jfc/SampleTree/SampleTree.jar</span><br><span class="line">Creating support/demos/image/jfc/TableExample/TableExample.jar</span><br><span class="line">Creating support/demos/image/jfc/TransparentRuler/TransparentRuler.jar</span><br><span class="line">Creating support/classlist.jar</span><br><span class="line">Creating images/jmods/jdk.jlink.jmod</span><br><span class="line">Creating images/jmods/java.base.jmod</span><br><span class="line">Creating jre jimage</span><br><span class="line">Creating jdk jimage</span><br><span class="line">WARNING: Using incubator modules: jdk.incubator.httpclient</span><br><span class="line">WARNING: Using incubator modules: jdk.incubator.httpclient</span><br><span class="line">Stopping sjavac server</span><br><span class="line">Finished building target &apos;images&apos; in configuration &apos;macosx-x86_64-normal-server-slowdebug&apos;</span><br></pre></td></tr></table></figure>
+<p>大约10分钟后编译完成，由于机器配置不同可能会导致编译时长有所差异。</p>
 <h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ ./build/macosx-x86_64-normal-server-slowdebug/jdk/bin/java -version</span><br><span class="line">openjdk version <span class="string">"10-internal"</span></span><br><span class="line">OpenJDK Runtime Environment (slowdebug build 10-internal+0-adhoc.hunterzhao.OpenJDK10)</span><br><span class="line">OpenJDK 64-Bit Server VM (slowdebug build 10-internal+0-adhoc.hunterzhao.OpenJDK10, mixed mode)</span><br></pre></td></tr></table></figure>
 <p>本篇文章至此结束，下篇介绍搭建OpenJDK10 DEBUG环境。</p>
 
@@ -683,7 +684,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">12</span>
+                    <span class="site-state-item-count">13</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -851,7 +852,7 @@
       <i class="fa fa-area-chart"></i>
     </span>
     
-    <span title="站点总字数">77k</span>
+    <span title="站点总字数">92k</span>
   
 
   
@@ -860,7 +861,7 @@
       <i class="fa fa-coffee"></i>
     </span>
     
-    <span title="站点总阅读时长">1:17</span>
+    <span title="站点总阅读时长">1:32</span>
   
 </div>
 
