@@ -119,7 +119,7 @@
 <meta property="og:description" content="以前尝试编译过OpenJDK7、8和9，由于源代码中存在诸多BUG，导致各种编译问题，解决来解决去，还是很难编译通过，很是不爽。 今天抱着试试看的态度又服用了一个疗程，拿起桌上的OpenJDK10，反手就是一次编译，居然像德芙一样丝滑，一次通过。">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://hunterzhao.io/images/post/2018/01/29/openjdk-logo.jpg">
-<meta property="og:updated_time" content="2018-04-30T05:30:11.000Z">
+<meta property="og:updated_time" content="2018-04-30T08:43:57.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【JVM源码探秘】在Mac上编译OpenJDK10源码">
 <meta name="twitter:description" content="以前尝试编译过OpenJDK7、8和9，由于源代码中存在诸多BUG，导致各种编译问题，解决来解决去，还是很难编译通过，很是不爽。 今天抱着试试看的态度又服用了一个疗程，拿起桌上的OpenJDK10，反手就是一次编译，居然像德芙一样丝滑，一次通过。">
@@ -466,7 +466,7 @@
                 
                   <span class="post-meta-item-text">字数统计：</span>
                 
-                <span title="字数统计">3.7k</span>
+                <span title="字数统计">3.5k</span>
               
 
               
@@ -513,7 +513,6 @@
 </ul>
 <h1 id="前置条件"><a href="#前置条件" class="headerlink" title="前置条件"></a>前置条件</h1><p>先确保系统已安装freetype和ccache<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ brew install freetype ccache</span><br></pre></td></tr></table></figure></p>
 <h1 id="拉取代码"><a href="#拉取代码" class="headerlink" title="拉取代码"></a>拉取代码</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hg clone http://hg.openjdk.java.net/jdk10/master openjdk10</span><br></pre></td></tr></table></figure>
-<p>此处需要耐心等待一段时间，必要情况下需要多尝试几次才能拉去成功。<br>为了方便我把源码上传到了GitHub上一份，所以也可以直接克隆<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git clone https://github.com/MrHunterZhao/OpenJDK10.git</span><br></pre></td></tr></table></figure></p>
 <h1 id="配置参数"><a href="#配置参数" class="headerlink" title="配置参数"></a>配置参数</h1><p>接下来配置编译参数，以下是相关选项说明</p>
 <ul>
 <li><code>--with-debug-level=slowdebug</code> 启用slowdebug级别调试</li>
@@ -852,7 +851,7 @@
       <i class="fa fa-area-chart"></i>
     </span>
     
-    <span title="站点总字数">92k</span>
+    <span title="站点总字数">91k</span>
   
 
   
@@ -861,7 +860,7 @@
       <i class="fa fa-coffee"></i>
     </span>
     
-    <span title="站点总阅读时长">1:32</span>
+    <span title="站点总阅读时长">1:31</span>
   
 </div>
 
