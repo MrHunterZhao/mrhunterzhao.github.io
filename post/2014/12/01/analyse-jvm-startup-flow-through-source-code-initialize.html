@@ -113,14 +113,14 @@
   <meta name="description" content="接上篇文章从Hotpost源码角度深入分析Java程序启动过程-创建 ，本文将继续介绍JVM启动过程的初始化部分。 在上篇文章中在执行LoadJavaVM方法的时候将libjvm.so内的方法JNI_CreateJavaVM和JNI_GetDefaultJavaVMInitArgs符号引用挂载到了结构体InvocationFunctions上，并且在执行InitializeJVM方法的时候进行了调">
 <meta name="keywords" content="OpenJDK,JVM">
 <meta property="og:type" content="article">
-<meta property="og:title" content="【Hotspot源码分析】从Hotpost源码角度深入分析Java程序启动过程-初始化">
+<meta property="og:title" content="【Hotspot源码分析】从HotSpot源码角度深入分析Java程序启动过程-初始化">
 <meta property="og:url" content="http://hunterzhao.io/post/2014/12/01/analyse-jvm-startup-flow-through-source-code-initialize.html">
 <meta property="og:site_name" content="WorkHoliday">
 <meta property="og:description" content="接上篇文章从Hotpost源码角度深入分析Java程序启动过程-创建 ，本文将继续介绍JVM启动过程的初始化部分。 在上篇文章中在执行LoadJavaVM方法的时候将libjvm.so内的方法JNI_CreateJavaVM和JNI_GetDefaultJavaVMInitArgs符号引用挂载到了结构体InvocationFunctions上，并且在执行InitializeJVM方法的时候进行了调">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2018-03-27T19:04:41.000Z">
+<meta property="og:updated_time" content="2018-04-29T20:31:08.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="【Hotspot源码分析】从Hotpost源码角度深入分析Java程序启动过程-初始化">
+<meta name="twitter:title" content="【Hotspot源码分析】从HotSpot源码角度深入分析Java程序启动过程-初始化">
 <meta name="twitter:description" content="接上篇文章从Hotpost源码角度深入分析Java程序启动过程-创建 ，本文将继续介绍JVM启动过程的初始化部分。 在上篇文章中在执行LoadJavaVM方法的时候将libjvm.so内的方法JNI_CreateJavaVM和JNI_GetDefaultJavaVMInitArgs符号引用挂载到了结构体InvocationFunctions上，并且在执行InitializeJVM方法的时候进行了调">
 
 
@@ -138,7 +138,7 @@
   };
 </script>
 
-  <title>【Hotspot源码分析】从Hotpost源码角度深入分析Java程序启动过程-初始化 | WorkHoliday</title>
+  <title>【Hotspot源码分析】从HotSpot源码角度深入分析Java程序启动过程-初始化 | WorkHoliday</title>
   
 
 
@@ -392,7 +392,7 @@
 
         
         
-          <h2 class="post-title" itemprop="name headline">【Hotspot源码分析】从Hotpost源码角度深入分析Java程序启动过程-初始化</h2>
+          <h2 class="post-title" itemprop="name headline">【Hotspot源码分析】从HotSpot源码角度深入分析Java程序启动过程-初始化</h2>
         
 
         <div class="post-meta">
@@ -439,7 +439,7 @@
 
           
           
-             <span id="/post/2014/12/01/analyse-jvm-startup-flow-through-source-code-initialize.html" class="leancloud_visitors" data-flag-title="【Hotspot源码分析】从Hotpost源码角度深入分析Java程序启动过程-初始化">
+             <span id="/post/2014/12/01/analyse-jvm-startup-flow-through-source-code-initialize.html" class="leancloud_visitors" data-flag-title="【Hotspot源码分析】从HotSpot源码角度深入分析Java程序启动过程-初始化">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -545,7 +545,7 @@
     <strong>本文作者： </strong>Hunter Zhao</li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="http://hunterzhao.io/post/2014/12/01/analyse-jvm-startup-flow-through-source-code-initialize.html" title="【Hotspot源码分析】从Hotpost源码角度深入分析Java程序启动过程-初始化">http://hunterzhao.io/post/2014/12/01/analyse-jvm-startup-flow-through-source-code-initialize.html</a>
+    <a href="http://hunterzhao.io/post/2014/12/01/analyse-jvm-startup-flow-through-source-code-initialize.html" title="【Hotspot源码分析】从HotSpot源码角度深入分析Java程序启动过程-初始化">http://hunterzhao.io/post/2014/12/01/analyse-jvm-startup-flow-through-source-code-initialize.html</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-ND 4.0</a> 许可协议。转载请注明出处！</li>
@@ -573,8 +573,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/post/2014/12/01/analyse-jvm-startup-flow-through-source-code-create.html" rel="next" title="【Hotspot源码分析】从Hotpost源码角度深入分析Java程序启动过程-创建">
-                <i class="fa fa-chevron-left"></i> 【Hotspot源码分析】从Hotpost源码角度深入分析Java程序启动过程-创建
+              <a href="/post/2014/12/01/analyse-jvm-startup-flow-through-source-code-create.html" rel="next" title="【Hotspot源码分析】从HotSpot源码角度深入分析Java程序启动过程-创建">
+                <i class="fa fa-chevron-left"></i> 【Hotspot源码分析】从HotSpot源码角度深入分析Java程序启动过程-创建
               </a>
             
           </div>
@@ -716,7 +716,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">11</span>
+                      
+                    
+                    <span class="site-state-item-count">12</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
