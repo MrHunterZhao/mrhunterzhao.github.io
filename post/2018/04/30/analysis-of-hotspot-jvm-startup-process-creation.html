@@ -110,19 +110,19 @@
 
 
 
-  <meta name="description" content="在之前的文章中已经介绍了如何在Mac上编译及调试OpenJDK10源码，对OpenJDK也有了一定了解， 那么，一个Java实例从开始运行至结束经历了什么？本文将从JVM源码角度一探究竟，深入剖析HotSpot其创建流程。">
+  <meta name="description" content="在之前的文章中已经介绍了如何在Mac上编译及调试OpenJDK10源码， 那么，一个Java实例从开始运行至结束经历了什么？本文将从JVM源码角度一探究竟，深入剖析HotSpot其创建流程。">
 <meta name="keywords" content="OpenJDK,JVM,HotSpot">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【JVM源码探秘】HotSpot启动流程分析-创建">
 <meta property="og:url" content="http://hunterzhao.io/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-creation.html">
 <meta property="og:site_name" content="WorkHoliday">
-<meta property="og:description" content="在之前的文章中已经介绍了如何在Mac上编译及调试OpenJDK10源码，对OpenJDK也有了一定了解， 那么，一个Java实例从开始运行至结束经历了什么？本文将从JVM源码角度一探究竟，深入剖析HotSpot其创建流程。">
+<meta property="og:description" content="在之前的文章中已经介绍了如何在Mac上编译及调试OpenJDK10源码， 那么，一个Java实例从开始运行至结束经历了什么？本文将从JVM源码角度一探究竟，深入剖析HotSpot其创建流程。">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://hunterzhao.io/images/post/2018/01/29/openjdk.jpg">
-<meta property="og:updated_time" content="2018-04-30T07:57:46.000Z">
+<meta property="og:updated_time" content="2018-04-30T08:03:40.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【JVM源码探秘】HotSpot启动流程分析-创建">
-<meta name="twitter:description" content="在之前的文章中已经介绍了如何在Mac上编译及调试OpenJDK10源码，对OpenJDK也有了一定了解， 那么，一个Java实例从开始运行至结束经历了什么？本文将从JVM源码角度一探究竟，深入剖析HotSpot其创建流程。">
+<meta name="twitter:description" content="在之前的文章中已经介绍了如何在Mac上编译及调试OpenJDK10源码， 那么，一个Java实例从开始运行至结束经历了什么？本文将从JVM源码角度一探究竟，深入剖析HotSpot其创建流程。">
 <meta name="twitter:image" content="http://hunterzhao.io/images/post/2018/01/29/openjdk.jpg">
 
 
@@ -501,7 +501,7 @@
 
       
         <p><img src="/images/post/2018/01/29/openjdk.jpg" alt="openjdk"></p>
-<p>在之前的文章中已经介绍了如何在Mac上<a href="/post/2018/01/29/compile-openjdk10-source-code-on-mac.html">编译</a>及<a href="/post/2018/01/30/debug-openjdk10-source-code-on-mac-with-clion-ide.html">调试</a>OpenJDK10源码，对OpenJDK也有了一定了解，</p>
+<p>在之前的文章中已经介绍了如何在Mac上<a href="/post/2018/01/29/compile-openjdk10-source-code-on-mac.html">编译</a>及<a href="/post/2018/01/30/debug-openjdk10-source-code-on-mac-with-clion-ide.html">调试</a>OpenJDK10源码，</p>
 <p>那么，一个Java实例从开始运行至结束经历了什么？本文将从JVM源码角度一探究竟，深入剖析HotSpot其创建流程。</p>
 <a id="more"></a>
 <h1 id="main-c-main"><a href="#main-c-main" class="headerlink" title="main.c # main()"></a>main.c # main()</h1><p>程序主入口位于<code>src/java.base/share/native/launcher/main.c</code></p>
