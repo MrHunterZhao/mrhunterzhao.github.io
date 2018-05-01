@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link href="/lib/pace/pace-theme-flash.min.css?v=1.0.2" rel="stylesheet">
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.0.6" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.0.6">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.ico?v=6.0.6">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.ico?v=6.0.6">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.0.6" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.0.6',
+    sidebar: {"position":"left","display":"always","offset":12,"b2t":true,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeIn","post_body":"fadeIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="接上篇，HotSpot在启动流程完成了参数的解析、JNI入口的定位、环境变量的设置等一系列操作， 最终在JavaMain()中调用了InitializeJVM()方法，用于完成虚拟机所需的内存申请、挂载和初始化，本文我们就一起一探究竟。">
+<meta name="keywords" content="OpenJDK,JVM,HotSpot">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【JVM源码探秘】HotSpot启动流程分析-初始化">
+<meta property="og:url" content="http://hunterzhao.io/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-initialization.html">
+<meta property="og:site_name" content="WorkHoliday">
+<meta property="og:description" content="接上篇，HotSpot在启动流程完成了参数的解析、JNI入口的定位、环境变量的设置等一系列操作， 最终在JavaMain()中调用了InitializeJVM()方法，用于完成虚拟机所需的内存申请、挂载和初始化，本文我们就一起一探究竟。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://hunterzhao.io/images/post/2018/01/29/openjdk.jpg">
+<meta property="og:updated_time" content="2018-05-01T18:48:20.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【JVM源码探秘】HotSpot启动流程分析-初始化">
+<meta name="twitter:description" content="接上篇，HotSpot在启动流程完成了参数的解析、JNI入口的定位、环境变量的设置等一系列操作， 最终在JavaMain()中调用了InitializeJVM()方法，用于完成虚拟机所需的内存申请、挂载和初始化，本文我们就一起一探究竟。">
+<meta name="twitter:image" content="http://hunterzhao.io/images/post/2018/01/29/openjdk.jpg">
+
+
+
+
+
+
+  <link rel="canonical" href="http://hunterzhao.io/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-initialization.html"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>【JVM源码探秘】HotSpot启动流程分析-初始化 | WorkHoliday</title>
+  
+
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?b60a415c8619530aaa6ce5eafe2d5f94";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+
+  <script type="text/javascript">
+      var host = "hunterzhao.io";
+      if ((host == window.location.host) && (window.location.protocol != "https:"))
+          window.location.protocol = "https";
+  </script>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"> 
+
+<div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">WorkHoliday</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">Workday as Holiday</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+          
+  <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+</li>
+
+      
+        
+        
+          
+  <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档<span class="badge">14</span>
+      </a>
+</li>
+
+      
+        
+        
+          
+  <li class="menu-item menu-item-books">
+    <a href="/books/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-book"></i> <br />书单</a>
+</li>
+
+      
+        
+        
+          
+  <li class="menu-item menu-item-works">
+    <a href="/works/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-coffee"></i> <br />作品</a>
+</li>
+
+      
+        
+        
+          
+  <li class="menu-item menu-item-about">
+    <a href="/about/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-user"></i> <br />关于</a>
+</li>
+
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+  
+
+
+
+ </div>
+    </header>
+
+    
+  
+  
+  
+    
+      
+    
+    <a href="https://github.com/MrHunterZhao" class="github-corner" target="_blank" title="Follow me on GitHub" aria-label="Follow me on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#222; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg>
+    
+      </a>
+    
+
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+    <div class="reading-progress-bar"></div>
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://hunterzhao.io/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-initialization.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Hunter Zhao">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="WorkHoliday">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">【JVM源码探秘】HotSpot启动流程分析-初始化</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-30T17:10:35+08:00">2018-04-30</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/OpenJDK/" itemprop="url" rel="index"><span itemprop="name">OpenJDK</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-initialization.html" class="leancloud_visitors" data-flag-title="【JVM源码探秘】HotSpot启动流程分析-初始化">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数：</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-symbolscount">
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计：</span>
+                
+                <span title="字数统计">26k</span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长&asymp;</span>
+                
+                <span title="阅读时长">0:26</span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="/images/post/2018/01/29/openjdk.jpg" alt="openjdk"></p>
+<p>接<a href="/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-creation.html">上篇</a>，HotSpot在启动流程完成了参数的解析、JNI入口的定位、环境变量的设置等一系列操作，</p>
+<p>最终在<code>JavaMain()</code>中调用了<code>InitializeJVM()</code>方法，用于完成虚拟机所需的内存申请、挂载和初始化，本文我们就一起一探究竟。</p>
+<a id="more"></a>
+<h1 id="java-c-InitializeJVM"><a href="#java-c-InitializeJVM" class="headerlink" title="java.c # InitializeJVM()"></a>java.c # InitializeJVM()</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Initializes the Java Virtual Machine. Also frees options array when</span></span><br><span class="line"><span class="comment"> * finished.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">static</span> jboolean</span><br><span class="line">InitializeJVM(JavaVM **pvm, JNIEnv **penv, InvocationFunctions *ifn)</span><br><span class="line">&#123;</span><br><span class="line">    JavaVMInitArgs args;</span><br><span class="line">    jint r;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">memset</span>(&amp;args, <span class="number">0</span>, <span class="keyword">sizeof</span>(args));</span><br><span class="line">    args.version  = JNI_VERSION_1_2;</span><br><span class="line">    args.nOptions = numOptions;</span><br><span class="line">    args.options  = options;</span><br><span class="line">    args.ignoreUnrecognized = JNI_FALSE;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (JLI_IsTraceLauncher()) &#123;</span><br><span class="line">        <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"JavaVM args:\n    "</span>);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"version 0x%08lx, "</span>, (<span class="keyword">long</span>)args.version);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"ignoreUnrecognized is %s, "</span>,</span><br><span class="line">               args.ignoreUnrecognized ? <span class="string">"JNI_TRUE"</span> : <span class="string">"JNI_FALSE"</span>);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"nOptions is %ld\n"</span>, (<span class="keyword">long</span>)args.nOptions);</span><br><span class="line">        <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; numOptions; i++)</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"    option[%2d] = '%s'\n"</span>,</span><br><span class="line">                   i, args.options[i].optionString);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 调用JNI_CreateJavaVM方法</span></span><br><span class="line">    r = ifn-&gt;CreateJavaVM(pvm, (<span class="keyword">void</span> **)penv, &amp;args);</span><br><span class="line">    JLI_MemFree(options);</span><br><span class="line">    <span class="keyword">return</span> r == JNI_OK;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="jni-cpp-JNI-CreateJavaVM"><a href="#jni-cpp-JNI-CreateJavaVM" class="headerlink" title="jni.cpp # JNI_CreateJavaVM()"></a>jni.cpp # JNI_CreateJavaVM()</h1><p>此处调用了之前加载的JNI_CreateJavaVM方法，位于<code>src/hotspot/share/prims/jni.cpp</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">_<span class="function">JNI_IMPORT_OR_EXPORT_ jint JNICALL <span class="title">JNI_CreateJavaVM</span><span class="params">(JavaVM **vm, <span class="keyword">void</span> **penv, <span class="keyword">void</span> *args)</span> </span>&#123;</span><br><span class="line">  jint result = JNI_ERR;</span><br><span class="line">  <span class="comment">// On Windows, let CreateJavaVM run with SEH protection</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> _WIN32</span></span><br><span class="line">  __try &#123;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">    result = JNI_CreateJavaVM_inner(vm, penv, args);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> _WIN32</span></span><br><span class="line">  &#125; __except(topLevelExceptionFilter((_EXCEPTION_POINTERS*)_exception_info())) &#123;</span><br><span class="line">    <span class="comment">// Nothing to do.</span></span><br><span class="line">  &#125;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">  <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="jni-cpp-JNI-CreateJavaVM-inner"><a href="#jni-cpp-JNI-CreateJavaVM-inner" class="headerlink" title="jni.cpp # JNI_CreateJavaVM_inner()"></a>jni.cpp # JNI_CreateJavaVM_inner()</h1><p><code>JNI_CreateJavaVM()</code>调用了内部方法<code>JNI_CreateJavaVM_inner()</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> jint <span class="title">JNI_CreateJavaVM_inner</span><span class="params">(JavaVM **vm, <span class="keyword">void</span> **penv, <span class="keyword">void</span> *args)</span> </span>&#123;</span><br><span class="line">  HOTSPOT_JNI_CREATEJAVAVM_ENTRY((<span class="keyword">void</span> **) vm, penv, args);</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * Certain errors during initialization are recoverable and do not</span></span><br><span class="line"><span class="comment">   * prevent this method from being called again at a later time</span></span><br><span class="line"><span class="comment">   * (perhaps with different arguments).  However, at a certain</span></span><br><span class="line"><span class="comment">   * point during initialization if an error occurs we cannot allow</span></span><br><span class="line"><span class="comment">   * this function to be called again (or it will crash).  In those</span></span><br><span class="line"><span class="comment">   * situations, the 'canTryAgain' flag is set to false, which atomically</span></span><br><span class="line"><span class="comment">   * sets safe_to_recreate_vm to 1, such that any new call to</span></span><br><span class="line"><span class="comment">   * JNI_CreateJavaVM will immediately fail using the above logic.</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="keyword">bool</span> can_try_again = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// =================================</span></span><br><span class="line">  <span class="comment">//           创建虚拟机</span></span><br><span class="line">  <span class="comment">// =================================</span></span><br><span class="line">  result = Threads::create_vm((JavaVMInitArgs*) args, &amp;can_try_again);</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 如果创建成功</span></span><br><span class="line">  <span class="keyword">if</span> (result == JNI_OK) &#123;</span><br><span class="line">    JavaThread *thread = JavaThread::current();</span><br><span class="line">    assert(!thread-&gt;has_pending_exception(), <span class="string">"should have returned not OK"</span>);</span><br><span class="line">    <span class="comment">/* thread is thread_in_vm here */</span></span><br><span class="line">    *vm = (JavaVM *)(&amp;main_vm);</span><br><span class="line">    *(JNIEnv**)penv = thread-&gt;jni_environment();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Tracks the time application was running before GC</span></span><br><span class="line">    RuntimeService::record_application_start();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Notify JVMTI</span></span><br><span class="line">    <span class="keyword">if</span> (JvmtiExport::should_post_thread_life()) &#123;</span><br><span class="line">       JvmtiExport::post_thread_start(thread);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    EventThreadStart event;</span><br><span class="line">    <span class="keyword">if</span> (event.should_commit()) &#123;</span><br><span class="line">      event.set_thread(THREAD_TRACE_ID(thread));</span><br><span class="line">      event.commit();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Since this is not a JVM_ENTRY we have to set the thread state manually before leaving.</span></span><br><span class="line">    ThreadStateTransition::transition_and_fence(thread, _thread_in_vm, _thread_in_native);</span><br><span class="line">  &#125; </span><br><span class="line">  <span class="comment">// 如果未创建成功</span></span><br><span class="line">  <span class="keyword">else</span> &#123;</span><br><span class="line">    </span><br><span class="line">    ....</span><br><span class="line">    </span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> result;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="thread-cpp-Threads-create-vm"><a href="#thread-cpp-Threads-create-vm" class="headerlink" title="thread.cpp # Threads::create_vm()"></a>thread.cpp # Threads::create_vm()</h1><p><code>Threads::create_vm()</code>方法位于<code>src/hotspot/share/runtime/thread.cpp</code>中</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br></pre></td><td class="code"><pre><span class="line">jint Threads::create_vm(JavaVMInitArgs* args, <span class="keyword">bool</span>* canTryAgain) &#123;</span><br><span class="line">  <span class="function"><span class="keyword">extern</span> <span class="keyword">void</span> <span class="title">JDK_Version_init</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 版本信息初始化</span></span><br><span class="line">  VM_Version::early_initialize();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 检查JNI版本</span></span><br><span class="line">  <span class="keyword">if</span> (!is_supported_jni_version(args-&gt;version)) <span class="keyword">return</span> JNI_EVERSION;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 初始化TLS</span></span><br><span class="line">  <span class="comment">// Initialize library-based TLS</span></span><br><span class="line">  ThreadLocalStorage::init();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 初始化系统输出流模块</span></span><br><span class="line">  <span class="comment">// Initialize the output stream module</span></span><br><span class="line">  ostream_init();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 处理Java启动参数，如-Dsun.java.launcher*</span></span><br><span class="line">  <span class="comment">// Process java launcher properties.</span></span><br><span class="line">  Arguments::process_sun_java_launcher_properties(args);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 初始化操作系统模块，如页大小，处理器数量，系统时钟等</span></span><br><span class="line">  <span class="comment">// Initialize the os module</span></span><br><span class="line">  os::init();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 启动VM创建计时器</span></span><br><span class="line">  <span class="comment">// Record VM creation timing statistics</span></span><br><span class="line">  TraceVmCreationTime create_vm_timer;</span><br><span class="line">  create_vm_timer.start();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 初始化系统属性，其中分为【可读属性】和【可读写属性】</span></span><br><span class="line">  <span class="comment">// 可读属性：</span></span><br><span class="line">  <span class="comment">// java.vm.specification.name</span></span><br><span class="line">  <span class="comment">// java.vm.version</span></span><br><span class="line">  <span class="comment">// java.vm.name</span></span><br><span class="line">  <span class="comment">// java.vm.info</span></span><br><span class="line">  <span class="comment">// 可读写属性：</span></span><br><span class="line">  <span class="comment">// java.ext.dirs</span></span><br><span class="line">  <span class="comment">// java.endorsed.dirs</span></span><br><span class="line">  <span class="comment">// sun.boot.library.path</span></span><br><span class="line">  <span class="comment">// java.library.path</span></span><br><span class="line">  <span class="comment">// java.home</span></span><br><span class="line">  <span class="comment">// sun.boot.class.path</span></span><br><span class="line">  <span class="comment">// java.class.path</span></span><br><span class="line">  <span class="comment">// Initialize system properties.</span></span><br><span class="line">  Arguments::init_system_properties();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// JDK版本初始化</span></span><br><span class="line">  <span class="comment">// So that JDK version can be used as a discriminator when parsing arguments</span></span><br><span class="line">  JDK_Version_init();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 设置java.vm.specification.vendor</span></span><br><span class="line">  <span class="comment">// java.vm.specification.version和java.vm.vendor属性</span></span><br><span class="line">  <span class="comment">// Update/Initialize System properties after JDK version number is known</span></span><br><span class="line">  Arguments::init_version_specific_system_properties();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 初始化日志配置</span></span><br><span class="line">  <span class="comment">// Make sure to initialize log configuration *before* parsing arguments</span></span><br><span class="line">  LogConfiguration::initialize(create_vm_timer.begin_time());</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 解析启动参数，如-XX:Flags=、-XX:+PrintVMOptions、-XX:+PrintFlagsInitial etc.</span></span><br><span class="line">  <span class="comment">// Parse arguments</span></span><br><span class="line">  jint parse_result = Arguments::parse(args);</span><br><span class="line">  <span class="keyword">if</span> (parse_result != JNI_OK) <span class="keyword">return</span> parse_result;</span><br><span class="line"></span><br><span class="line">  os::init_before_ergo();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 初始化GC日志输出流，用来处理-Xloggc参数</span></span><br><span class="line">  <span class="comment">// Initialize output stream logging</span></span><br><span class="line">  ostream_init_log();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Convert -Xrun to -agentlib: if there is no JVM_OnLoad</span></span><br><span class="line">  <span class="comment">// Must be before create_vm_init_agents()</span></span><br><span class="line">  <span class="keyword">if</span> (Arguments::init_libraries_at_startup()) &#123;</span><br><span class="line">    convert_vm_init_libraries_to_agents();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 初始化agent</span></span><br><span class="line">  <span class="comment">// Launch -agentlib/-agentpath and converted -Xrun agents</span></span><br><span class="line">  <span class="keyword">if</span> (Arguments::init_agents_at_startup()) &#123;</span><br><span class="line">    create_vm_init_agents();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Initialize Threads state</span></span><br><span class="line">  _thread_list = <span class="literal">NULL</span>;</span><br><span class="line">  _number_of_threads = <span class="number">0</span>;</span><br><span class="line">  _number_of_non_daemon_threads = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/*</span></span><br><span class="line"><span class="comment">   * ========================================</span></span><br><span class="line"><span class="comment">   * 初始化VM全局数据结构及系统类</span></span><br><span class="line"><span class="comment">   * ========================================</span></span><br><span class="line"><span class="comment">   * 初始化Java基础类型</span></span><br><span class="line"><span class="comment">   * 初始化对象OOP大小</span></span><br><span class="line"><span class="comment">   * 初始化锁</span></span><br><span class="line"><span class="comment">   * 初始化chunkpool</span></span><br><span class="line"><span class="comment">   * 初始化性能数据统计模块</span></span><br><span class="line"><span class="comment">   * ========================================</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="comment">// Initialize global data structures and create system classes in heap</span></span><br><span class="line">  vm_init_globals();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 初始化Java级别的对象同步器子系统</span></span><br><span class="line">  <span class="comment">// Initialize Java-Level synchronization subsystem</span></span><br><span class="line">  ObjectMonitor::Initialize();</span><br><span class="line"></span><br><span class="line">  <span class="comment">/*</span></span><br><span class="line"><span class="comment">   * 初始化全局模块</span></span><br><span class="line"><span class="comment">   * ========================================</span></span><br><span class="line"><span class="comment">   * 1. 初始化management模块</span></span><br><span class="line"><span class="comment">   * 2. 初始化字节码/操作符表</span></span><br><span class="line"><span class="comment">   * 3. 初始化ClassLoader</span></span><br><span class="line"><span class="comment">   * 4. 根据命令行参数决定编译策略</span></span><br><span class="line"><span class="comment">   * 5. 代码缓存初始化</span></span><br><span class="line"><span class="comment">   * 6. 虚拟机版本初始化</span></span><br><span class="line"><span class="comment">   * 7. OS全局初始化</span></span><br><span class="line"><span class="comment">   * ....</span></span><br><span class="line"><span class="comment">   *</span></span><br><span class="line"><span class="comment">   * ========================================</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  jint status = init_globals();</span><br><span class="line">  <span class="keyword">if</span> (status != JNI_OK) &#123;</span><br><span class="line">    <span class="keyword">delete</span> main_thread;</span><br><span class="line">    *canTryAgain = <span class="literal">false</span>; <span class="comment">// don't let caller call JNI_CreateJavaVM again</span></span><br><span class="line">    <span class="keyword">return</span> status;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (TRACE_INITIALIZE() != JNI_OK) &#123;</span><br><span class="line">    vm_exit_during_initialization(<span class="string">"Failed to initialize tracing backend"</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Should be done after the heap is fully created</span></span><br><span class="line">  main_thread-&gt;cache_global_variables();</span><br><span class="line"></span><br><span class="line">  HandleMark hm;</span><br><span class="line"></span><br><span class="line">  &#123; <span class="function">MutexLocker <span class="title">mu</span><span class="params">(Threads_lock)</span></span>;</span><br><span class="line">    Threads::add(main_thread);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  Thread* THREAD = Thread::current();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Always call even when there are not JVMTI environments yet, since environments</span></span><br><span class="line">  <span class="comment">// may be attached late and JVMTI must track phases of VM execution</span></span><br><span class="line">  JvmtiExport::enter_early_start_phase();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Notify JVMTI agents that VM has started (JNI is up) - nop if no agents.</span></span><br><span class="line">  JvmtiExport::post_early_vm_start();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 初始化Java的lang包</span></span><br><span class="line">  initialize_java_lang_classes(main_thread, CHECK_JNI_ERR);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// We need this for ClassDataSharing - the initial vm.info property is set</span></span><br><span class="line">  <span class="comment">// with the default value of CDS "sharing" which may be reset through</span></span><br><span class="line">  <span class="comment">// command line options.</span></span><br><span class="line">  reset_vm_info_property(CHECK_JNI_ERR);</span><br><span class="line"></span><br><span class="line">  quicken_jni_functions();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// No more stub generation allowed after that point.</span></span><br><span class="line">  StubCodeDesc::freeze();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Set flag that basic initialization has completed. Used by exceptions and various</span></span><br><span class="line">  <span class="comment">// debug stuff, that does not work until all basic classes have been initialized.</span></span><br><span class="line">  set_init_completed();</span><br><span class="line"></span><br><span class="line">  LogConfiguration::post_initialize();</span><br><span class="line">  Metaspace::post_initialize();</span><br><span class="line"></span><br><span class="line">  HOTSPOT_VM_INIT_END();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// record VM initialization completion time</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> INCLUDE_MANAGEMENT</span></span><br><span class="line">  Management::record_vm_init_completed();</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span> <span class="comment">// INCLUDE_MANAGEMENT</span></span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 启动一个叫做“信号分发器”的线程用来处理进程间的信号</span></span><br><span class="line">  <span class="comment">// 比如通过jstack获取一个jvm实例的栈信息</span></span><br><span class="line">  <span class="comment">// Signal Dispatcher needs to be started before VMInit event is posted</span></span><br><span class="line">  os::signal_init(CHECK_JNI_ERR);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Start Attach Listener if +StartAttachListener or it can't be started lazily</span></span><br><span class="line">  <span class="keyword">if</span> (!DisableAttachMechanism) &#123;</span><br><span class="line">    AttachListener::vm_start();</span><br><span class="line">    <span class="keyword">if</span> (StartAttachListener || AttachListener::init_at_startup()) &#123;</span><br><span class="line">      AttachListener::init();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Launch -Xrun agents</span></span><br><span class="line">  <span class="comment">// Must be done in the JVMTI live phase so that for backward compatibility the JDWP</span></span><br><span class="line">  <span class="comment">// back-end can launch with -Xdebug -Xrunjdwp.</span></span><br><span class="line">  <span class="keyword">if</span> (!EagerXrunInit &amp;&amp; Arguments::init_libraries_at_startup()) &#123;</span><br><span class="line">    create_vm_init_libraries();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 通知JVMTI agents虚拟机初始化开始</span></span><br><span class="line">  <span class="comment">// Notify JVMTI agents that VM has started (JNI is up) - nop if no agents.</span></span><br><span class="line">  JvmtiExport::post_vm_start();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Final system initialization including security manager and system class loader</span></span><br><span class="line">  call_initPhase3(CHECK_JNI_ERR);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// cache the system class loader</span></span><br><span class="line">  SystemDictionary::compute_java_system_loader(CHECK_(JNI_ERR));</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (MemProfiling)                   MemProfiler::engage();</span><br><span class="line">  StatSampler::engage();</span><br><span class="line">  <span class="keyword">if</span> (CheckJNICalls)                  JniPeriodicChecker::engage();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 初始化偏向锁</span></span><br><span class="line">  BiasedLocking::init();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> JNI_OK;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="init-cpp-init-globals"><a href="#init-cpp-init-globals" class="headerlink" title="init.cpp # init_globals()"></a>init.cpp # init_globals()</h1><p><code>init_globals()</code>方法用于初始化虚拟机全局模块，位于调用了<code>src/hotspot/share/runtime/init.cpp</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">jint <span class="title">init_globals</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  HandleMark hm;</span><br><span class="line">  <span class="comment">// 初始化各子系统的监控及管理服务</span></span><br><span class="line">  <span class="comment">// JMX、线程和同步子系统、类加载子系统的监控和管理</span></span><br><span class="line">  management_init();</span><br><span class="line">  <span class="comment">// 初始化字节码表，如istore、iload、iadd</span></span><br><span class="line">  bytecodes_init();</span><br><span class="line">  <span class="comment">// 类加载器初始化</span></span><br><span class="line">  classLoader_init1();</span><br><span class="line">  <span class="comment">// 初始化编译策略（根据启动参数决定编译策略）</span></span><br><span class="line">  compilationPolicy_init();</span><br><span class="line">  <span class="comment">// 代码缓存池初始化</span></span><br><span class="line">  codeCache_init();</span><br><span class="line">  <span class="comment">// 虚拟机版本初始化</span></span><br><span class="line">  VM_Version_init();</span><br><span class="line">  <span class="comment">// OS全局初始化</span></span><br><span class="line">  os_init_globals();</span><br><span class="line">  stubRoutines_init1();</span><br><span class="line">  <span class="comment">// ============================</span></span><br><span class="line">  <span class="comment">// 初始化堆以及决定所使用GC策略</span></span><br><span class="line">  <span class="comment">// ============================</span></span><br><span class="line">  jint status = universe_init();  <span class="comment">// dependent on codeCache_init and</span></span><br><span class="line">                                  <span class="comment">// stubRoutines_init1 and metaspace_init.</span></span><br><span class="line">  <span class="keyword">if</span> (status != JNI_OK)</span><br><span class="line">    <span class="keyword">return</span> status;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 初始化解析器</span></span><br><span class="line">  interpreter_init();  <span class="comment">// before any methods loaded</span></span><br><span class="line">  <span class="comment">// 初始化动作触发器</span></span><br><span class="line">  invocationCounter_init();  <span class="comment">// before any methods loaded</span></span><br><span class="line">  <span class="comment">// 初始化MarkSweep</span></span><br><span class="line">  marksweep_init();</span><br><span class="line">  <span class="comment">// 初始化访问标识</span></span><br><span class="line">  accessFlags_init();</span><br><span class="line">  <span class="comment">// 初始化操作码模板表</span></span><br><span class="line">  templateTable_init();</span><br><span class="line">  <span class="comment">// 接口支持提供了VM_LEAF_BASE和VM_ENTRY_BASE宏</span></span><br><span class="line">  InterfaceSupport_init();</span><br><span class="line">  SharedRuntime::generate_stubs();</span><br><span class="line">  <span class="comment">// 初始化语法表及系统字典等</span></span><br><span class="line">  universe2_init();  <span class="comment">// dependent on codeCache_init and stubRoutines_init1</span></span><br><span class="line">  <span class="comment">// 初始化软引用时间戳表并设定软引用清除策略</span></span><br><span class="line">  referenceProcessor_init();</span><br><span class="line">  jni_handles_init();</span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> INCLUDE_VM_STRUCTS</span></span><br><span class="line">  <span class="comment">// 代码数据结构的必要性检查（仅限debug版本）</span></span><br><span class="line">  vmStructs_init();</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span> <span class="comment">// INCLUDE_VM_STRUCTS</span></span></span><br><span class="line"></span><br><span class="line">  vtableStubs_init();</span><br><span class="line">  InlineCacheBuffer_init();</span><br><span class="line">  <span class="comment">// oracle编译器初始化（oracle编译器是一个编译器开关接口）</span></span><br><span class="line">  compilerOracle_init();</span><br><span class="line">  dependencyContext_init();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!compileBroker_init()) &#123;</span><br><span class="line">    <span class="keyword">return</span> JNI_EINVAL;</span><br><span class="line">  &#125;</span><br><span class="line">  VMRegImpl::set_regName();</span><br><span class="line">  <span class="comment">// 执行初始化</span></span><br><span class="line">  <span class="keyword">if</span> (!universe_post_init()) &#123;</span><br><span class="line">    <span class="keyword">return</span> JNI_ERR;</span><br><span class="line">  &#125;</span><br><span class="line">  javaClasses_init();   <span class="comment">// must happen after vtable initialization</span></span><br><span class="line">  stubRoutines_init2(); <span class="comment">// note: StubRoutines need 2-phase init</span></span><br><span class="line">  MethodHandles::generate_adapters();</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> INCLUDE_NMT</span></span><br><span class="line">  <span class="comment">// Solaris stack is walkable only after stubRoutines are set up.</span></span><br><span class="line">  <span class="comment">// On Other platforms, the stack is always walkable.</span></span><br><span class="line">  NMT_stack_walkable = <span class="literal">true</span>;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span> <span class="comment">// INCLUDE_NMT</span></span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// All the flags that get adjusted by VM_Version_init and os::init_2</span></span><br><span class="line">  <span class="comment">// have been set so dump the flags now.</span></span><br><span class="line">  <span class="keyword">if</span> (PrintFlagsFinal || PrintFlagsRanges) &#123;</span><br><span class="line">    CommandLineFlags::printFlags(tty, <span class="literal">false</span>, PrintFlagsRanges);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> JNI_OK;</span><br><span class="line">&#125;</span><br><span class="line">``` </span><br><span class="line"></span><br><span class="line"><span class="meta"># universe.cpp # universe_init()</span></span><br><span class="line"></span><br><span class="line">`universe_init()`方法初始化堆以及决定所使用GC策略，位于`src/hotspot/share/memory/universe.cpp`</span><br><span class="line">```c</span><br><span class="line"><span class="function">jint <span class="title">universe_init</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  assert(!Universe::_fully_initialized, <span class="string">"called after initialize_vtables"</span>);</span><br><span class="line">  guarantee(<span class="number">1</span> &lt;&lt; LogHeapWordSize == <span class="keyword">sizeof</span>(HeapWord),</span><br><span class="line">         <span class="string">"LogHeapWordSize is incorrect."</span>);</span><br><span class="line">  guarantee(<span class="keyword">sizeof</span>(oop) &gt;= <span class="keyword">sizeof</span>(HeapWord), <span class="string">"HeapWord larger than oop?"</span>);</span><br><span class="line">  guarantee(<span class="keyword">sizeof</span>(oop) % <span class="keyword">sizeof</span>(HeapWord) == <span class="number">0</span>,</span><br><span class="line">            <span class="string">"oop size is not not a multiple of HeapWord size"</span>);</span><br><span class="line"></span><br><span class="line">  TraceTime timer("Genesis", TRACETIME_LOG(Info, startuptime));</span><br><span class="line"></span><br><span class="line">  JavaClasses::compute_hard_coded_offsets();</span><br><span class="line"></span><br><span class="line">  <span class="comment">/*</span></span><br><span class="line"><span class="comment">   * ==============================================================</span></span><br><span class="line"><span class="comment">   *                  初始化堆空间</span></span><br><span class="line"><span class="comment">   * ==============================================================</span></span><br><span class="line"><span class="comment">   * 在JDK7以前的版本中默认使用CMS收集器，这里会创建及初始化各分区代，设定空间比例大小，回收策略等</span></span><br><span class="line"><span class="comment">   * 流程：根据启动参数决定使用的回收策略，初始化回收策略时会指定所使用的代规范，</span></span><br><span class="line"><span class="comment">   * 	  最后根据规范创建对应类型的回收堆。</span></span><br><span class="line"><span class="comment">   *      i.e. arguments -&gt; policy -&gt; spec -&gt; heap</span></span><br><span class="line"><span class="comment">   *</span></span><br><span class="line"><span class="comment">   * 在最新的JDK10中默认使用G1作为默认收集器，在JEP248里就提议，参见http://openjdk.java.net/jeps/248，</span></span><br><span class="line"><span class="comment">   * 虽然也采用分代算法，但由连续内存的年轻（老）代改为非连续的小块region（单个region连续）</span></span><br><span class="line"><span class="comment">   * ==============================================================</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  jint status = Universe::initialize_heap();</span><br><span class="line">  <span class="keyword">if</span> (status != JNI_OK) &#123;</span><br><span class="line">    <span class="keyword">return</span> status;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 初始化元数据空间</span></span><br><span class="line">  <span class="comment">// 在JDK8里移除了PermGen，就是加入了它</span></span><br><span class="line">  Metaspace::global_initialize();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 初始化AOT loader</span></span><br><span class="line">  AOTLoader::universe_init();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Checks 'AfterMemoryInit' constraints.</span></span><br><span class="line">  <span class="keyword">if</span> (!CommandLineFlagConstraintList::check_constraints(CommandLineFlagConstraint::AfterMemoryInit)) &#123;</span><br><span class="line">    <span class="keyword">return</span> JNI_EINVAL;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 为元数据申请内存空间</span></span><br><span class="line">  <span class="comment">// Create memory for metadata.  Must be after initializing heap for</span></span><br><span class="line">  <span class="comment">// DumpSharedSpaces.</span></span><br><span class="line">  ClassLoaderData::init_null_class_loader_data();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// We have a heap so create the Method* caches before</span></span><br><span class="line">  <span class="comment">// Metaspace::initialize_shared_spaces() tries to populate them.</span></span><br><span class="line">  Universe::_finalizer_register_cache = <span class="keyword">new</span> LatestMethodCache();</span><br><span class="line">  Universe::_loader_addClass_cache    = <span class="keyword">new</span> LatestMethodCache();</span><br><span class="line">  Universe::_pd_implies_cache         = <span class="keyword">new</span> LatestMethodCache();</span><br><span class="line">  Universe::_throw_illegal_access_error_cache = <span class="keyword">new</span> LatestMethodCache();</span><br><span class="line">  Universe::_do_stack_walk_cache = <span class="keyword">new</span> LatestMethodCache();</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> INCLUDE_CDS</span></span><br><span class="line">  <span class="keyword">if</span> (UseSharedSpaces) &#123;</span><br><span class="line">    <span class="comment">// Read the data structures supporting the shared spaces (shared</span></span><br><span class="line">    <span class="comment">// system dictionary, symbol table, etc.).  After that, access to</span></span><br><span class="line">    <span class="comment">// the file (other than the mapped regions) is no longer needed, and</span></span><br><span class="line">    <span class="comment">// the file is closed. Closing the file does not affect the</span></span><br><span class="line">    <span class="comment">// currently mapped regions.</span></span><br><span class="line">    MetaspaceShared::initialize_shared_spaces();</span><br><span class="line">    StringTable::create_table();</span><br><span class="line">  &#125; <span class="keyword">else</span></span><br><span class="line">#endif</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="comment">// 创建符号表</span></span><br><span class="line">    SymbolTable::create_table();</span><br><span class="line">    <span class="comment">// 创建字符串缓存池</span></span><br><span class="line">    StringTable::create_table();</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> INCLUDE_CDS</span></span><br><span class="line">    <span class="keyword">if</span> (DumpSharedSpaces) &#123;</span><br><span class="line">      MetaspaceShared::prepare_for_dumping();</span><br><span class="line">    &#125;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">strlen</span>(VerifySubSet) &gt; <span class="number">0</span>) &#123;</span><br><span class="line">    Universe::initialize_verify_flags();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 创建方法表</span></span><br><span class="line">  ResolvedMethodTable::create_table();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> JNI_OK;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="universe-cpp-initialize-heap"><a href="#universe-cpp-initialize-heap" class="headerlink" title="universe.cpp # initialize_heap()"></a>universe.cpp # initialize_heap()</h1><p><code>initialize_heap()</code>方法用于初始化堆空间，位于<code>src/hotspot/share/memory/universe.cpp</code><br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Choose the heap base address and oop encoding mode</span></span><br><span class="line"><span class="comment">// when compressed oops are used:</span></span><br><span class="line"><span class="comment">// Unscaled  - Use 32-bits oops without encoding when</span></span><br><span class="line"><span class="comment">//     NarrowOopHeapBaseMin + heap_size &lt; 4Gb</span></span><br><span class="line"><span class="comment">// ZeroBased - Use zero based compressed oops with encoding when</span></span><br><span class="line"><span class="comment">//     NarrowOopHeapBaseMin + heap_size &lt; 32Gb</span></span><br><span class="line"><span class="comment">// HeapBased - Use compressed oops with heap base + encoding.</span></span><br><span class="line"></span><br><span class="line">jint Universe::initialize_heap() &#123;</span><br><span class="line">  jint status = JNI_ERR;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 根据GC策略创建堆空间</span></span><br><span class="line">  _collectedHeap = create_heap_ext();</span><br><span class="line">  <span class="keyword">if</span> (_collectedHeap == <span class="literal">NULL</span>) &#123;</span><br><span class="line">    _collectedHeap = create_heap();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/*</span></span><br><span class="line"><span class="comment">   * ==========================================</span></span><br><span class="line"><span class="comment">   *        初始化堆空间</span></span><br><span class="line"><span class="comment">   * ==========================================</span></span><br><span class="line"><span class="comment">   * 这里会调用G1CollectedHeap::initialize()方法，</span></span><br><span class="line"><span class="comment">   * 真正向操作系统申请内存</span></span><br><span class="line"><span class="comment">   * ==========================================</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  status = _collectedHeap-&gt;initialize();</span><br><span class="line">  <span class="keyword">if</span> (status != JNI_OK) &#123;</span><br><span class="line">    <span class="keyword">return</span> status;</span><br><span class="line">  &#125;</span><br><span class="line">  log_info(gc)(<span class="string">"Using %s"</span>, _collectedHeap-&gt;name());</span><br><span class="line"></span><br><span class="line">  ThreadLocalAllocBuffer::set_max_size(Universe::heap()-&gt;max_tlab_size());</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> _LP64</span></span><br><span class="line">  <span class="comment">// 在LP64数据模型下是否开启对象指针压缩</span></span><br><span class="line">  <span class="keyword">if</span> (UseCompressedOops) &#123;</span><br><span class="line">    <span class="comment">// Subtract a page because something can get allocated at heap base.</span></span><br><span class="line">    <span class="comment">// This also makes implicit null checking work, because the</span></span><br><span class="line">    <span class="comment">// memory+1 page below heap_base needs to cause a signal.</span></span><br><span class="line">    <span class="comment">// See needs_explicit_null_check.</span></span><br><span class="line">    <span class="comment">// Only set the heap base for compressed oops because it indicates</span></span><br><span class="line">    <span class="comment">// compressed oops for pstack code.</span></span><br><span class="line">    <span class="keyword">if</span> ((<span class="keyword">uint64_t</span>)Universe::heap()-&gt;reserved_region().end() &gt; UnscaledOopHeapMax) &#123;</span><br><span class="line">      <span class="comment">// Didn't reserve heap below 4Gb.  Must shift.</span></span><br><span class="line">      Universe::set_narrow_oop_shift(LogMinObjAlignmentInBytes);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> ((<span class="keyword">uint64_t</span>)Universe::heap()-&gt;reserved_region().end() &lt;= OopEncodingHeapMax) &#123;</span><br><span class="line">      <span class="comment">// Did reserve heap below 32Gb. Can use base == 0;</span></span><br><span class="line">      Universe::set_narrow_oop_base(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    Universe::set_narrow_ptrs_base(Universe::narrow_oop_base());</span><br><span class="line"></span><br><span class="line">    LogTarget(Info, gc, heap, coops) lt;</span><br><span class="line">    <span class="keyword">if</span> (lt.is_enabled()) &#123;</span><br><span class="line">      ResourceMark rm;</span><br><span class="line">      <span class="function">LogStream <span class="title">ls</span><span class="params">(lt)</span></span>;</span><br><span class="line">      Universe::print_compressed_oops_mode(&amp;ls);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Tell tests in which mode we run.</span></span><br><span class="line">    Arguments::PropertyList_add(<span class="keyword">new</span> SystemProperty(<span class="string">"java.vm.compressedOopsMode"</span>,</span><br><span class="line">                                                   narrow_oop_mode_to_string(narrow_oop_mode()),</span><br><span class="line">                                                   <span class="literal">false</span>));</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// Universe::narrow_oop_base() is one page below the heap.</span></span><br><span class="line">  assert((<span class="keyword">intptr_t</span>)Universe::narrow_oop_base() &lt;= (<span class="keyword">intptr_t</span>)(Universe::heap()-&gt;base() -</span><br><span class="line">         os::vm_page_size()) ||</span><br><span class="line">         Universe::narrow_oop_base() == <span class="literal">NULL</span>, <span class="string">"invalid value"</span>);</span><br><span class="line">  assert(Universe::narrow_oop_shift() == LogMinObjAlignmentInBytes ||</span><br><span class="line">         Universe::narrow_oop_shift() == <span class="number">0</span>, <span class="string">"invalid value"</span>);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// We will never reach the CATCH below since Exceptions::_throw will cause</span></span><br><span class="line">  <span class="comment">// the VM to exit if an exception is thrown during initialization</span></span><br><span class="line">  <span class="comment">// 如果使用TLAB</span></span><br><span class="line">  <span class="keyword">if</span> (UseTLAB) &#123;</span><br><span class="line">    assert(Universe::heap()-&gt;supports_tlab_allocation(),</span><br><span class="line">           <span class="string">"Should support thread-local allocation buffers"</span>);</span><br><span class="line">    ThreadLocalAllocBuffer::startup_initialization();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> JNI_OK;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h1 id="universe-cpp-create-heap"><a href="#universe-cpp-create-heap" class="headerlink" title="universe.cpp # create_heap()"></a>universe.cpp # create_heap()</h1><p><code>create_heap()</code>用于根据GC策略创建堆空间，位于<code>src/hotspot/share/memory/universe.cpp</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">CollectedHeap* Universe::create_heap() &#123;</span><br><span class="line">  assert(_collectedHeap == <span class="literal">NULL</span>, <span class="string">"Heap already created"</span>);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> !INCLUDE_ALL_GCS</span></span><br><span class="line">  <span class="keyword">if</span> (UseParallelGC) &#123;</span><br><span class="line">    fatal(<span class="string">"UseParallelGC not supported in this VM."</span>);</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (UseG1GC) &#123;</span><br><span class="line">    fatal(<span class="string">"UseG1GC not supported in this VM."</span>);</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (UseConcMarkSweepGC) &#123;</span><br><span class="line">    fatal(<span class="string">"UseConcMarkSweepGC not supported in this VM."</span>);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">  <span class="keyword">if</span> (UseParallelGC) &#123;</span><br><span class="line">    <span class="keyword">return</span> Universe::create_heap_with_policy&lt;ParallelScavengeHeap, GenerationSizer&gt;();</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (UseG1GC) &#123;</span><br><span class="line">    <span class="comment">// 此处默认使用G1</span></span><br><span class="line">    <span class="keyword">return</span> Universe::create_heap_with_policy&lt;G1CollectedHeap, G1CollectorPolicy&gt;();</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (UseConcMarkSweepGC) &#123;</span><br><span class="line">    <span class="keyword">return</span> Universe::create_heap_with_policy&lt;GenCollectedHeap, ConcurrentMarkSweepPolicy&gt;();</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (UseSerialGC) &#123;</span><br><span class="line">    <span class="keyword">return</span> Universe::create_heap_with_policy&lt;GenCollectedHeap, MarkSweepPolicy&gt;();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  ShouldNotReachHere();</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="g1CollectedHeap-cpp-G1CollectedHeap-initialize"><a href="#g1CollectedHeap-cpp-G1CollectedHeap-initialize" class="headerlink" title="g1CollectedHeap.cpp # G1CollectedHeap::initialize()"></a>g1CollectedHeap.cpp # G1CollectedHeap::initialize()</h1><p>堆空间创建完毕，接下来是初始化，从上面<code>return Universe::create_heap_with_policy&lt;G1CollectedHeap, G1CollectorPolicy&gt;();</code>可以看出，<br><code>_collectedHeap</code>对应的堆实现是<code>G1CollectedHeap</code>，位于<code>src/hotspot/share/gc/g1/g1CollectedHeap.cpp</code>，<br>对应上面的<code>_collectedHeap-&gt;initialize()</code>，</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// G1CollectedHeap初始化</span></span><br><span class="line">jint G1CollectedHeap::initialize() &#123;</span><br><span class="line">  CollectedHeap::pre_initialize();</span><br><span class="line">  os::enable_vtime();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Necessary to satisfy locking discipline assertions.</span></span><br><span class="line"></span><br><span class="line">  <span class="function">MutexLocker <span class="title">x</span><span class="params">(Heap_lock)</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">size_t</span> init_byte_size = collector_policy()-&gt;initial_heap_byte_size();</span><br><span class="line">  <span class="keyword">size_t</span> max_byte_size = collector_policy()-&gt;max_heap_byte_size();</span><br><span class="line">  <span class="keyword">size_t</span> heap_alignment = collector_policy()-&gt;heap_alignment();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 申请Java堆内存及确定CompressedOops模式</span></span><br><span class="line">  ReservedSpace heap_rs = Universe::reserve_heap(max_byte_size,</span><br><span class="line">                                                 heap_alignment);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 初始化申请的内存区域</span></span><br><span class="line">  initialize_reserved_region((HeapWord*)heap_rs.base(), (HeapWord*)(heap_rs.base() + heap_rs.size()));</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 为整个保留区域创建barrier</span></span><br><span class="line">  <span class="comment">// Create the barrier set for the entire reserved region.</span></span><br><span class="line">  G1SATBCardTableLoggingModRefBS* bs</span><br><span class="line">    = <span class="keyword">new</span> G1SATBCardTableLoggingModRefBS(reserved_region());</span><br><span class="line">  bs-&gt;initialize();</span><br><span class="line">  assert(bs-&gt;is_a(BarrierSet::G1SATBCTLogging), <span class="string">"sanity"</span>);</span><br><span class="line">  set_barrier_set(bs);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 创建热卡缓存</span></span><br><span class="line">  <span class="comment">// Create the hot card cache.</span></span><br><span class="line">  _hot_card_cache = <span class="keyword">new</span> G1HotCardCache(<span class="keyword">this</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Carve out the G1 part of the heap.</span></span><br><span class="line">  ReservedSpace g1_rs = heap_rs.first_part(max_byte_size);</span><br><span class="line">  <span class="keyword">size_t</span> page_size = UseLargePages ? os::large_page_size() : os::vm_page_size();</span><br><span class="line">  <span class="comment">// 创建mapper</span></span><br><span class="line">  G1RegionToSpaceMapper* heap_storage =</span><br><span class="line">    G1RegionToSpaceMapper::create_mapper(g1_rs,</span><br><span class="line">                                         g1_rs.size(),</span><br><span class="line">                                         page_size,</span><br><span class="line">                                         HeapRegion::GrainBytes,</span><br><span class="line">                                         <span class="number">1</span>,</span><br><span class="line">                                         mtJavaHeap);</span><br><span class="line">  os::trace_page_sizes(<span class="string">"Heap"</span>,</span><br><span class="line">                       collector_policy()-&gt;min_heap_byte_size(),</span><br><span class="line">                       max_byte_size,</span><br><span class="line">                       page_size,</span><br><span class="line">                       heap_rs.base(),</span><br><span class="line">                       heap_rs.size());</span><br><span class="line">  heap_storage-&gt;set_mapping_changed_listener(&amp;_listener);</span><br><span class="line"></span><br><span class="line">  FreeRegionList::set_unrealistically_long_length(max_regions() + <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">  _bot = <span class="keyword">new</span> G1BlockOffsetTable(reserved_region(), bot_storage);</span><br><span class="line"></span><br><span class="line">  &#123;</span><br><span class="line">    HeapWord* start = _hrm.reserved().start();</span><br><span class="line">    HeapWord* end = _hrm.reserved().end();</span><br><span class="line">    <span class="keyword">size_t</span> granularity = HeapRegion::GrainBytes;</span><br><span class="line"></span><br><span class="line">    _in_cset_fast_test.initialize(start, end, granularity);</span><br><span class="line">    _humongous_reclaim_candidates.initialize(start, end, granularity);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 创建G1ConcurrentMark数据结构和线程</span></span><br><span class="line">  <span class="comment">// Create the G1ConcurrentMark data structure and thread.</span></span><br><span class="line">  <span class="comment">// (Must do this late, so that "max_regions" is defined.)</span></span><br><span class="line">  _cm = <span class="keyword">new</span> G1ConcurrentMark(<span class="keyword">this</span>, prev_bitmap_storage, next_bitmap_storage);</span><br><span class="line">  <span class="keyword">if</span> (_cm == <span class="literal">NULL</span> || !_cm-&gt;completed_initialization()) &#123;</span><br><span class="line">    vm_shutdown_during_initialization(<span class="string">"Could not create/initialize G1ConcurrentMark"</span>);</span><br><span class="line">    <span class="keyword">return</span> JNI_ENOMEM;</span><br><span class="line">  &#125;</span><br><span class="line">  _cmThread = _cm-&gt;cmThread();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Now expand into the initial heap size.</span></span><br><span class="line">  <span class="keyword">if</span> (!expand(init_byte_size, _workers)) &#123;</span><br><span class="line">    vm_shutdown_during_initialization(<span class="string">"Failed to allocate initial heap."</span>);</span><br><span class="line">    <span class="keyword">return</span> JNI_ENOMEM;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 执行委托给内存（G1）策略的所有初始化操作</span></span><br><span class="line">  <span class="comment">// Perform any initialization actions delegated to the policy.</span></span><br><span class="line">  g1_policy()-&gt;init(<span class="keyword">this</span>, &amp;_collection_set);</span><br><span class="line"></span><br><span class="line">  JavaThread::satb_mark_queue_set().initialize(SATB_Q_CBL_mon,</span><br><span class="line">                                               SATB_Q_FL_lock,</span><br><span class="line">                                               G1SATBProcessCompletedThreshold,</span><br><span class="line">                                               Shared_SATB_Q_lock);</span><br><span class="line"></span><br><span class="line">  jint ecode = initialize_concurrent_refinement();</span><br><span class="line">  <span class="keyword">if</span> (ecode != JNI_OK) &#123;</span><br><span class="line">    <span class="keyword">return</span> ecode;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  JavaThread::dirty_card_queue_set().initialize(DirtyCardQ_CBL_mon,</span><br><span class="line">                                                DirtyCardQ_FL_lock,</span><br><span class="line">                                                (<span class="keyword">int</span>)concurrent_g1_refine()-&gt;yellow_zone(),</span><br><span class="line">                                                (<span class="keyword">int</span>)concurrent_g1_refine()-&gt;red_zone(),</span><br><span class="line">                                                Shared_DirtyCardQ_lock,</span><br><span class="line">                                                <span class="literal">NULL</span>,  <span class="comment">// fl_owner</span></span><br><span class="line">                                                <span class="literal">true</span>); <span class="comment">// init_free_ids</span></span><br><span class="line"></span><br><span class="line">  dirty_card_queue_set().initialize(DirtyCardQ_CBL_mon,</span><br><span class="line">                                    DirtyCardQ_FL_lock,</span><br><span class="line">                                    <span class="number">-1</span>, <span class="comment">// never trigger processing</span></span><br><span class="line">                                    <span class="number">-1</span>, <span class="comment">// no limit on length</span></span><br><span class="line">                                    Shared_DirtyCardQ_lock,</span><br><span class="line">                                    &amp;JavaThread::dirty_card_queue_set());</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Here we allocate the dummy HeapRegion that is required by the</span></span><br><span class="line">  <span class="comment">// G1AllocRegion class.</span></span><br><span class="line">  HeapRegion* dummy_region = _hrm.get_dummy_region();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// We'll re-use the same region whether the alloc region will</span></span><br><span class="line">  <span class="comment">// require BOT updates or not and, if it doesn't, then a non-young</span></span><br><span class="line">  <span class="comment">// region will complain that it cannot support allocations without</span></span><br><span class="line">  <span class="comment">// BOT updates. So we'll tag the dummy region as eden to avoid that.</span></span><br><span class="line">  dummy_region-&gt;set_eden();</span><br><span class="line">  <span class="comment">// Make sure it's full.</span></span><br><span class="line">  dummy_region-&gt;set_top(dummy_region-&gt;end());</span><br><span class="line">  G1AllocRegion::setup(<span class="keyword">this</span>, dummy_region);</span><br><span class="line"></span><br><span class="line">  _allocator-&gt;init_mutator_alloc_region();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Do create of the monitoring and management support so that</span></span><br><span class="line">  <span class="comment">// values in the heap have been properly initialized.</span></span><br><span class="line">  _g1mm = <span class="keyword">new</span> G1MonitoringSupport(<span class="keyword">this</span>);</span><br><span class="line"></span><br><span class="line">  G1StringDedup::initialize();</span><br><span class="line"></span><br><span class="line">  _preserved_marks_set.init(ParallelGCThreads);</span><br><span class="line"></span><br><span class="line">  _collection_set.initialize(max_regions());</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> JNI_OK;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>至此，JVM的整个初始化工作完成，关于GC策略的空间分配具体细节在以后的文章中再详细介绍。</p>
+
+      
+    </div>
+
+
+    
+      <div>
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">- EOF -</div>
+    
+</div>
+
+      </div>
+    
+
+    
+
+    
+    
+    
+
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Hunter Zhao</li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://hunterzhao.io/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-initialization.html" title="【JVM源码探秘】HotSpot启动流程分析-初始化">http://hunterzhao.io/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-initialization.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-ND 4.0</a> 许可协议。转载请注明出处！</li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/OpenJDK/" rel="tag"># OpenJDK</a>
+          
+            <a href="/tags/JVM/" rel="tag"># JVM</a>
+          
+            <a href="/tags/HotSpot/" rel="tag"># HotSpot</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-creation.html" rel="next" title="【JVM源码探秘】HotSpot启动流程分析-创建">
+                <i class="fa fa-chevron-left"></i> 【JVM源码探秘】HotSpot启动流程分析-创建
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpeg"
+                alt="Hunter Zhao" />
+            
+              <p class="site-author-name" itemprop="name">Hunter Zhao</p>
+              <p class="site-description motion-element" itemprop="description">术高一尺，道高一丈。</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">14</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">12</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/MrHunterZhao" target="_blank" title="GitHub" rel="external nofollow"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="https://weibo.com/mrbobzhao" target="_blank" title="微博" rel="external nofollow"><i class="fa fa-fw fa-weibo"></i>微博</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:zhaohevip@gmail.com" target="_blank" title="E-Mail" rel="external nofollow"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="https://twitter.com/mrhunterzhao" target="_blank" title="Twitter" rel="external nofollow"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="https://stackoverflow.com/users/1858561/hunter-zhao" target="_blank" title="StackOverflow" rel="external nofollow"><i class="fa fa-fw fa-stack-overflow"></i>StackOverflow</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#java-c-InitializeJVM"><span class="nav-number">1.</span> <span class="nav-text">java.c # InitializeJVM()</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#jni-cpp-JNI-CreateJavaVM"><span class="nav-number">2.</span> <span class="nav-text">jni.cpp # JNI_CreateJavaVM()</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#jni-cpp-JNI-CreateJavaVM-inner"><span class="nav-number">3.</span> <span class="nav-text">jni.cpp # JNI_CreateJavaVM_inner()</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#thread-cpp-Threads-create-vm"><span class="nav-number">4.</span> <span class="nav-text">thread.cpp # Threads::create_vm()</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#init-cpp-init-globals"><span class="nav-number">5.</span> <span class="nav-text">init.cpp # init_globals()</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#universe-cpp-initialize-heap"><span class="nav-number">6.</span> <span class="nav-text">universe.cpp # initialize_heap()</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#universe-cpp-create-heap"><span class="nav-number">7.</span> <span class="nav-text">universe.cpp # create_heap()</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#g1CollectedHeap-cpp-G1CollectedHeap-initialize"><span class="nav-number">8.</span> <span class="nav-text">g1CollectedHeap.cpp # G1CollectedHeap::initialize()</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+            <span id="scrollpercent"><span>0</span>%</span>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate"> 
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Hunter Zhao</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+    <span title="站点总字数">118k</span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    
+    <span title="站点总阅读时长">1:58</span>
+  
+</div>
+
+
+  
+
+
+
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv" title="总访客量">
+      <i class="fa fa-user"></i>
+      总访客<span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="site-pv" title="总访问量">
+      <i class="fa fa-eye"></i>
+      总访问量<span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/reading_progress/reading_progress.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.0.6"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.0.6"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.0.6"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.0.6"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.0.6"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.0.6"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.0.6"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("8GozMAWyU4NKsaed00GMczWK-gzGzoHsz", "mHTxYmADqYmozV5Hf3DnH5kv");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            
+              var $element = $(document.getElementById(url));
+              $element.find('.leancloud-visitors-count').text(counter.get('time'));
+            
+            counter.save(null, {
+              success: function(counter) {
+                
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            
+              var newcounter = new Counter();
+              /* Set ACL */
+              var acl = new AV.ACL();
+              acl.setPublicReadAccess(true);
+              acl.setPublicWriteAccess(true);
+              newcounter.setACL(acl);
+              /* End Set ACL */
+              newcounter.set("title", title);
+              newcounter.set("url", url);
+              newcounter.set("time", 1);
+              newcounter.save(null, {
+                success: function(newcounter) {
+                  var $element = $(document.getElementById(url));
+                  $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+                },
+                error: function(newcounter, error) {
+                  console.log('Failed to create');
+                }
+              });
+            
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
