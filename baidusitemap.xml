@@ -122,12 +122,12 @@
 
     
   <url>
-    <loc>http://hunterzhao.io/post/2014/12/01/analyse-jvm-startup-flow-through-source-code-create.html</loc>
+    <loc>http://hunterzhao.io/post/2014/12/01/analyse-jvm-startup-flow-through-source-code-initialize.html</loc>
     <lastmod>2018-04-29T20:31:08.000Z</lastmod>
     <data>
         <display>
-        <title>【Hotspot源码分析】从HotSpot源码角度深入分析Java程序启动过程-创建</title>
-        <pubTime>2014-11-30T19:43:40.000Z</pubTime>
+        <title>【Hotspot源码分析】从HotSpot源码角度深入分析Java程序启动过程-初始化</title>
+        <pubTime>2014-11-30T20:20:08.000Z</pubTime>
         
         <tag>OpenJDK</tag>
          
@@ -144,12 +144,12 @@
 
     
   <url>
-    <loc>http://hunterzhao.io/post/2014/12/01/analyse-jvm-startup-flow-through-source-code-initialize.html</loc>
+    <loc>http://hunterzhao.io/post/2014/12/01/analyse-jvm-startup-flow-through-source-code-create.html</loc>
     <lastmod>2018-04-29T20:31:08.000Z</lastmod>
     <data>
         <display>
-        <title>【Hotspot源码分析】从HotSpot源码角度深入分析Java程序启动过程-初始化</title>
-        <pubTime>2014-11-30T20:20:08.000Z</pubTime>
+        <title>【Hotspot源码分析】从HotSpot源码角度深入分析Java程序启动过程-创建</title>
+        <pubTime>2014-11-30T19:43:40.000Z</pubTime>
         
         <tag>OpenJDK</tag>
          
