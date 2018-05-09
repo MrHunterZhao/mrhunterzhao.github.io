@@ -80,6 +80,19 @@
       </tags>
   </entry>
   <entry>
+    <title><![CDATA[通过Nginx内嵌Lua脚本实现资源访问权限控制]]></title>
+    <url>%2Fpost%2F2017%2F10%2F15%2Fresource-access-control-via-lua-script-in-nginx%2F</url>
+    <content type="text"><![CDATA[有些敏感的静态资源（比如身份证照片，企业执照等）是不能裸奔在互联网上的，被爬虫抓取后果比较严重，所以要加入一定的访问权限，满足某种规则后才可以访问。 最常用的做法是访问者发起请求时首先对资源名使用私钥进行MD5作为signature，再将signature作为参数传入，服务端接到请求后按照同样规则进行验签，signature匹配则视为合法请求，否则deny返回403。 12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061626364---- Author: Hunter Zhao-- Mail: zhaohevip@gmail.com-- Date: 13/10/2017-- Time: 10:25-- Description：敏感资源访问签名认证---- =============================================-- the secret keySECRET_KEY = "iamasecretkey"--[[ 获取资源名 e.g. 访问路径 /image/some_pic_name.jpg 返回 -&gt; some_pic_name.jpg]]function getResourceName() local url = ngx.var.uri local len = string.len(url) local _url = string.reverse(url) local pos = string.find(_url, "/") -- start position index local start_pos = len - pos + 1 -- get substring from the index local img_name = string.sub(url, start_pos + 1, len) return img_nameend--[[ 验证签名合法性]]function validateSignature() local sign = ngx.var.arg_sign -- exit if signature is blank if sign == nil or sign == "" then ngx.exit(401) return false end -- get request resource name local img_name = getResourceName() -- sign the specified string via MD5 algorithm local token = ngx.md5(img_name..SECRET_KEY) -- if signature doesn't equal the token if sign ~= token then ngx.exit(403) return false end -- if everything is OK return trueend-- =============================================-- return the result of access interceptorreturn validateSignature() Nginx配置12345678910server &#123; listen 80 default; server_name localhost; root /path/to/root; location /image/ &#123; default_type 'text/html'; access_by_lua_file "/path/to/resource_access_control.lua"; #通过lua来控制访问权限 &#125;&#125;]]></content>
+      <categories>
+        <category>Lua</category>
+      </categories>
+      <tags>
+        <tag>Nginx</tag>
+        <tag>Lua</tag>
+        <tag>权限</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[一行Python命令开启简单的静态文件服务器]]></title>
     <url>%2Fpost%2F2017%2F08%2F30%2Fstart-up-a-file-server-using-one-python-command%2F</url>
     <content type="text"><![CDATA[在开发过程当中，常常会需要启动一个静态文件服务器用来访问静态资源或传输文件，安装Nginx？安装Tomcat？ No！都太重了。只需要执行一个Python命令即可马上拥有一个轻量级静态服务器。 如果你使用的是Python2.x12$ python -m SimpleHTTPServerServing HTTP on 0.0.0.0 port 8000 ... 如果你使用的是Python3.x1$ python -m http.server 打开浏览器即可访问http://localhost:8000，也可在后面追加指定目标端口，如：python -m SimpleHTTPServer 9000]]></content>
@@ -146,9 +159,9 @@
       </categories>
       <tags>
         <tag>CentOS</tag>
+        <tag>Linux</tag>
         <tag>OpenJDK</tag>
         <tag>JVM</tag>
-        <tag>Linux</tag>
       </tags>
   </entry>
   <entry>

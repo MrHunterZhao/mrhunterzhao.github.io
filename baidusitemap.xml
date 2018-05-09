@@ -4,6 +4,30 @@
 
     
   <url>
+    <loc>http://hunterzhao.io/post/2017/10/15/resource-access-control-via-lua-script-in-nginx/</loc>
+    <lastmod>2018-05-09T19:20:55.000Z</lastmod>
+    <data>
+        <display>
+        <title>通过Nginx内嵌Lua脚本实现资源访问权限控制</title>
+        <pubTime>2017-10-14T18:19:27.000Z</pubTime>
+        
+        <tag>Nginx</tag>
+         
+        <tag>Lua</tag>
+         
+        <tag>权限</tag>
+         
+         
+           
+             
+              <breadCrumb title="Lua" url="http://hunterzhao.io/categories/Lua/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://hunterzhao.io/post/2018/05/01/consume-mq-message-with-multithreading/</loc>
     <lastmod>2018-05-09T18:09:07.000Z</lastmod>
     <data>
@@ -78,12 +102,12 @@
 
     
   <url>
-    <loc>http://hunterzhao.io/post/2018/01/30/debug-openjdk10-source-code-on-mac-with-clion-ide/</loc>
+    <loc>http://hunterzhao.io/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-initialization/</loc>
     <lastmod>2018-05-09T15:36:04.000Z</lastmod>
     <data>
         <display>
-        <title>【JVM源码探秘】在Mac上搭建OpenJDK10源码调试环境</title>
-        <pubTime>2018-01-29T17:08:18.000Z</pubTime>
+        <title>【JVM源码探秘】HotSpot启动流程分析-初始化</title>
+        <pubTime>2018-04-30T09:10:35.000Z</pubTime>
         
         <tag>OpenJDK</tag>
          
@@ -102,12 +126,12 @@
 
     
   <url>
-    <loc>http://hunterzhao.io/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-initialization/</loc>
+    <loc>http://hunterzhao.io/post/2018/01/30/debug-openjdk10-source-code-on-mac-with-clion-ide/</loc>
     <lastmod>2018-05-09T15:36:04.000Z</lastmod>
     <data>
         <display>
-        <title>【JVM源码探秘】HotSpot启动流程分析-初始化</title>
-        <pubTime>2018-04-30T09:10:35.000Z</pubTime>
+        <title>【JVM源码探秘】在Mac上搭建OpenJDK10源码调试环境</title>
+        <pubTime>2018-01-29T17:08:18.000Z</pubTime>
         
         <tag>OpenJDK</tag>
          
@@ -150,12 +174,12 @@
 
     
   <url>
-    <loc>http://hunterzhao.io/post/2014/12/01/analyse-jvm-startup-flow-through-source-code-create/</loc>
+    <loc>http://hunterzhao.io/post/2014/12/01/analyse-jvm-startup-flow-through-source-code-initialize/</loc>
     <lastmod>2018-04-29T20:31:08.000Z</lastmod>
     <data>
         <display>
-        <title>【Hotspot源码分析】从HotSpot源码角度深入分析Java程序启动过程-创建</title>
-        <pubTime>2014-11-30T19:43:40.000Z</pubTime>
+        <title>【Hotspot源码分析】从HotSpot源码角度深入分析Java程序启动过程-初始化</title>
+        <pubTime>2014-11-30T20:20:08.000Z</pubTime>
         
         <tag>OpenJDK</tag>
          
@@ -172,12 +196,12 @@
 
     
   <url>
-    <loc>http://hunterzhao.io/post/2014/12/01/analyse-jvm-startup-flow-through-source-code-initialize/</loc>
+    <loc>http://hunterzhao.io/post/2014/12/01/analyse-jvm-startup-flow-through-source-code-create/</loc>
     <lastmod>2018-04-29T20:31:08.000Z</lastmod>
     <data>
         <display>
-        <title>【Hotspot源码分析】从HotSpot源码角度深入分析Java程序启动过程-初始化</title>
-        <pubTime>2014-11-30T20:20:08.000Z</pubTime>
+        <title>【Hotspot源码分析】从HotSpot源码角度深入分析Java程序启动过程-创建</title>
+        <pubTime>2014-11-30T19:43:40.000Z</pubTime>
         
         <tag>OpenJDK</tag>
          
@@ -290,41 +314,16 @@
         
         <tag>CentOS</tag>
          
+        <tag>Linux</tag>
+         
         <tag>OpenJDK</tag>
          
         <tag>JVM</tag>
-         
-        <tag>Linux</tag>
          
          
            
              
               <breadCrumb title="OpenJDK" url="http://hunterzhao.io/categories/OpenJDK/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-    
-  <url>
-    <loc>http://hunterzhao.io/post/2014/01/20/configure-vim-syntax-highlight-on-mac/</loc>
-    <lastmod>2018-03-27T19:04:41.000Z</lastmod>
-    <data>
-        <display>
-        <title>Mac下vim开启语法高亮&着色</title>
-        <pubTime>2014-01-20T04:06:34.000Z</pubTime>
-        
-        <tag>Linux</tag>
-         
-        <tag>vim</tag>
-         
-        <tag>Mac</tag>
-         
-         
-           
-             
-              <breadCrumb title="Mac" url="http://hunterzhao.io/categories/Mac/"/>
           
         </display>
     </data>
@@ -354,6 +353,31 @@
     </data>
     </url>
 
+    
+  <url>
+    <loc>http://hunterzhao.io/post/2014/01/20/configure-vim-syntax-highlight-on-mac/</loc>
+    <lastmod>2018-03-27T19:04:41.000Z</lastmod>
+    <data>
+        <display>
+        <title>Mac下vim开启语法高亮&着色</title>
+        <pubTime>2014-01-20T04:06:34.000Z</pubTime>
+        
+        <tag>Linux</tag>
+         
+        <tag>vim</tag>
+         
+        <tag>Mac</tag>
+         
+         
+           
+             
+              <breadCrumb title="Mac" url="http://hunterzhao.io/categories/Mac/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
     
     
   <url>
