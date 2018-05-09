@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://hunterzhao.io/post/2018/05/01/consume-mq-message-with-multithreading/</loc>
+    
+    <lastmod>2018-05-09T18:09:07.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://hunterzhao.io/post/2018/05/06/async-callback-model-in-cluster-architecture/</loc>
     
     <lastmod>2018-05-09T18:02:46.000Z</lastmod>
@@ -26,13 +33,6 @@
     <loc>http://hunterzhao.io/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-initialization/</loc>
     
     <lastmod>2018-05-09T15:36:04.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://hunterzhao.io/post/2018/05/01/consume-mq-message-with-multithreading/</loc>
-    
-    <lastmod>2018-05-06T11:44:49.000Z</lastmod>
     
   </url>
   
@@ -100,7 +100,7 @@
   </url>
   
   <url>
-    <loc>http://hunterzhao.io/post/2014/01/20/configure-vim-syntax-highlight-on-mac/</loc>
+    <loc>http://hunterzhao.io/post/2014/01/20/install-and-configure-mysql-on-centos/</loc>
     
     <lastmod>2018-03-27T19:04:41.000Z</lastmod>
     
@@ -114,21 +114,21 @@
   </url>
   
   <url>
-    <loc>http://hunterzhao.io/post/2014/11/08/compile-jdk7-source-code-on-centos/</loc>
-    
-    <lastmod>2018-03-27T19:04:41.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://hunterzhao.io/post/2014/01/20/install-and-configure-mysql-on-centos/</loc>
-    
-    <lastmod>2018-03-27T19:04:41.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://hunterzhao.io/categories/index.html</loc>
+    
+    <lastmod>2018-03-27T19:04:41.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://hunterzhao.io/post/2014/01/20/configure-vim-syntax-highlight-on-mac/</loc>
+    
+    <lastmod>2018-03-27T19:04:41.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://hunterzhao.io/post/2014/11/08/compile-jdk7-source-code-on-centos/</loc>
     
     <lastmod>2018-03-27T19:04:41.000Z</lastmod>
     
