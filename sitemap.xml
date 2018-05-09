@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://hunterzhao.io/baidu_verify_GikywNyflS.html</loc>
+    
+    <lastmod>2018-05-09T19:35:47.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://hunterzhao.io/post/2017/10/15/resource-access-control-via-lua-script-in-nginx/</loc>
     
     <lastmod>2018-05-09T19:20:55.000Z</lastmod>
@@ -23,6 +30,13 @@
   </url>
   
   <url>
+    <loc>http://hunterzhao.io/post/2018/01/30/debug-openjdk10-source-code-on-mac-with-clion-ide/</loc>
+    
+    <lastmod>2018-05-09T15:36:04.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://hunterzhao.io/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-creation/</loc>
     
     <lastmod>2018-05-09T15:36:04.000Z</lastmod>
@@ -31,13 +45,6 @@
   
   <url>
     <loc>http://hunterzhao.io/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-initialization/</loc>
-    
-    <lastmod>2018-05-09T15:36:04.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://hunterzhao.io/post/2018/01/30/debug-openjdk10-source-code-on-mac-with-clion-ide/</loc>
     
     <lastmod>2018-05-09T15:36:04.000Z</lastmod>
     
@@ -128,14 +135,14 @@
   </url>
   
   <url>
-    <loc>http://hunterzhao.io/post/2014/01/20/configure-vim-syntax-highlight-on-mac/</loc>
+    <loc>http://hunterzhao.io/categories/index.html</loc>
     
     <lastmod>2018-03-27T19:04:41.000Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://hunterzhao.io/categories/index.html</loc>
+    <loc>http://hunterzhao.io/post/2014/01/20/configure-vim-syntax-highlight-on-mac/</loc>
     
     <lastmod>2018-03-27T19:04:41.000Z</lastmod>
     
