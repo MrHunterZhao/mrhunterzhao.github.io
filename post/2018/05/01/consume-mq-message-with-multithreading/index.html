@@ -110,27 +110,27 @@
 
 
 
-  <meta name="description" content="软件环境 OS：CentOS 6.5 JDK: OpenJDK-7u40  准备工作下载源码包OpenJDK Source Releases 解压源码包1# unzip openjdk-7u40-fcs-src-b43-26_aug_2013.zip  hotspot 虚拟机实现，大部分是C/C++代码 jdk Java核心类库目录，位于 jdk/src/share/classes langtoo">
-<meta name="keywords" content="CentOS,OpenJDK,JVM">
+  <meta name="description" content="Q：有这样一个场景，MQ的生产者生产消息能力是消费者的数倍。如果不能尽快消费完会导致队列中的消息随着时间的推移会越积越多，而且业务也无任何时效性可言，那么问题来了，在不增加消费节点的前提下如何快速处理完消息以保证吞吐量？  面对以上问题，有人可能会信心满满地脱口而出：用多线程。OK，我只能说思路没错，那么如何落地呢？">
+<meta name="keywords" content="多线程,MQ">
 <meta property="og:type" content="article">
-<meta property="og:title" content="在Linux上编译OpenJDK7源码">
-<meta property="og:url" content="http://hunterzhao.io/post/2014/11/08/compile-jdk7-source-code-on-centos.html">
+<meta property="og:title" content="聊一聊使用多线程处理MQ消息的正确姿势">
+<meta property="og:url" content="http://hunterzhao.io/post/2018/05/01/consume-mq-message-with-multithreading/index.html">
 <meta property="og:site_name" content="WorkHoliday">
-<meta property="og:description" content="软件环境 OS：CentOS 6.5 JDK: OpenJDK-7u40  准备工作下载源码包OpenJDK Source Releases 解压源码包1# unzip openjdk-7u40-fcs-src-b43-26_aug_2013.zip  hotspot 虚拟机实现，大部分是C/C++代码 jdk Java核心类库目录，位于 jdk/src/share/classes langtoo">
+<meta property="og:description" content="Q：有这样一个场景，MQ的生产者生产消息能力是消费者的数倍。如果不能尽快消费完会导致队列中的消息随着时间的推移会越积越多，而且业务也无任何时效性可言，那么问题来了，在不增加消费节点的前提下如何快速处理完消息以保证吞吐量？  面对以上问题，有人可能会信心满满地脱口而出：用多线程。OK，我只能说思路没错，那么如何落地呢？">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://hunterzhao.io/images/post/2014/11/08/compile-openjdk7-on-mac.png">
-<meta property="og:updated_time" content="2018-03-27T19:04:41.000Z">
+<meta property="og:image" content="http://hunterzhao.io/images/post/2018/05/01/rabbitmq-logo.png">
+<meta property="og:updated_time" content="2018-05-06T11:44:49.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="在Linux上编译OpenJDK7源码">
-<meta name="twitter:description" content="软件环境 OS：CentOS 6.5 JDK: OpenJDK-7u40  准备工作下载源码包OpenJDK Source Releases 解压源码包1# unzip openjdk-7u40-fcs-src-b43-26_aug_2013.zip  hotspot 虚拟机实现，大部分是C/C++代码 jdk Java核心类库目录，位于 jdk/src/share/classes langtoo">
-<meta name="twitter:image" content="http://hunterzhao.io/images/post/2014/11/08/compile-openjdk7-on-mac.png">
+<meta name="twitter:title" content="聊一聊使用多线程处理MQ消息的正确姿势">
+<meta name="twitter:description" content="Q：有这样一个场景，MQ的生产者生产消息能力是消费者的数倍。如果不能尽快消费完会导致队列中的消息随着时间的推移会越积越多，而且业务也无任何时效性可言，那么问题来了，在不增加消费节点的前提下如何快速处理完消息以保证吞吐量？  面对以上问题，有人可能会信心满满地脱口而出：用多线程。OK，我只能说思路没错，那么如何落地呢？">
+<meta name="twitter:image" content="http://hunterzhao.io/images/post/2018/05/01/rabbitmq-logo.png">
 
 
 
 
 
 
-  <link rel="canonical" href="http://hunterzhao.io/post/2014/11/08/compile-jdk7-source-code-on-centos.html"/>
+  <link rel="canonical" href="http://hunterzhao.io/post/2018/05/01/consume-mq-message-with-multithreading/"/>
 
 
 
@@ -140,7 +140,7 @@
   };
 </script>
 
-  <title>在Linux上编译OpenJDK7源码 | WorkHoliday</title>
+  <title>聊一聊使用多线程处理MQ消息的正确姿势 | WorkHoliday</title>
   
 
 
@@ -377,7 +377,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://hunterzhao.io/post/2014/11/08/compile-jdk7-source-code-on-centos.html">
+    <link itemprop="mainEntityOfPage" href="http://hunterzhao.io/post/2018/05/01/consume-mq-message-with-multithreading/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Hunter Zhao">
@@ -394,7 +394,7 @@
 
         
         
-          <h2 class="post-title" itemprop="name headline">在Linux上编译OpenJDK7源码</h2>
+          <h2 class="post-title" itemprop="name headline">聊一聊使用多线程处理MQ消息的正确姿势</h2>
         
 
         <div class="post-meta">
@@ -406,7 +406,7 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-11-08T05:50:46+08:00">2014-11-08</time>
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-01T03:27:18+08:00">2018-05-01</time>
             
 
             
@@ -427,7 +427,7 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/OpenJDK/" itemprop="url" rel="index"><span itemprop="name">OpenJDK</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/多线程/" itemprop="url" rel="index"><span itemprop="name">多线程</span></a></span>
 
                 
                 
@@ -441,7 +441,7 @@
 
           
           
-             <span id="/post/2014/11/08/compile-jdk7-source-code-on-centos.html" class="leancloud_visitors" data-flag-title="在Linux上编译OpenJDK7源码">
+             <span id="/post/2018/05/01/consume-mq-message-with-multithreading/" class="leancloud_visitors" data-flag-title="聊一聊使用多线程处理MQ消息的正确姿势">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -466,7 +466,7 @@
                 
                   <span class="post-meta-item-text">字数统计：</span>
                 
-                <span title="字数统计">3.2k</span>
+                <span title="字数统计">3.4k</span>
               
 
               
@@ -500,42 +500,39 @@
       
 
       
-        <h1 id="软件环境"><a href="#软件环境" class="headerlink" title="软件环境"></a>软件环境</h1><ul>
-<li>OS：CentOS 6.5</li>
-<li>JDK: OpenJDK-7u40</li>
-</ul>
-<h1 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h1><h2 id="下载源码包"><a href="#下载源码包" class="headerlink" title="下载源码包"></a>下载源码包</h2><p><a href="https://jdk7.java.net/source.html" target="_blank" rel="noopener">OpenJDK Source Releases</a></p>
-<h2 id="解压源码包"><a href="#解压源码包" class="headerlink" title="解压源码包"></a>解压源码包</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># unzip openjdk-7u40-fcs-src-b43-26_aug_2013.zip</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>hotspot 虚拟机实现，大部分是C/C++代码</li>
-<li>jdk Java核心类库目录，位于 jdk/src/share/classes</li>
-<li>langtools 一些编译工具</li>
-</ul>
-<h2 id="安装依赖"><a href="#安装依赖" class="headerlink" title="安装依赖"></a>安装依赖</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install gcc gcc-c++ alsa-lib alsa-lib-devel libXrender libXrender-devel libXi-devel libXt-devel libXtst-devel cups cups-devel</span><br></pre></td></tr></table></figure>
+        <p><img src="/images/post/2018/05/01/rabbitmq-logo.png" alt="openjdk"></p>
+<blockquote>
+<p>Q：有这样一个场景，MQ的生产者生产消息能力是消费者的数倍。<br>如果不能尽快消费完会导致队列中的消息随着时间的推移会越积越多，而且业务也无任何时效性可言，<br>那么问题来了，在不增加消费节点的前提下如何快速处理完消息以保证吞吐量？</p>
+</blockquote>
+<p>面对以上问题，有人可能会信心满满地脱口而出：<strong>用多线程</strong>。OK，我只能说思路没错，那么如何落地呢？</p>
 <a id="more"></a>
-<h2 id="安装freetype"><a href="#安装freetype" class="headerlink" title="安装freetype"></a>安装freetype</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ./configure &amp;&amp; make &amp;&amp; make install</span></span><br></pre></td></tr></table></figure>
-<h2 id="安装Ant"><a href="#安装Ant" class="headerlink" title="安装Ant"></a>安装Ant</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ln -s /usr/<span class="built_in">local</span>/apache-ant-1.9.4/bin/ant /usr/bin/ant</span><br></pre></td></tr></table></figure>
-<h2 id="安装JDK（如果已有则不必重新安装）"><a href="#安装JDK（如果已有则不必重新安装）" class="headerlink" title="安装JDK（如果已有则不必重新安装）"></a>安装JDK（如果已有则不必重新安装）</h2><p><code>Sun JDK或Open JDK均可，过程略.</code></p>
-<h1 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h1><p>编辑文件<code>vim ~/.bash_profile</code>加入以下变量</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">export LANG=&quot;C&quot;</span><br><span class="line">export ALT_BOOTDIR=&quot;/usr/java/jdk1.7.0_67/&quot;</span><br><span class="line">export ANT_HOME=&quot;/usr/local/apache-ant-1.9.4&quot;</span><br><span class="line">export ALT_FREETYPE_HEADERS_PATH=&quot;/usr/local/include/freetype2&quot;</span><br><span class="line">export ALT_FREETYPE_LIB_PATH=&quot;/usr/local/lib&quot;</span><br><span class="line">export ALLOW_DOWNLOADS=true</span><br><span class="line">export SKIP_DEBUG_BUILD=false</span><br><span class="line">export SKIP_FASTDEBUG_BUILD=true</span><br><span class="line">export DEBUG_NAME=debug</span><br><span class="line">unset JAVA_HOME</span><br><span class="line">unset CLASSPATH</span><br></pre></td></tr></table></figure>
-<p>使变量生效<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># source ~/.bash_profile</span><br></pre></td></tr></table></figure></p>
-<h1 id="编译源码"><a href="#编译源码" class="headerlink" title="编译源码"></a>编译源码</h1><h2 id="测试环境是否健全"><a href="#测试环境是否健全" class="headerlink" title="测试环境是否健全"></a>测试环境是否健全</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># make sanity</span><br></pre></td></tr></table></figure>
-<h2 id="如果输出以下内容则表示通过，可以进行编译。"><a href="#如果输出以下内容则表示通过，可以进行编译。" class="headerlink" title="如果输出以下内容则表示通过，可以进行编译。"></a>如果输出以下内容则表示通过，可以进行编译。</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Sanity check passed.</span><br></pre></td></tr></table></figure>
-<h2 id="开始编译"><a href="#开始编译" class="headerlink" title="开始编译"></a>开始编译</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># make ARCH_DATA_MODEL=64</span><br></pre></td></tr></table></figure>
-<h2 id="看到如下输出则为编译成功"><a href="#看到如下输出则为编译成功" class="headerlink" title="看到如下输出则为编译成功"></a>看到如下输出则为编译成功</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt;Finished making images @ Sat Nov  8 00:45:16 EST 2014 ...</span><br><span class="line">make[2]: Leaving directory `/usr/local/openjdk/jdk/make&apos;</span><br><span class="line">########################################################################</span><br><span class="line">##### Leaving jdk for target(s) sanity all docs images             #####</span><br><span class="line">########################################################################</span><br><span class="line">##### Build time 00:10:15 jdk for target(s) sanity all docs images #####</span><br><span class="line">########################################################################</span><br><span class="line"></span><br><span class="line">#-- Build times ----------</span><br><span class="line">Target debug_build</span><br><span class="line">Start 2014-11-08 00:26:41</span><br><span class="line">End   2014-11-08 00:45:16</span><br><span class="line">00:02:11 corba</span><br><span class="line">00:04:36 hotspot</span><br><span class="line">00:00:24 jaxp</span><br><span class="line">00:00:30 jaxws</span><br><span class="line">00:10:15 jdk</span><br><span class="line">00:00:39 langtools</span><br><span class="line">00:18:35 TOTAL</span><br><span class="line">-------------------------</span><br><span class="line">make[1]: Leaving directory `/usr/local/openjdk&apos;</span><br><span class="line">[root@BobServerStation openjdk]#</span><br></pre></td></tr></table></figure>
-<h1 id="测试验证"><a href="#测试验证" class="headerlink" title="测试验证"></a>测试验证</h1><h2 id="一个测试类"><a href="#一个测试类" class="headerlink" title="一个测试类"></a>一个测试类</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* Author: HunterZhao</span></span><br><span class="line"><span class="comment">* Date: 2014-11-08</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span></span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</span><br><span class="line">       System.out.println(<span class="string">"Hello OpenJDK~"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>使用刚生成的JDK编译<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># ./build/linux-amd64/bin/javac Test.java</span><br></pre></td></tr></table></figure></p>
-<p>在当前目录下会生成Test.class文件，然后运行便会看到输出。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># ./build/linux-amd64/bin/java Test</span><br><span class="line">Hello OpenJDK~</span><br></pre></td></tr></table></figure></p>
-<h2 id="另一个测试类"><a href="#另一个测试类" class="headerlink" title="另一个测试类"></a>另一个测试类</h2><p>进入目录<code>jdk/src/share/classes/java/io</code>，然后修改<code>PrintStream.java</code></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">   * Prints a string.  If the argument is &lt;code&gt;null&lt;/code&gt; then the string</span></span><br><span class="line"><span class="comment">   * &lt;code&gt;"null"&lt;/code&gt; is printed.  Otherwise, the string's characters are</span></span><br><span class="line"><span class="comment">   * converted into bytes according to the platform's default character</span></span><br><span class="line"><span class="comment">   * encoding, and these bytes are written in exactly the manner of the</span></span><br><span class="line"><span class="comment">   * &lt;code&gt;&#123;<span class="doctag">@link</span> #write(int)&#125;&lt;/code&gt; method.</span></span><br><span class="line"><span class="comment">   *</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@param</span>      s   The &lt;code&gt;String&lt;/code&gt; to be printed</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">print</span><span class="params">(String s)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (s == <span class="keyword">null</span>) &#123;</span><br><span class="line">          s = <span class="string">"null"</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      s = s + <span class="string">" This is OpenJdk7 compiled by Bob.Z!!!"</span>;  <span class="comment">// 重新赋值</span></span><br><span class="line">      write(s);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
-<p>接下来重新编译JDK，重新编译刚才的Test.java文件并运行会看到如下输出：</p>
-<p><img src="/images/post/2014/11/08/compile-openjdk7-on-mac.png" alt="compile-openjdk7"></p>
-<p>Enjoy them~</p>
-<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><ul>
-<li>OpenJDK: <a href="https://jdk7.java.net/" target="_blank" rel="noopener">https://jdk7.java.net/</a></li>
-<li>freetype: <a href="http://download.savannah.gnu.org/releases/freetype/" target="_blank" rel="noopener">http://download.savannah.gnu.org/releases/freetype/</a></li>
-<li>Ant: <a href="http://archive.apache.org/dist/ant/binaries/" target="_blank" rel="noopener">http://archive.apache.org/dist/ant/binaries/</a></li>
-</ul>
+<p>你可能会说使用JDK的<code>ThreadPoolExecutor</code>或者<code>Executors</code>线程池来处理。具体如何去用？只用线程池就够了吗？有什么坑吗？<br>带着这些疑问，我们分别来深入分析一下看看是否能满足需求。</p>
+<h1 id="ThreadPoolExecutor"><a href="#ThreadPoolExecutor" class="headerlink" title="ThreadPoolExecutor()"></a>ThreadPoolExecutor()</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">exec</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * 创建线程池</span></span><br><span class="line"><span class="comment">     * corePoolSize 10</span></span><br><span class="line"><span class="comment">     * maximumPoolSize 10</span></span><br><span class="line"><span class="comment">     * queue capacity 10</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    ThreadPoolExecutor threadPoolExecutor = <span class="keyword">new</span> ThreadPoolExecutor(</span><br><span class="line">        <span class="number">10</span>, <span class="number">10</span>, <span class="number">60</span>, TimeUnit.SECONDS,</span><br><span class="line">            <span class="keyword">new</span> ArrayBlockingQueue&lt;Runnable&gt;(<span class="number">10</span>));</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 提交100个任务</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">100</span>; i++) &#123;</span><br><span class="line">        threadPoolExecutor.submit(<span class="keyword">new</span> WorkerThread());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 任务线程</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">WorkerThread</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="keyword">new</span> Date() + <span class="string">" "</span> + Thread.currentThread().getName() + <span class="string">" is running..."</span>);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            TimeUnit.SECONDS.sleep(<span class="number">2</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行以上程序会抛出错误，原因是因为submit的任务数已经超出了其queue的容量，导致触发了拒绝策略。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Exception in thread &quot;main&quot; java.util.concurrent.RejectedExecutionException: Task java.util.concurrent.FutureTask@4d7e1886</span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p>Q: 能不能把有界队列<code>ArrayBlockingQueue</code>的容量尽量设置大一些呢？或者干脆换成无界队列<code>LinkedBlockingQueue</code>？</p>
+</blockquote>
+<ol>
+<li>由于队列中的消息数量无法提前预测具体数量，所以无法使设置准确默认值。</li>
+<li>换成<code>LinkedBlockingQueue</code>虽然不会抛出以上错误，但这里会有一个问题：N多待处理任务临时放在JVM中，一方面占用大量内存，另一方面如果服务重启就会导致大量任务丢失。</li>
+</ol>
+<blockquote>
+<p>既然无法从queue容量上去解决，那能否从线程池的拒绝策略着手？</p>
+</blockquote>
+<p>JDK线程池有四种拒绝策略<code>AbortPolicy</code>、<code>CallerRunsPolicy</code>、 <code>DiscardOledestPolicy</code>、<code>DiscardPolicy</code>，默认使用AbortPolicy直接抛出异常。</p>
+<p>其中<code>AbortPolicy</code>，<code>DiscardOledestPolicy</code>、<code>DiscardPolicy</code>均会直接丢弃任务肯定不符合预期，<br><code>CallerRunsPolicy</code>是将该任务抛给主线程执行，这里也会有一个问题，主线程在执行任务时是无法向线程池中提交任务的，<br>假如主线程执行该任务需要3秒，在执行至第1秒的时候，线程池中已经有若干工作线程处于闲置状态，此时主线程需要执行完剩余的2秒才能继续向线程池工作线程分配任务，<br>使用该拒绝策略虽然不会导致消息丢失，但也不能达到资源最优利用，所以pass。</p>
+<p>所以，问题解决方案基本浮出水面，</p>
+<ol>
+<li>主线程只负责分配任务，Worker线程只负责执行任务。</li>
+<li>Worker线程执行完成后第一时间通知主线程，然后主线程及时分配任务。</li>
+</ol>
+<p>这里，我们引入<code>Semaphore</code>作为令牌桶，以达到主线程和工作线程间通信的目的。</p>
+<ol>
+<li>初始化与Worker线程数量相同的令牌</li>
+<li>主线程向线程池提交任务时先尝试从令牌桶获取一个令牌，如果令牌桶为空则block。</li>
+<li>把令牌传入Worker线程，Worker线程执行完后调用<code>release()</code>归还令牌。</li>
+</ol>
+<p>最终代码参见以下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">/* 初始化与Worker线程数量相同的令牌 */</span></span><br><span class="line"><span class="keyword">private</span> Semaphore permits = <span class="keyword">new</span> Semaphore(<span class="number">10</span>);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">exec</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * 创建线程池</span></span><br><span class="line"><span class="comment">     * corePoolSize 10</span></span><br><span class="line"><span class="comment">     * maximumPoolSize 10</span></span><br><span class="line"><span class="comment">     * queue capacity 10</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    ThreadPoolExecutor threadPoolExecutor = <span class="keyword">new</span> ThreadPoolExecutor(</span><br><span class="line">        <span class="number">10</span>, <span class="number">10</span>, <span class="number">60</span>, TimeUnit.SECONDS,</span><br><span class="line">            <span class="keyword">new</span> ArrayBlockingQueue&lt;Runnable&gt;(<span class="number">10</span>));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">100</span>; i++) &#123;</span><br><span class="line">        <span class="comment">// 获取令牌，如果获取不到则block，直到有worker线程归还</span></span><br><span class="line">        permits.acquire();</span><br><span class="line">        <span class="comment">// 提交任务</span></span><br><span class="line">        threadPoolExecutor.submit(<span class="keyword">new</span> WorkerThread(permits));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 任务线程</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">WorkerThread</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Semaphore permits;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">WorkerThread</span><span class="params">(Semaphore permits)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.permits = permits;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="keyword">new</span> Date() + <span class="string">" "</span> + Thread.currentThread().getName() + <span class="string">" is running..."</span>);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            TimeUnit.SECONDS.sleep(<span class="number">2</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (permits != <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="comment">// 释放令牌</span></span><br><span class="line">                permits.release();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 
       
     </div>
@@ -570,7 +567,7 @@
     <strong>本文作者： </strong>Hunter Zhao</li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="http://hunterzhao.io/post/2014/11/08/compile-jdk7-source-code-on-centos.html" title="在Linux上编译OpenJDK7源码">http://hunterzhao.io/post/2014/11/08/compile-jdk7-source-code-on-centos.html</a>
+    <a href="http://hunterzhao.io/post/2018/05/01/consume-mq-message-with-multithreading/" title="聊一聊使用多线程处理MQ消息的正确姿势">http://hunterzhao.io/post/2018/05/01/consume-mq-message-with-multithreading/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-ND 4.0</a> 许可协议。转载请注明出处！</li>
@@ -583,11 +580,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/CentOS/" rel="tag"># CentOS</a>
+            <a href="/tags/多线程/" rel="tag"># 多线程</a>
           
-            <a href="/tags/OpenJDK/" rel="tag"># OpenJDK</a>
-          
-            <a href="/tags/JVM/" rel="tag"># JVM</a>
+            <a href="/tags/MQ/" rel="tag"># MQ</a>
           
         </div>
       
@@ -600,8 +595,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/post/2014/01/20/configure-vim-syntax-highlight-on-mac.html" rel="next" title="Mac下vim开启语法高亮&着色">
-                <i class="fa fa-chevron-left"></i> Mac下vim开启语法高亮&着色
+              <a href="/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-initialization/" rel="next" title="【JVM源码探秘】HotSpot启动流程分析-初始化">
+                <i class="fa fa-chevron-left"></i> 【JVM源码探秘】HotSpot启动流程分析-初始化
               </a>
             
           </div>
@@ -609,10 +604,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/post/2014/11/19/build-hotspot-jvm-debug-environment-on-linux.html" rel="prev" title="在Linux下搭建OpenJDK7源码调试环境">
-                在Linux下搭建OpenJDK7源码调试环境 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -825,7 +816,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#软件环境"><span class="nav-number">1.</span> <span class="nav-text">软件环境</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#准备工作"><span class="nav-number">2.</span> <span class="nav-text">准备工作</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#下载源码包"><span class="nav-number">2.1.</span> <span class="nav-text">下载源码包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解压源码包"><span class="nav-number">2.2.</span> <span class="nav-text">解压源码包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装依赖"><span class="nav-number">2.3.</span> <span class="nav-text">安装依赖</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装freetype"><span class="nav-number">2.4.</span> <span class="nav-text">安装freetype</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装Ant"><span class="nav-number">2.5.</span> <span class="nav-text">安装Ant</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装JDK（如果已有则不必重新安装）"><span class="nav-number">2.6.</span> <span class="nav-text">安装JDK（如果已有则不必重新安装）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#环境配置"><span class="nav-number">3.</span> <span class="nav-text">环境配置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#编译源码"><span class="nav-number">4.</span> <span class="nav-text">编译源码</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#测试环境是否健全"><span class="nav-number">4.1.</span> <span class="nav-text">测试环境是否健全</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#如果输出以下内容则表示通过，可以进行编译。"><span class="nav-number">4.2.</span> <span class="nav-text">如果输出以下内容则表示通过，可以进行编译。</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#开始编译"><span class="nav-number">4.3.</span> <span class="nav-text">开始编译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#看到如下输出则为编译成功"><span class="nav-number">4.4.</span> <span class="nav-text">看到如下输出则为编译成功</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#测试验证"><span class="nav-number">5.</span> <span class="nav-text">测试验证</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#一个测试类"><span class="nav-number">5.1.</span> <span class="nav-text">一个测试类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#另一个测试类"><span class="nav-number">5.2.</span> <span class="nav-text">另一个测试类</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Reference"><span class="nav-number">6.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ThreadPoolExecutor"><span class="nav-number">1.</span> <span class="nav-text">ThreadPoolExecutor()</span></a></li></ol></div>
             
 
           </div>

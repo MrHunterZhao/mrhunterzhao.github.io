@@ -114,12 +114,12 @@
 <meta name="keywords" content="OpenJDK,JVM,HotSpot">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【JVM源码探秘】HotSpot启动流程分析-初始化">
-<meta property="og:url" content="http://hunterzhao.io/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-initialization.html">
+<meta property="og:url" content="http://hunterzhao.io/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-initialization/index.html">
 <meta property="og:site_name" content="WorkHoliday">
 <meta property="og:description" content="接上篇，HotSpot在启动流程完成了参数的解析、JNI入口的定位、环境变量的设置等一系列操作， 最终在JavaMain()中调用了InitializeJVM()方法，用于完成虚拟机所需的内存申请、挂载和初始化，本文我们就一起一探究竟。">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://hunterzhao.io/images/post/2018/01/29/openjdk.jpg">
-<meta property="og:updated_time" content="2018-05-01T18:48:20.000Z">
+<meta property="og:updated_time" content="2018-05-09T15:27:15.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【JVM源码探秘】HotSpot启动流程分析-初始化">
 <meta name="twitter:description" content="接上篇，HotSpot在启动流程完成了参数的解析、JNI入口的定位、环境变量的设置等一系列操作， 最终在JavaMain()中调用了InitializeJVM()方法，用于完成虚拟机所需的内存申请、挂载和初始化，本文我们就一起一探究竟。">
@@ -130,7 +130,7 @@
 
 
 
-  <link rel="canonical" href="http://hunterzhao.io/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-initialization.html"/>
+  <link rel="canonical" href="http://hunterzhao.io/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-initialization/"/>
 
 
 
@@ -377,7 +377,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://hunterzhao.io/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-initialization.html">
+    <link itemprop="mainEntityOfPage" href="http://hunterzhao.io/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-initialization/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Hunter Zhao">
@@ -441,7 +441,7 @@
 
           
           
-             <span id="/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-initialization.html" class="leancloud_visitors" data-flag-title="【JVM源码探秘】HotSpot启动流程分析-初始化">
+             <span id="/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-initialization/" class="leancloud_visitors" data-flag-title="【JVM源码探秘】HotSpot启动流程分析-初始化">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -501,7 +501,7 @@
 
       
         <p><img src="/images/post/2018/01/29/openjdk.jpg" alt="openjdk"></p>
-<p>接<a href="/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-creation.html">上篇</a>，HotSpot在启动流程完成了参数的解析、JNI入口的定位、环境变量的设置等一系列操作，</p>
+<p>接<a href="/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-creation">上篇</a>，HotSpot在启动流程完成了参数的解析、JNI入口的定位、环境变量的设置等一系列操作，</p>
 <p>最终在<code>JavaMain()</code>中调用了<code>InitializeJVM()</code>方法，用于完成虚拟机所需的内存申请、挂载和初始化，本文我们就一起一探究竟。</p>
 <a id="more"></a>
 <h1 id="java-c-InitializeJVM"><a href="#java-c-InitializeJVM" class="headerlink" title="java.c # InitializeJVM()"></a>java.c # InitializeJVM()</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Initializes the Java Virtual Machine. Also frees options array when</span></span><br><span class="line"><span class="comment"> * finished.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">static</span> jboolean</span><br><span class="line">InitializeJVM(JavaVM **pvm, JNIEnv **penv, InvocationFunctions *ifn)</span><br><span class="line">&#123;</span><br><span class="line">    JavaVMInitArgs args;</span><br><span class="line">    jint r;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">memset</span>(&amp;args, <span class="number">0</span>, <span class="keyword">sizeof</span>(args));</span><br><span class="line">    args.version  = JNI_VERSION_1_2;</span><br><span class="line">    args.nOptions = numOptions;</span><br><span class="line">    args.options  = options;</span><br><span class="line">    args.ignoreUnrecognized = JNI_FALSE;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (JLI_IsTraceLauncher()) &#123;</span><br><span class="line">        <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"JavaVM args:\n    "</span>);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"version 0x%08lx, "</span>, (<span class="keyword">long</span>)args.version);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"ignoreUnrecognized is %s, "</span>,</span><br><span class="line">               args.ignoreUnrecognized ? <span class="string">"JNI_TRUE"</span> : <span class="string">"JNI_FALSE"</span>);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"nOptions is %ld\n"</span>, (<span class="keyword">long</span>)args.nOptions);</span><br><span class="line">        <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; numOptions; i++)</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"    option[%2d] = '%s'\n"</span>,</span><br><span class="line">                   i, args.options[i].optionString);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 调用JNI_CreateJavaVM方法</span></span><br><span class="line">    r = ifn-&gt;CreateJavaVM(pvm, (<span class="keyword">void</span> **)penv, &amp;args);</span><br><span class="line">    JLI_MemFree(options);</span><br><span class="line">    <span class="keyword">return</span> r == JNI_OK;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -553,7 +553,7 @@
     <strong>本文作者： </strong>Hunter Zhao</li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="http://hunterzhao.io/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-initialization.html" title="【JVM源码探秘】HotSpot启动流程分析-初始化">http://hunterzhao.io/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-initialization.html</a>
+    <a href="http://hunterzhao.io/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-initialization/" title="【JVM源码探秘】HotSpot启动流程分析-初始化">http://hunterzhao.io/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-initialization/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-ND 4.0</a> 许可协议。转载请注明出处！</li>
@@ -583,7 +583,7 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-creation.html" rel="next" title="【JVM源码探秘】HotSpot启动流程分析-创建">
+              <a href="/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-creation/" rel="next" title="【JVM源码探秘】HotSpot启动流程分析-创建">
                 <i class="fa fa-chevron-left"></i> 【JVM源码探秘】HotSpot启动流程分析-创建
               </a>
             
@@ -593,7 +593,7 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/post/2018/05/01/consume-mq-message-with-multithreading.html" rel="prev" title="聊一聊使用多线程处理MQ消息的正确姿势">
+              <a href="/post/2018/05/01/consume-mq-message-with-multithreading/" rel="prev" title="聊一聊使用多线程处理MQ消息的正确姿势">
                 聊一聊使用多线程处理MQ消息的正确姿势 <i class="fa fa-chevron-right"></i>
               </a>
             

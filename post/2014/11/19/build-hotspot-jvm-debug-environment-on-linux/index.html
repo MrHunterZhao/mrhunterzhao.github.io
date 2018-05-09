@@ -110,27 +110,31 @@
 
 
 
-  <meta name="description" content="Mac OS并不像大多数Linux发行版vim默认自带语法着色高亮显示（通常Linux可通过编辑/etc/vimrc进行全局设置或~/vimrc进行单用户设置），使用vi/vim编辑文件时很不方便，如何解决 ? 编辑文件/usr/share/vim/vimrc1234567891011121314BobZhao@mac:~ &amp;gt; sudo vim /usr/share/vim/vimrcPas">
-<meta name="keywords" content="Linux,vim,Mac">
+  <meta name="description" content="在前面的文章中博主已经介绍过如何在Linux下编译OpenJDK7源码，现继续介绍如何在Linux下搭建基于eclipse IDE的Hotspot源码调试环境。鉴于网上关于JVM源码调试方面的文章寥寥无几并且内容参差不全，本文将把博主摸索数天的经验及成果以图文形式详细介绍Hotspot的debug过程。 软件环境 OS：CentOS 6.5 OpenJDK: OpenJDK-7u40 JDK Ve">
+<meta name="keywords" content="CentOS,Linux,OpenJDK,JVM">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Mac下vim开启语法高亮&amp;着色">
-<meta property="og:url" content="http://hunterzhao.io/post/2014/01/20/configure-vim-syntax-highlight-on-mac.html">
+<meta property="og:title" content="在Linux下搭建OpenJDK7源码调试环境">
+<meta property="og:url" content="http://hunterzhao.io/post/2014/11/19/build-hotspot-jvm-debug-environment-on-linux/index.html">
 <meta property="og:site_name" content="WorkHoliday">
-<meta property="og:description" content="Mac OS并不像大多数Linux发行版vim默认自带语法着色高亮显示（通常Linux可通过编辑/etc/vimrc进行全局设置或~/vimrc进行单用户设置），使用vi/vim编辑文件时很不方便，如何解决 ? 编辑文件/usr/share/vim/vimrc1234567891011121314BobZhao@mac:~ &amp;gt; sudo vim /usr/share/vim/vimrcPas">
+<meta property="og:description" content="在前面的文章中博主已经介绍过如何在Linux下编译OpenJDK7源码，现继续介绍如何在Linux下搭建基于eclipse IDE的Hotspot源码调试环境。鉴于网上关于JVM源码调试方面的文章寥寥无几并且内容参差不全，本文将把博主摸索数天的经验及成果以图文形式详细介绍Hotspot的debug过程。 软件环境 OS：CentOS 6.5 OpenJDK: OpenJDK-7u40 JDK Ve">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://hunterzhao.io/images/post/2014/10/01/configure-vim-highlight-on-mac.png">
+<meta property="og:image" content="http://hunterzhao.io/images/post/2014/11/19/debug-jvm-on-linux-1.jpg">
+<meta property="og:image" content="http://hunterzhao.io/images/post/2014/11/19/debug-jvm-on-linux-2.jpg">
+<meta property="og:image" content="http://hunterzhao.io/images/post/2014/11/19/debug-jvm-on-linux-3.jpg">
+<meta property="og:image" content="http://hunterzhao.io/images/post/2014/11/19/debug-jvm-on-linux-4.jpg">
+<meta property="og:image" content="http://hunterzhao.io/images/post/2014/11/19/debug-jvm-on-linux-5.jpg">
 <meta property="og:updated_time" content="2018-03-27T19:04:41.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Mac下vim开启语法高亮&amp;着色">
-<meta name="twitter:description" content="Mac OS并不像大多数Linux发行版vim默认自带语法着色高亮显示（通常Linux可通过编辑/etc/vimrc进行全局设置或~/vimrc进行单用户设置），使用vi/vim编辑文件时很不方便，如何解决 ? 编辑文件/usr/share/vim/vimrc1234567891011121314BobZhao@mac:~ &amp;gt; sudo vim /usr/share/vim/vimrcPas">
-<meta name="twitter:image" content="http://hunterzhao.io/images/post/2014/10/01/configure-vim-highlight-on-mac.png">
+<meta name="twitter:title" content="在Linux下搭建OpenJDK7源码调试环境">
+<meta name="twitter:description" content="在前面的文章中博主已经介绍过如何在Linux下编译OpenJDK7源码，现继续介绍如何在Linux下搭建基于eclipse IDE的Hotspot源码调试环境。鉴于网上关于JVM源码调试方面的文章寥寥无几并且内容参差不全，本文将把博主摸索数天的经验及成果以图文形式详细介绍Hotspot的debug过程。 软件环境 OS：CentOS 6.5 OpenJDK: OpenJDK-7u40 JDK Ve">
+<meta name="twitter:image" content="http://hunterzhao.io/images/post/2014/11/19/debug-jvm-on-linux-1.jpg">
 
 
 
 
 
 
-  <link rel="canonical" href="http://hunterzhao.io/post/2014/01/20/configure-vim-syntax-highlight-on-mac.html"/>
+  <link rel="canonical" href="http://hunterzhao.io/post/2014/11/19/build-hotspot-jvm-debug-environment-on-linux/"/>
 
 
 
@@ -140,7 +144,7 @@
   };
 </script>
 
-  <title>Mac下vim开启语法高亮&着色 | WorkHoliday</title>
+  <title>在Linux下搭建OpenJDK7源码调试环境 | WorkHoliday</title>
   
 
 
@@ -377,7 +381,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://hunterzhao.io/post/2014/01/20/configure-vim-syntax-highlight-on-mac.html">
+    <link itemprop="mainEntityOfPage" href="http://hunterzhao.io/post/2014/11/19/build-hotspot-jvm-debug-environment-on-linux/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Hunter Zhao">
@@ -394,7 +398,7 @@
 
         
         
-          <h2 class="post-title" itemprop="name headline">Mac下vim开启语法高亮&着色</h2>
+          <h2 class="post-title" itemprop="name headline">在Linux下搭建OpenJDK7源码调试环境</h2>
         
 
         <div class="post-meta">
@@ -406,7 +410,7 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-01-20T12:06:34+08:00">2014-01-20</time>
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-11-19T17:17:53+08:00">2014-11-19</time>
             
 
             
@@ -427,7 +431,7 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Mac/" itemprop="url" rel="index"><span itemprop="name">Mac</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/OpenJDK/" itemprop="url" rel="index"><span itemprop="name">OpenJDK</span></a></span>
 
                 
                 
@@ -441,7 +445,7 @@
 
           
           
-             <span id="/post/2014/01/20/configure-vim-syntax-highlight-on-mac.html" class="leancloud_visitors" data-flag-title="Mac下vim开启语法高亮&着色">
+             <span id="/post/2014/11/19/build-hotspot-jvm-debug-environment-on-linux/" class="leancloud_visitors" data-flag-title="在Linux下搭建OpenJDK7源码调试环境">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -466,7 +470,7 @@
                 
                   <span class="post-meta-item-text">字数统计：</span>
                 
-                <span title="字数统计">1.3k</span>
+                <span title="字数统计">3.2k</span>
               
 
               
@@ -480,7 +484,7 @@
                 
                   <span class="post-meta-item-text">阅读时长&asymp;</span>
                 
-                <span title="阅读时长">0:01</span>
+                <span title="阅读时长">0:03</span>
               
             </div>
           
@@ -500,11 +504,33 @@
       
 
       
-        <p>Mac OS并不像大多数Linux发行版vim默认自带语法着色高亮显示（通常Linux可通过编辑/etc/vimrc进行全局设置或~/vimrc进行单用户设置），使用vi/vim编辑文件时很不方便，如何解决 ?</p>
-<h1 id="编辑文件-usr-share-vim-vimrc"><a href="#编辑文件-usr-share-vim-vimrc" class="headerlink" title="编辑文件/usr/share/vim/vimrc"></a>编辑文件/usr/share/vim/vimrc</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">BobZhao@mac:~ &gt; sudo vim /usr/share/vim/vimrc</span><br><span class="line">Password:</span><br><span class="line"><span class="string">" Configuration file for vim</span></span><br><span class="line"><span class="string">set modelines=0         "</span> CVE-2007-2438</span><br><span class="line"></span><br><span class="line"><span class="string">" Normally we use vim-extensions. If you want true vi-compatibility</span></span><br><span class="line"><span class="string">"</span> remove change the following statements</span><br><span class="line"><span class="built_in">set</span> nocompatible        <span class="string">" Use Vim defaults instead of 100% vi compatibility</span></span><br><span class="line"><span class="string">set backspace=2         "</span> more powerful backspacing</span><br><span class="line"></span><br><span class="line"><span class="string">" Don't write backup file if vim is being called by "</span>crontab -e<span class="string">"</span></span><br><span class="line"><span class="string">au BufWrite /private/tmp/crontab.* set nowritebackup</span></span><br><span class="line"><span class="string">"</span> Don<span class="string">'t write backup file if vim is being called by "chpass"</span></span><br><span class="line"><span class="string">au BufWrite /private/etc/pw.* set nowritebackup</span></span><br></pre></td></tr></table></figure>
+        <p>在前面的文章中博主已经介绍过如何在Linux下编译OpenJDK7源码，现继续介绍如何在Linux下搭建基于eclipse IDE的Hotspot源码调试环境。鉴于网上关于JVM源码调试方面的文章寥寥无几并且内容参差不全，本文将把博主摸索数天的经验及成果以图文形式详细介绍Hotspot的debug过程。</p>
+<h1 id="软件环境"><a href="#软件环境" class="headerlink" title="软件环境"></a>软件环境</h1><ul>
+<li>OS：CentOS 6.5</li>
+<li>OpenJDK: OpenJDK-7u40</li>
+<li>JDK Version：openjdk-7u40-fcs-src-b43-26_aug_2013</li>
+<li>IDE：eclipse-cpp-luna-SR1-linux-gtk-x86_64</li>
+</ul>
+<h1 id="导入源码"><a href="#导入源码" class="headerlink" title="导入源码"></a>导入源码</h1><p>首先解压JDK源码包至<code>/usr/local</code>目录，然后启动eclipse，依次选择<code>File</code> &gt; <code>New</code> &gt; <code>Makefile Project with Existing Code</code>(如果没有则在Other里找)</p>
+<p><img src="/images/post/2014/11/19/debug-jvm-on-linux-1.jpg" alt="debug-openjdk7"></p>
+<h1 id="配置环境变量"><a href="#配置环境变量" class="headerlink" title="配置环境变量"></a>配置环境变量</h1><p>定位到项目名右键 &gt; <code>Properties &gt;C/C++ Build</code>需要修改两个地方：</p>
+<ul>
+<li>将Builder里<code>Use default build command</code>的对勾去掉，填入参数<code>ARCH_DATA_MODEL=64</code></li>
+<li>将<code>Build location</code>的<code>Build directory</code>追加上<code>/make</code>，最终是<code>${workspace_lc:/hotspot}/make</code>，目的是告诉make编译器到该目录下寻找编译文件Makefile。</li>
+</ul>
 <a id="more"></a>
-<h1 id="在set-backspace-2下插入配置"><a href="#在set-backspace-2下插入配置" class="headerlink" title="在set backspace=2下插入配置"></a>在set backspace=2下插入配置</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">set</span> ai                  <span class="string">" auto indenting</span></span><br><span class="line"><span class="string">set history=100         "</span> keep 100 lines of <span class="built_in">history</span></span><br><span class="line"><span class="built_in">set</span> ruler               <span class="string">" show the cursor position</span></span><br><span class="line"><span class="string">syntax on               "</span> syntax highlighting</span><br><span class="line"><span class="built_in">set</span> hlsearch            <span class="string">" highlight the last searched term</span></span><br><span class="line"><span class="string">filetype plugin on      "</span> use the file <span class="built_in">type</span> plugins</span><br><span class="line"></span><br><span class="line"><span class="string">" When editing a file, always jump to the last cursor position</span></span><br><span class="line"><span class="string">autocmd BufReadPost *</span></span><br><span class="line"><span class="string">\ if ! exists("</span>g:leave_my_cursor_position_alone<span class="string">") |</span></span><br><span class="line"><span class="string">\ if line("</span><span class="string">'\"") &gt; 0 &amp;&amp; line ("'</span>\<span class="string">""</span>) &lt;= line(<span class="string">"$"</span>) |</span><br><span class="line">\ exe <span class="string">"normal g'\""</span> |</span><br><span class="line">\ endif |</span><br><span class="line">\ endif</span><br></pre></td></tr></table></figure>
-<h1 id="验证"><a href="#验证" class="headerlink" title="验证"></a>验证</h1><p>再次打开该文件发现已经生效<br><img src="/images/post/2014/10/01/configure-vim-highlight-on-mac.png" alt="configure-vim"></p>
+<p><img src="/images/post/2014/11/19/debug-jvm-on-linux-2.jpg" alt="debug-openjdk7"></p>
+<h1 id="开始编译"><a href="#开始编译" class="headerlink" title="开始编译"></a>开始编译</h1><p>选择菜单栏<code>Project</code> &gt; <code>Build Project</code>，如果运气不差的话会看到已经开始build了，沏杯咖啡慢慢等吧（首次build大概需要10-20m）。</p>
+<p><img src="/images/post/2014/11/19/debug-jvm-on-linux-3.jpg" alt="debug-openjdk7"></p>
+<p>部分LOG信息：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">make[4]: Entering directory `/usr/<span class="built_in">local</span>/openjdk/hotspot/build/linux/linux_amd64_compiler2/fastdebug<span class="string">'</span></span><br><span class="line"><span class="string">echo "**NOTICE** Dtrace support disabled: "/usr/include/sys/sdt.h not found""</span></span><br><span class="line"><span class="string">**NOTICE** Dtrace support disabled: /usr/include/sys/sdt.h not found</span></span><br><span class="line"><span class="string">make[4]: Leaving directory `/usr/local/openjdk/hotspot/build/linux/linux_amd64_compiler2/fastdebug'</span></span><br><span class="line">All <span class="keyword">done</span>.</span><br><span class="line">make[3]: Leaving directory `/usr/<span class="built_in">local</span>/openjdk/hotspot/build/linux/linux_amd64_compiler2/fastdebug<span class="string">'</span></span><br><span class="line"><span class="string">cd linux_amd64_compiler2/fastdebug &amp;&amp; ./test_gamma</span></span><br><span class="line"><span class="string">java version "1.7.0_67"</span></span><br><span class="line"><span class="string">Java(TM) SE Runtime Environment (build 1.7.0_67-b01)</span></span><br><span class="line"><span class="string">OpenJDK 64-Bit Server VM (build 24.0-b56-internal-fastdebug, mixed mode)</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"> 1. A1 B5 C8 D6 E3 F7 G2 H4 </span></span><br><span class="line"><span class="string"> 2. A1 B6 C8 D3 E7 F4 G2 H5 </span></span><br><span class="line"><span class="string"> 3. A1 B7 C4 D6 E8 F2 G5 H3 </span></span><br><span class="line"><span class="string"> 4. A1 B7 C5 D8 E2 F4 G6 H3 </span></span><br><span class="line"><span class="string"> 5. A2 B4 C6 D8 E3 F1 G7 H5 </span></span><br><span class="line"><span class="string"> 6. A2 B5 C7 D1 E3 F8 G6 H4</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"> -- 此处略去N行------</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"> Using java runtime at: /usr/java/jdk1.7.0_67/jre</span></span><br><span class="line"><span class="string">make[2]: Leaving directory `/usr/local/openjdk/hotspot/build/linux'</span></span><br><span class="line">make[1]: Leaving directory `/usr/<span class="built_in">local</span>/openjdk/hotspot/make<span class="string">'</span></span><br><span class="line"><span class="string">cd /usr/local/openjdk/hotspot/make; \</span></span><br><span class="line"><span class="string">    make BUILD_FLAVOR=fastdebug VM_TARGET=fastdebug1 generic_build1 </span></span><br><span class="line"><span class="string">INFO: ENABLE_FULL_DEBUG_SYMBOLS=1</span></span><br><span class="line"><span class="string">INFO: /usr/bin/objcopy cmd found so will create .debuginfo files.</span></span><br><span class="line"><span class="string">INFO: STRIP_POLICY=min_strip</span></span><br><span class="line"><span class="string">INFO: ZIP_DEBUGINFO_FILES=1</span></span><br><span class="line"><span class="string">make[1]: Entering directory `/usr/local/openjdk/hotspot/make'</span></span><br><span class="line">mkdir -p /usr/<span class="built_in">local</span>/openjdk/hotspot/build/linux</span><br><span class="line">No compiler1 (fastdebug1) <span class="keyword">for</span> ARCH_DATA_MODEL=64</span><br><span class="line">make[1]: Leaving directory `/usr/<span class="built_in">local</span>/openjdk/hotspot/make<span class="string">'</span></span><br><span class="line"><span class="string">make BUILD_FLAVOR=fastdebug VM_SUBDIR=fastdebug \</span></span><br><span class="line"><span class="string">      EXPORT_SUBDIR=/fastdebug \</span></span><br><span class="line"><span class="string">      generic_export</span></span><br><span class="line"><span class="string">INFO: ENABLE_FULL_DEBUG_SYMBOLS=1</span></span><br><span class="line"><span class="string">INFO: /usr/bin/objcopy cmd found so will create .debuginfo files.</span></span><br><span class="line"><span class="string">INFO: STRIP_POLICY=min_strip</span></span><br><span class="line"><span class="string">INFO: ZIP_DEBUGINFO_FILES=1</span></span><br><span class="line"><span class="string">make[1]: Entering directory `/usr/local/openjdk/hotspot/make'</span></span><br><span class="line">make[1]: Nothing to be <span class="keyword">done</span> <span class="keyword">for</span> `generic_export<span class="string">'.</span></span><br><span class="line"><span class="string">make[1]: Leaving directory `/usr/local/openjdk/hotspot/make'</span></span><br><span class="line"></span><br><span class="line">16:02:09 Build Finished (took 8s.216ms)</span><br></pre></td></tr></table></figure>
+<h1 id="配置DEBUG环境"><a href="#配置DEBUG环境" class="headerlink" title="配置DEBUG环境"></a>配置DEBUG环境</h1><ul>
+<li>编译成功之后就可以测试了，需配置如下几步<br>点选菜单栏<code>Run</code> &gt; <code>Debug Configurations</code> &gt; <code>New launch configuration</code>，在<code>C/C++ Application</code>里填入<code>/usr/local/openjdk/hotspot/build/linux/linux_amd64_compiler2/fastdebug/gamma</code>，Project选择当前项目。</li>
+<li>在<code>Argument tab</code>页里<code>Program arguments</code>填入<code>-version</code></li>
+<li>在<code>Environment tab</code>页里<code>Environment variables to set</code>填入<code>JAVA_HOME | /usr/java/jdk1.7.0.67</code></li>
+<li>在<code>Common tab</code>页里勾选<code>Debug</code><br><img src="/images/post/2014/11/19/debug-jvm-on-linux-4.jpg" alt="debug-openjdk7"></li>
+</ul>
+<h1 id="进入调试模式"><a href="#进入调试模式" class="headerlink" title="进入调试模式"></a>进入调试模式</h1><p>配置完毕后，点击Debug即可进入调试模式，Hotspot内部一览无余，<br><img src="/images/post/2014/11/19/debug-jvm-on-linux-5.jpg" alt="debug-openjdk7"></p>
 
       
     </div>
@@ -539,7 +565,7 @@
     <strong>本文作者： </strong>Hunter Zhao</li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="http://hunterzhao.io/post/2014/01/20/configure-vim-syntax-highlight-on-mac.html" title="Mac下vim开启语法高亮&着色">http://hunterzhao.io/post/2014/01/20/configure-vim-syntax-highlight-on-mac.html</a>
+    <a href="http://hunterzhao.io/post/2014/11/19/build-hotspot-jvm-debug-environment-on-linux/" title="在Linux下搭建OpenJDK7源码调试环境">http://hunterzhao.io/post/2014/11/19/build-hotspot-jvm-debug-environment-on-linux/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-ND 4.0</a> 许可协议。转载请注明出处！</li>
@@ -552,11 +578,13 @@
       
         <div class="post-tags">
           
+            <a href="/tags/CentOS/" rel="tag"># CentOS</a>
+          
             <a href="/tags/Linux/" rel="tag"># Linux</a>
           
-            <a href="/tags/vim/" rel="tag"># vim</a>
+            <a href="/tags/OpenJDK/" rel="tag"># OpenJDK</a>
           
-            <a href="/tags/Mac/" rel="tag"># Mac</a>
+            <a href="/tags/JVM/" rel="tag"># JVM</a>
           
         </div>
       
@@ -569,8 +597,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/post/2014/01/20/install-and-configure-mysql-on-centos.html" rel="next" title="CentOS通过yum安装配置MySQL">
-                <i class="fa fa-chevron-left"></i> CentOS通过yum安装配置MySQL
+              <a href="/post/2014/11/08/compile-jdk7-source-code-on-centos/" rel="next" title="在Linux上编译OpenJDK7源码">
+                <i class="fa fa-chevron-left"></i> 在Linux上编译OpenJDK7源码
               </a>
             
           </div>
@@ -579,8 +607,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/post/2014/11/08/compile-jdk7-source-code-on-centos.html" rel="prev" title="在Linux上编译OpenJDK7源码">
-                在Linux上编译OpenJDK7源码 <i class="fa fa-chevron-right"></i>
+              <a href="/post/2014/12/01/analyse-jvm-startup-flow-through-source-code-create/" rel="prev" title="【Hotspot源码分析】从HotSpot源码角度深入分析Java程序启动过程-创建">
+                【Hotspot源码分析】从HotSpot源码角度深入分析Java程序启动过程-创建 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -794,7 +822,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#编辑文件-usr-share-vim-vimrc"><span class="nav-number">1.</span> <span class="nav-text">编辑文件/usr/share/vim/vimrc</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#在set-backspace-2下插入配置"><span class="nav-number">2.</span> <span class="nav-text">在set backspace=2下插入配置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#验证"><span class="nav-number">3.</span> <span class="nav-text">验证</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#软件环境"><span class="nav-number">1.</span> <span class="nav-text">软件环境</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#导入源码"><span class="nav-number">2.</span> <span class="nav-text">导入源码</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#配置环境变量"><span class="nav-number">3.</span> <span class="nav-text">配置环境变量</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#开始编译"><span class="nav-number">4.</span> <span class="nav-text">开始编译</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#配置DEBUG环境"><span class="nav-number">5.</span> <span class="nav-text">配置DEBUG环境</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#进入调试模式"><span class="nav-number">6.</span> <span class="nav-text">进入调试模式</span></a></li></ol></div>
             
 
           </div>

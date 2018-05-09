@@ -110,25 +110,27 @@
 
 
 
-  <meta name="description" content="安装MySQL1[root@HunterWorkStation local]# yum -y install mysql mysql-server 启动MySQL服务1234567891011121314151617181920212223242526272829303132[root@HunterWorkStation local]# service mysqld startInitializi">
-<meta name="keywords" content="MySQL,CentOS">
+  <meta name="description" content="软件环境 OS：CentOS 6.5 JDK: OpenJDK-7u40  准备工作下载源码包OpenJDK Source Releases 解压源码包1# unzip openjdk-7u40-fcs-src-b43-26_aug_2013.zip  hotspot 虚拟机实现，大部分是C/C++代码 jdk Java核心类库目录，位于 jdk/src/share/classes langtoo">
+<meta name="keywords" content="CentOS,OpenJDK,JVM">
 <meta property="og:type" content="article">
-<meta property="og:title" content="CentOS通过yum安装配置MySQL">
-<meta property="og:url" content="http://hunterzhao.io/post/2014/01/20/install-and-configure-mysql-on-centos.html">
+<meta property="og:title" content="在Linux上编译OpenJDK7源码">
+<meta property="og:url" content="http://hunterzhao.io/post/2014/11/08/compile-jdk7-source-code-on-centos/index.html">
 <meta property="og:site_name" content="WorkHoliday">
-<meta property="og:description" content="安装MySQL1[root@HunterWorkStation local]# yum -y install mysql mysql-server 启动MySQL服务1234567891011121314151617181920212223242526272829303132[root@HunterWorkStation local]# service mysqld startInitializi">
+<meta property="og:description" content="软件环境 OS：CentOS 6.5 JDK: OpenJDK-7u40  准备工作下载源码包OpenJDK Source Releases 解压源码包1# unzip openjdk-7u40-fcs-src-b43-26_aug_2013.zip  hotspot 虚拟机实现，大部分是C/C++代码 jdk Java核心类库目录，位于 jdk/src/share/classes langtoo">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://hunterzhao.io/images/post/2014/11/08/compile-openjdk7-on-mac.png">
 <meta property="og:updated_time" content="2018-03-27T19:04:41.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="CentOS通过yum安装配置MySQL">
-<meta name="twitter:description" content="安装MySQL1[root@HunterWorkStation local]# yum -y install mysql mysql-server 启动MySQL服务1234567891011121314151617181920212223242526272829303132[root@HunterWorkStation local]# service mysqld startInitializi">
+<meta name="twitter:title" content="在Linux上编译OpenJDK7源码">
+<meta name="twitter:description" content="软件环境 OS：CentOS 6.5 JDK: OpenJDK-7u40  准备工作下载源码包OpenJDK Source Releases 解压源码包1# unzip openjdk-7u40-fcs-src-b43-26_aug_2013.zip  hotspot 虚拟机实现，大部分是C/C++代码 jdk Java核心类库目录，位于 jdk/src/share/classes langtoo">
+<meta name="twitter:image" content="http://hunterzhao.io/images/post/2014/11/08/compile-openjdk7-on-mac.png">
 
 
 
 
 
 
-  <link rel="canonical" href="http://hunterzhao.io/post/2014/01/20/install-and-configure-mysql-on-centos.html"/>
+  <link rel="canonical" href="http://hunterzhao.io/post/2014/11/08/compile-jdk7-source-code-on-centos/"/>
 
 
 
@@ -138,7 +140,7 @@
   };
 </script>
 
-  <title>CentOS通过yum安装配置MySQL | WorkHoliday</title>
+  <title>在Linux上编译OpenJDK7源码 | WorkHoliday</title>
   
 
 
@@ -375,7 +377,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://hunterzhao.io/post/2014/01/20/install-and-configure-mysql-on-centos.html">
+    <link itemprop="mainEntityOfPage" href="http://hunterzhao.io/post/2014/11/08/compile-jdk7-source-code-on-centos/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Hunter Zhao">
@@ -392,7 +394,7 @@
 
         
         
-          <h2 class="post-title" itemprop="name headline">CentOS通过yum安装配置MySQL</h2>
+          <h2 class="post-title" itemprop="name headline">在Linux上编译OpenJDK7源码</h2>
         
 
         <div class="post-meta">
@@ -404,7 +406,7 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-01-20T12:06:34+08:00">2014-01-20</time>
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-11-08T05:50:46+08:00">2014-11-08</time>
             
 
             
@@ -425,7 +427,7 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/MySQL/" itemprop="url" rel="index"><span itemprop="name">MySQL</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/OpenJDK/" itemprop="url" rel="index"><span itemprop="name">OpenJDK</span></a></span>
 
                 
                 
@@ -439,7 +441,7 @@
 
           
           
-             <span id="/post/2014/01/20/install-and-configure-mysql-on-centos.html" class="leancloud_visitors" data-flag-title="CentOS通过yum安装配置MySQL">
+             <span id="/post/2014/11/08/compile-jdk7-source-code-on-centos/" class="leancloud_visitors" data-flag-title="在Linux上编译OpenJDK7源码">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -464,7 +466,7 @@
                 
                   <span class="post-meta-item-text">字数统计：</span>
                 
-                <span title="字数统计">2.7k</span>
+                <span title="字数统计">3.2k</span>
               
 
               
@@ -498,16 +500,42 @@
       
 
       
-        <h1 id="安装MySQL"><a href="#安装MySQL" class="headerlink" title="安装MySQL"></a>安装MySQL</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@HunterWorkStation <span class="built_in">local</span>]<span class="comment"># yum -y install mysql mysql-server</span></span><br></pre></td></tr></table></figure>
-<h1 id="启动MySQL服务"><a href="#启动MySQL服务" class="headerlink" title="启动MySQL服务"></a>启动MySQL服务</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">[root@HunterWorkStation <span class="built_in">local</span>]<span class="comment"># service mysqld start</span></span><br><span class="line"></span><br><span class="line">Initializing MySQL database:  Installing MySQL system tables...    OK</span><br><span class="line">Filling <span class="built_in">help</span> tables...   OK</span><br><span class="line"></span><br><span class="line">To start mysqld at boot time you have to copy</span><br><span class="line">support-files/mysql.server to the right place <span class="keyword">for</span> your system</span><br><span class="line"></span><br><span class="line">PLEASE REMEMBER TO SET A PASSWORD FOR THE MySQL root USER !</span><br><span class="line">To <span class="keyword">do</span> so, start the server, <span class="keyword">then</span> issue the following commands:</span><br><span class="line"></span><br><span class="line">/usr/bin/mysqladmin -u root password <span class="string">'new-password'</span></span><br><span class="line">/usr/bin/mysqladmin -u root -h localhost.localdomain password <span class="string">'new-password'</span></span><br><span class="line"></span><br><span class="line">Alternatively you can run:</span><br><span class="line">/usr/bin/mysql_secure_installation</span><br><span class="line"></span><br><span class="line"><span class="built_in">which</span> will also give you the option of removing the <span class="built_in">test</span></span><br><span class="line">databases and anonymous user created by default.  This is</span><br><span class="line">strongly recommended <span class="keyword">for</span> production servers.</span><br><span class="line"></span><br><span class="line">See the manual <span class="keyword">for</span> more instructions.</span><br><span class="line">You can start the MySQL daemon with:</span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> /usr ; /usr/bin/mysqld_safe &amp;</span><br><span class="line">You can <span class="built_in">test</span> the MySQL daemon with mysql-test-run.pl</span><br><span class="line"><span class="built_in">cd</span> /usr/mysql-test ; perl mysql-test-run.pl</span><br><span class="line"></span><br><span class="line">Please report any problems with the /usr/bin/mysqlbug script!</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Starting mysqld:                                           [  OK  ]</span><br></pre></td></tr></table></figure>
+        <h1 id="软件环境"><a href="#软件环境" class="headerlink" title="软件环境"></a>软件环境</h1><ul>
+<li>OS：CentOS 6.5</li>
+<li>JDK: OpenJDK-7u40</li>
+</ul>
+<h1 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h1><h2 id="下载源码包"><a href="#下载源码包" class="headerlink" title="下载源码包"></a>下载源码包</h2><p><a href="https://jdk7.java.net/source.html" target="_blank" rel="noopener">OpenJDK Source Releases</a></p>
+<h2 id="解压源码包"><a href="#解压源码包" class="headerlink" title="解压源码包"></a>解压源码包</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># unzip openjdk-7u40-fcs-src-b43-26_aug_2013.zip</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>hotspot 虚拟机实现，大部分是C/C++代码</li>
+<li>jdk Java核心类库目录，位于 jdk/src/share/classes</li>
+<li>langtools 一些编译工具</li>
+</ul>
+<h2 id="安装依赖"><a href="#安装依赖" class="headerlink" title="安装依赖"></a>安装依赖</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install gcc gcc-c++ alsa-lib alsa-lib-devel libXrender libXrender-devel libXi-devel libXt-devel libXtst-devel cups cups-devel</span><br></pre></td></tr></table></figure>
 <a id="more"></a>
-<h1 id="设置root用户密码"><a href="#设置root用户密码" class="headerlink" title="设置root用户密码"></a>设置root用户密码</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@HunterWorkStation <span class="built_in">local</span>]<span class="comment"># mysqladmin -u root password 'YOUR PASSWORD HERE'</span></span><br></pre></td></tr></table></figure>
-<h1 id="登陆数据库并授权"><a href="#登陆数据库并授权" class="headerlink" title="登陆数据库并授权"></a>登陆数据库并授权</h1><p>此时用户是无法远程登陆该数据库的，接下来为用户授权<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">[root@HunterWorkStation <span class="built_in">local</span>]<span class="comment"># mysql -u root -p</span></span><br><span class="line"></span><br><span class="line">Enter password: </span><br><span class="line">Welcome to the MySQL monitor.  Commands end with ; or \g.</span><br><span class="line">Your MySQL connection id is 4</span><br><span class="line">Server version: 5.1.71 Source distribution</span><br><span class="line"></span><br><span class="line">Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.</span><br><span class="line"></span><br><span class="line">Oracle is a registered trademark of Oracle Corporation and/or its</span><br><span class="line">affiliates. Other names may be trademarks of their respective</span><br><span class="line">owners.</span><br><span class="line"></span><br><span class="line">Type <span class="string">'help;'</span> or <span class="string">'\h'</span> <span class="keyword">for</span> <span class="built_in">help</span>. Type <span class="string">'\c'</span> to clear the current input statement.</span><br><span class="line"></span><br><span class="line">mysql&gt; grant all on *.* to root@<span class="string">'%'</span> identified by <span class="string">'123456'</span>;  <span class="comment"># 为所有主机授权使用root用户操作所有库和表，密码123456</span></span><br><span class="line">Query OK, 0 rows affected (0.00 sec)</span><br></pre></td></tr></table></figure></p>
-<h1 id="设置MySQL服务开机自启动"><a href="#设置MySQL服务开机自启动" class="headerlink" title="设置MySQL服务开机自启动"></a>设置MySQL服务开机自启动</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@HunterWorkStation <span class="built_in">local</span>]<span class="comment"># chkconfig mysqld on</span></span><br></pre></td></tr></table></figure>
-<p>设置后查看是否设置成功<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@HunterWorkStation <span class="built_in">local</span>]<span class="comment"># chkconfig --list | grep mysqld</span></span><br><span class="line"></span><br><span class="line">mysqld    0:off	 1:off  2:on  3:on  4:on  5:on  6:off   <span class="comment"># 2-5为on则表示自启动</span></span><br></pre></td></tr></table></figure></p>
-<h1 id="设置服务端编码"><a href="#设置服务端编码" class="headerlink" title="设置服务端编码"></a>设置服务端编码</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[root@HunterWorkStation <span class="built_in">local</span>]<span class="comment"># vim /etc/my.cnf</span></span><br><span class="line"></span><br><span class="line">[mysqld]</span><br><span class="line">datadir=/var/lib/mysql</span><br><span class="line">socket=/var/lib/mysql/mysql.sock</span><br><span class="line">user=mysql</span><br><span class="line">default-character-set=utf8</span><br><span class="line"><span class="comment"># Disabling symbolic-links is recommended to prevent assorted security risks</span></span><br><span class="line">symbolic-links=0</span><br></pre></td></tr></table></figure>
-<h1 id="重启MySQL服务"><a href="#重启MySQL服务" class="headerlink" title="重启MySQL服务"></a>重启MySQL服务</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@HunterWorkStation <span class="built_in">local</span>]<span class="comment"># service mysqld restart</span></span><br><span class="line">Stopping mysqld:                                           [  OK  ]</span><br><span class="line">Starting mysqld:                                           [  OK  ]</span><br></pre></td></tr></table></figure>
-<p>至此，安装配置完毕，接来下可以用客户端连接操作MySQL。</p>
+<h2 id="安装freetype"><a href="#安装freetype" class="headerlink" title="安装freetype"></a>安装freetype</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ./configure &amp;&amp; make &amp;&amp; make install</span></span><br></pre></td></tr></table></figure>
+<h2 id="安装Ant"><a href="#安装Ant" class="headerlink" title="安装Ant"></a>安装Ant</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ln -s /usr/<span class="built_in">local</span>/apache-ant-1.9.4/bin/ant /usr/bin/ant</span><br></pre></td></tr></table></figure>
+<h2 id="安装JDK（如果已有则不必重新安装）"><a href="#安装JDK（如果已有则不必重新安装）" class="headerlink" title="安装JDK（如果已有则不必重新安装）"></a>安装JDK（如果已有则不必重新安装）</h2><p><code>Sun JDK或Open JDK均可，过程略.</code></p>
+<h1 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h1><p>编辑文件<code>vim ~/.bash_profile</code>加入以下变量</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">export LANG=&quot;C&quot;</span><br><span class="line">export ALT_BOOTDIR=&quot;/usr/java/jdk1.7.0_67/&quot;</span><br><span class="line">export ANT_HOME=&quot;/usr/local/apache-ant-1.9.4&quot;</span><br><span class="line">export ALT_FREETYPE_HEADERS_PATH=&quot;/usr/local/include/freetype2&quot;</span><br><span class="line">export ALT_FREETYPE_LIB_PATH=&quot;/usr/local/lib&quot;</span><br><span class="line">export ALLOW_DOWNLOADS=true</span><br><span class="line">export SKIP_DEBUG_BUILD=false</span><br><span class="line">export SKIP_FASTDEBUG_BUILD=true</span><br><span class="line">export DEBUG_NAME=debug</span><br><span class="line">unset JAVA_HOME</span><br><span class="line">unset CLASSPATH</span><br></pre></td></tr></table></figure>
+<p>使变量生效<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># source ~/.bash_profile</span><br></pre></td></tr></table></figure></p>
+<h1 id="编译源码"><a href="#编译源码" class="headerlink" title="编译源码"></a>编译源码</h1><h2 id="测试环境是否健全"><a href="#测试环境是否健全" class="headerlink" title="测试环境是否健全"></a>测试环境是否健全</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># make sanity</span><br></pre></td></tr></table></figure>
+<h2 id="如果输出以下内容则表示通过，可以进行编译。"><a href="#如果输出以下内容则表示通过，可以进行编译。" class="headerlink" title="如果输出以下内容则表示通过，可以进行编译。"></a>如果输出以下内容则表示通过，可以进行编译。</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Sanity check passed.</span><br></pre></td></tr></table></figure>
+<h2 id="开始编译"><a href="#开始编译" class="headerlink" title="开始编译"></a>开始编译</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># make ARCH_DATA_MODEL=64</span><br></pre></td></tr></table></figure>
+<h2 id="看到如下输出则为编译成功"><a href="#看到如下输出则为编译成功" class="headerlink" title="看到如下输出则为编译成功"></a>看到如下输出则为编译成功</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt;Finished making images @ Sat Nov  8 00:45:16 EST 2014 ...</span><br><span class="line">make[2]: Leaving directory `/usr/local/openjdk/jdk/make&apos;</span><br><span class="line">########################################################################</span><br><span class="line">##### Leaving jdk for target(s) sanity all docs images             #####</span><br><span class="line">########################################################################</span><br><span class="line">##### Build time 00:10:15 jdk for target(s) sanity all docs images #####</span><br><span class="line">########################################################################</span><br><span class="line"></span><br><span class="line">#-- Build times ----------</span><br><span class="line">Target debug_build</span><br><span class="line">Start 2014-11-08 00:26:41</span><br><span class="line">End   2014-11-08 00:45:16</span><br><span class="line">00:02:11 corba</span><br><span class="line">00:04:36 hotspot</span><br><span class="line">00:00:24 jaxp</span><br><span class="line">00:00:30 jaxws</span><br><span class="line">00:10:15 jdk</span><br><span class="line">00:00:39 langtools</span><br><span class="line">00:18:35 TOTAL</span><br><span class="line">-------------------------</span><br><span class="line">make[1]: Leaving directory `/usr/local/openjdk&apos;</span><br><span class="line">[root@BobServerStation openjdk]#</span><br></pre></td></tr></table></figure>
+<h1 id="测试验证"><a href="#测试验证" class="headerlink" title="测试验证"></a>测试验证</h1><h2 id="一个测试类"><a href="#一个测试类" class="headerlink" title="一个测试类"></a>一个测试类</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* Author: HunterZhao</span></span><br><span class="line"><span class="comment">* Date: 2014-11-08</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span></span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</span><br><span class="line">       System.out.println(<span class="string">"Hello OpenJDK~"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用刚生成的JDK编译<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># ./build/linux-amd64/bin/javac Test.java</span><br></pre></td></tr></table></figure></p>
+<p>在当前目录下会生成Test.class文件，然后运行便会看到输出。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># ./build/linux-amd64/bin/java Test</span><br><span class="line">Hello OpenJDK~</span><br></pre></td></tr></table></figure></p>
+<h2 id="另一个测试类"><a href="#另一个测试类" class="headerlink" title="另一个测试类"></a>另一个测试类</h2><p>进入目录<code>jdk/src/share/classes/java/io</code>，然后修改<code>PrintStream.java</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">   * Prints a string.  If the argument is &lt;code&gt;null&lt;/code&gt; then the string</span></span><br><span class="line"><span class="comment">   * &lt;code&gt;"null"&lt;/code&gt; is printed.  Otherwise, the string's characters are</span></span><br><span class="line"><span class="comment">   * converted into bytes according to the platform's default character</span></span><br><span class="line"><span class="comment">   * encoding, and these bytes are written in exactly the manner of the</span></span><br><span class="line"><span class="comment">   * &lt;code&gt;&#123;<span class="doctag">@link</span> #write(int)&#125;&lt;/code&gt; method.</span></span><br><span class="line"><span class="comment">   *</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@param</span>      s   The &lt;code&gt;String&lt;/code&gt; to be printed</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">print</span><span class="params">(String s)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (s == <span class="keyword">null</span>) &#123;</span><br><span class="line">          s = <span class="string">"null"</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      s = s + <span class="string">" This is OpenJdk7 compiled by Bob.Z!!!"</span>;  <span class="comment">// 重新赋值</span></span><br><span class="line">      write(s);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>接下来重新编译JDK，重新编译刚才的Test.java文件并运行会看到如下输出：</p>
+<p><img src="/images/post/2014/11/08/compile-openjdk7-on-mac.png" alt="compile-openjdk7"></p>
+<p>Enjoy them~</p>
+<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><ul>
+<li>OpenJDK: <a href="https://jdk7.java.net/" target="_blank" rel="noopener">https://jdk7.java.net/</a></li>
+<li>freetype: <a href="http://download.savannah.gnu.org/releases/freetype/" target="_blank" rel="noopener">http://download.savannah.gnu.org/releases/freetype/</a></li>
+<li>Ant: <a href="http://archive.apache.org/dist/ant/binaries/" target="_blank" rel="noopener">http://archive.apache.org/dist/ant/binaries/</a></li>
+</ul>
 
       
     </div>
@@ -542,7 +570,7 @@
     <strong>本文作者： </strong>Hunter Zhao</li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="http://hunterzhao.io/post/2014/01/20/install-and-configure-mysql-on-centos.html" title="CentOS通过yum安装配置MySQL">http://hunterzhao.io/post/2014/01/20/install-and-configure-mysql-on-centos.html</a>
+    <a href="http://hunterzhao.io/post/2014/11/08/compile-jdk7-source-code-on-centos/" title="在Linux上编译OpenJDK7源码">http://hunterzhao.io/post/2014/11/08/compile-jdk7-source-code-on-centos/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-ND 4.0</a> 许可协议。转载请注明出处！</li>
@@ -555,9 +583,11 @@
       
         <div class="post-tags">
           
-            <a href="/tags/MySQL/" rel="tag"># MySQL</a>
-          
             <a href="/tags/CentOS/" rel="tag"># CentOS</a>
+          
+            <a href="/tags/OpenJDK/" rel="tag"># OpenJDK</a>
+          
+            <a href="/tags/JVM/" rel="tag"># JVM</a>
           
         </div>
       
@@ -570,8 +600,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/post/2011/01/10/hello-world.html" rel="next" title="Hello World">
-                <i class="fa fa-chevron-left"></i> Hello World
+              <a href="/post/2014/01/20/configure-vim-syntax-highlight-on-mac/" rel="next" title="Mac下vim开启语法高亮&着色">
+                <i class="fa fa-chevron-left"></i> Mac下vim开启语法高亮&着色
               </a>
             
           </div>
@@ -580,8 +610,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/post/2014/01/20/configure-vim-syntax-highlight-on-mac.html" rel="prev" title="Mac下vim开启语法高亮&着色">
-                Mac下vim开启语法高亮&着色 <i class="fa fa-chevron-right"></i>
+              <a href="/post/2014/11/19/build-hotspot-jvm-debug-environment-on-linux/" rel="prev" title="在Linux下搭建OpenJDK7源码调试环境">
+                在Linux下搭建OpenJDK7源码调试环境 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -795,7 +825,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#安装MySQL"><span class="nav-number">1.</span> <span class="nav-text">安装MySQL</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#启动MySQL服务"><span class="nav-number">2.</span> <span class="nav-text">启动MySQL服务</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#设置root用户密码"><span class="nav-number">3.</span> <span class="nav-text">设置root用户密码</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#登陆数据库并授权"><span class="nav-number">4.</span> <span class="nav-text">登陆数据库并授权</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#设置MySQL服务开机自启动"><span class="nav-number">5.</span> <span class="nav-text">设置MySQL服务开机自启动</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#设置服务端编码"><span class="nav-number">6.</span> <span class="nav-text">设置服务端编码</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#重启MySQL服务"><span class="nav-number">7.</span> <span class="nav-text">重启MySQL服务</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#软件环境"><span class="nav-number">1.</span> <span class="nav-text">软件环境</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#准备工作"><span class="nav-number">2.</span> <span class="nav-text">准备工作</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#下载源码包"><span class="nav-number">2.1.</span> <span class="nav-text">下载源码包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解压源码包"><span class="nav-number">2.2.</span> <span class="nav-text">解压源码包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装依赖"><span class="nav-number">2.3.</span> <span class="nav-text">安装依赖</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装freetype"><span class="nav-number">2.4.</span> <span class="nav-text">安装freetype</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装Ant"><span class="nav-number">2.5.</span> <span class="nav-text">安装Ant</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装JDK（如果已有则不必重新安装）"><span class="nav-number">2.6.</span> <span class="nav-text">安装JDK（如果已有则不必重新安装）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#环境配置"><span class="nav-number">3.</span> <span class="nav-text">环境配置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#编译源码"><span class="nav-number">4.</span> <span class="nav-text">编译源码</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#测试环境是否健全"><span class="nav-number">4.1.</span> <span class="nav-text">测试环境是否健全</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#如果输出以下内容则表示通过，可以进行编译。"><span class="nav-number">4.2.</span> <span class="nav-text">如果输出以下内容则表示通过，可以进行编译。</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#开始编译"><span class="nav-number">4.3.</span> <span class="nav-text">开始编译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#看到如下输出则为编译成功"><span class="nav-number">4.4.</span> <span class="nav-text">看到如下输出则为编译成功</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#测试验证"><span class="nav-number">5.</span> <span class="nav-text">测试验证</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#一个测试类"><span class="nav-number">5.1.</span> <span class="nav-text">一个测试类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#另一个测试类"><span class="nav-number">5.2.</span> <span class="nav-text">另一个测试类</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Reference"><span class="nav-number">6.</span> <span class="nav-text">Reference</span></a></li></ol></div>
             
 
           </div>
