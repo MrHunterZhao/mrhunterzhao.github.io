@@ -110,23 +110,25 @@
 
 
 
-  <meta name="description" content="道与术。">
-<meta property="og:type" content="website">
-<meta property="og:title" content="WorkHoliday">
-<meta property="og:url" content="http://hunterzhao.io/categories/MyBatis/index.html">
+  <meta name="description" content="团队中前些天遇到这样一个问题，比较有意思也比较典型，我给出方案后团队成员实施出来，最终问题得以解决。  一个智能终端连接到Netty服务保持会话，在异步完成某项操作后回调回来需要通过会话通知终端，终端再根据通知做相应业务处理，在部署单节点的情况下是OK的，但是系统整体由于要做HA，部署多节点后就会出现问题: 并不能保证该回调请求一定负载到终端保持会话的节点。  如何解决这个问题？这里跟大家分享一种">
+<meta name="keywords" content="架构,集群,异步,回调,Netty">
+<meta property="og:type" content="article">
+<meta property="og:title" content="集群架构中的异步回调模型实现">
+<meta property="og:url" content="http://hunterzhao.io/post/2018/05/06/async-callback-model-in-cluster-architecture/index.html">
 <meta property="og:site_name" content="WorkHoliday">
-<meta property="og:description" content="道与术。">
+<meta property="og:description" content="团队中前些天遇到这样一个问题，比较有意思也比较典型，我给出方案后团队成员实施出来，最终问题得以解决。  一个智能终端连接到Netty服务保持会话，在异步完成某项操作后回调回来需要通过会话通知终端，终端再根据通知做相应业务处理，在部署单节点的情况下是OK的，但是系统整体由于要做HA，部署多节点后就会出现问题: 并不能保证该回调请求一定负载到终端保持会话的节点。  如何解决这个问题？这里跟大家分享一种">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-05-09T17:54:16.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="WorkHoliday">
-<meta name="twitter:description" content="道与术。">
+<meta name="twitter:title" content="集群架构中的异步回调模型实现">
+<meta name="twitter:description" content="团队中前些天遇到这样一个问题，比较有意思也比较典型，我给出方案后团队成员实施出来，最终问题得以解决。  一个智能终端连接到Netty服务保持会话，在异步完成某项操作后回调回来需要通过会话通知终端，终端再根据通知做相应业务处理，在部署单节点的情况下是OK的，但是系统整体由于要做HA，部署多节点后就会出现问题: 并不能保证该回调请求一定负载到终端保持会话的节点。  如何解决这个问题？这里跟大家分享一种">
 
 
 
 
 
 
-  <link rel="canonical" href="http://hunterzhao.io/categories/MyBatis/"/>
+  <link rel="canonical" href="http://hunterzhao.io/post/2018/05/06/async-callback-model-in-cluster-architecture/"/>
 
 
 
@@ -136,7 +138,7 @@
   };
 </script>
 
-  <title>分类: MyBatis | WorkHoliday</title>
+  <title>集群架构中的异步回调模型实现 | WorkHoliday</title>
   
 
 
@@ -199,7 +201,7 @@
     
   
 
-  <div class="container sidebar-position-left ">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -351,85 +353,271 @@
           
             
 
-    
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-    
-
-  
-
-
           
           <div id="content" class="content">
             
 
-  
-  
-  
-  <div class="post-block category">
+  <div id="posts" class="posts-expand">
+    
 
-    <div id="posts" class="posts-collapse">
-      <div class="collection-title">
-        <h2>MyBatis<small>分类</small>
-        </h2>
-      </div>
+  
 
-      
-        
+  
+  
+  
+
+  
+    <div class="reading-progress-bar"></div>
+  
 
   <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://hunterzhao.io/post/2018/05/06/async-callback-model-in-cluster-architecture/">
 
-      <h3 class="post-title">
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Hunter Zhao">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="WorkHoliday">
+    </span>
+
+    
+      <header class="post-header">
+
         
-            <a class="post-title-link" href="/post/2017/07/21/design-of-universal-code-generator-coffee-maker/" itemprop="url">
-              
-                <span itemprop="name">关于MyBatis通用代码生成器CoffeeMaker的设计思路</span>
-              
-            </a>
         
-      </h3>
+          <h2 class="post-title" itemprop="name headline">集群架构中的异步回调模型实现</h2>
+        
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-07-21T15:30:02+08:00"
-              content="2017-07-21" >
-          07-21
-        </time>
-      </div>
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-06T23:40:47+08:00">2018-05-06</time>
+            
 
-    </header>
-  </article>
+            
+            
 
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/架构/" itemprop="url" rel="index"><span itemprop="name">架构</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/post/2018/05/06/async-callback-model-in-cluster-architecture/" class="leancloud_visitors" data-flag-title="集群架构中的异步回调模型实现">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数：</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-symbolscount">
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计：</span>
+                
+                <span title="字数统计">3.1k</span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长&asymp;</span>
+                
+                <span title="阅读时长">0:03</span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>团队中前些天遇到这样一个问题，比较有意思也比较典型，我给出方案后团队成员实施出来，最终问题得以解决。</p>
+<blockquote>
+<p>一个智能终端连接到Netty服务保持会话，在异步完成某项操作后回调回来需要通过会话通知终端，终端再根据通知做相应业务处理，<br>在部署单节点的情况下是OK的，但是系统整体由于要做HA，部署多节点后就会出现问题: <strong>并不能保证该回调请求一定负载到终端保持会话的节点</strong>。</p>
+</blockquote>
+<p>如何解决这个问题？这里跟大家分享一种类似场景的通用解决方案，以下是流程图：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">                            &lt; Async Callback Model in Cluster Architecture &gt;</span><br><span class="line"></span><br><span class="line">                                              (D) Broadcast to all nodes</span><br><span class="line">                              +-----------------------------------------------------------------------+</span><br><span class="line">                              v                                                                       |</span><br><span class="line">                          + - - - - - - - - - +</span><br><span class="line">                          &apos; Cluster:          &apos;</span><br><span class="line">                          &apos;                   &apos;</span><br><span class="line">+--------+  (A) Connect   &apos; +---------------+ &apos;  (B) Async call   +---------------+  (C) Callback   +----+</span><br><span class="line">|        | -------------&gt; &apos; | Server Node A | &apos; ----------------&gt; |               | --------------&gt; |    |</span><br><span class="line">|        |                &apos; +---------------+ &apos;                   |               |                 |    |</span><br><span class="line">|        |                &apos;                   &apos;                   |               |                 |    |</span><br><span class="line">|        |                + - - - - - - - - - +                   |               |                 |    |</span><br><span class="line">|        |  (E) Notify        :                                   |               |                 |    |</span><br><span class="line">|        | &lt;...................                                   |               |                 |    |</span><br><span class="line">|        |                                                        |               |                 |    |</span><br><span class="line">| Client |                + - - - - - - - - - +                   | Remote Server |                 | MQ |</span><br><span class="line">|        |                &apos;                   &apos;                   |               |                 |    |</span><br><span class="line">|        |                &apos; +---------------+ &apos;                   |               |                 |    |</span><br><span class="line">|        |                &apos; | Server Node B | &apos;                   |               |                 |    |</span><br><span class="line">|        |                &apos; +---------------+ &apos;                   |               |                 |    |</span><br><span class="line">|        |                &apos; +---------------+ &apos;                   |               |                 |    |</span><br><span class="line">|        |                &apos; | Server Node C | &apos;                   |               |                 |    |</span><br><span class="line">|        |                &apos; +---------------+ &apos;                   |               |                 |    |</span><br><span class="line">|        |                &apos;                   &apos;                   |               |                 |    |</span><br><span class="line">+--------+                + - - - - - - - - - +                   +---------------+                 +----+</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+<ul>
+<li>(A) 客户端向<code>Server Node A</code>发起请求并保持会话。</li>
+<li>(B) 异步向<code>Remote Server</code>发起请求处理业务。</li>
+<li>(C) <code>Remote Server</code>处理完成后回调将消息放入消息队列。</li>
+<li>(D) MQ将回调消息以<strong>广播形式</strong>广播到集群各个节点。</li>
+<li>(E) 各节点收到广播消息后，能取到对应客户端会话则处理，否则丢弃消息。</li>
+</ul>
+<p>注：本案例中的客户端是以TCP连接至服务端，在HTTP服务中如果处理类似场景可以使用Java8中的<code>CompletableFuture</code>来实现。</p>
 
       
     </div>
 
+
+    
+      <div>
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">- EOF -</div>
+    
+</div>
+
+      </div>
+    
+
+    
+
+    
+    
+    
+
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Hunter Zhao</li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://hunterzhao.io/post/2018/05/06/async-callback-model-in-cluster-architecture/" title="集群架构中的异步回调模型实现">http://hunterzhao.io/post/2018/05/06/async-callback-model-in-cluster-architecture/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-ND 4.0</a> 许可协议。转载请注明出处！</li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/架构/" rel="tag"># 架构</a>
+          
+            <a href="/tags/集群/" rel="tag"># 集群</a>
+          
+            <a href="/tags/异步/" rel="tag"># 异步</a>
+          
+            <a href="/tags/回调/" rel="tag"># 回调</a>
+          
+            <a href="/tags/Netty/" rel="tag"># Netty</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/post/2018/05/01/consume-mq-message-with-multithreading/" rel="next" title="聊一聊使用多线程处理MQ消息的正确姿势">
+                <i class="fa fa-chevron-left"></i> 聊一聊使用多线程处理MQ消息的正确姿势
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
+  </article>
 
-  
 
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
           
+
+  
+
+
 
         </div>
         
@@ -785,6 +973,10 @@
 
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.0.6"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.0.6"></script>
+
+
 
   
 
