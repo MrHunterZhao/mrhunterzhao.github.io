@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://hunterzhao.io/books/index.html</loc>
+    
+    <lastmod>2018-05-13T19:32:18.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://hunterzhao.io/baidu_verify_GikywNyflS.html</loc>
     
     <lastmod>2018-05-09T19:35:47.000Z</lastmod>
@@ -79,13 +86,6 @@
   </url>
   
   <url>
-    <loc>http://hunterzhao.io/books/index.html</loc>
-    
-    <lastmod>2018-04-23T12:20:56.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://hunterzhao.io/about/index.html</loc>
     
     <lastmod>2018-04-06T17:44:17.000Z</lastmod>
@@ -114,7 +114,7 @@
   </url>
   
   <url>
-    <loc>http://hunterzhao.io/post/2014/01/20/install-and-configure-mysql-on-centos/</loc>
+    <loc>http://hunterzhao.io/post/2014/01/20/configure-vim-syntax-highlight-on-mac/</loc>
     
     <lastmod>2018-03-27T19:04:41.000Z</lastmod>
     
@@ -142,14 +142,14 @@
   </url>
   
   <url>
-    <loc>http://hunterzhao.io/post/2014/01/20/configure-vim-syntax-highlight-on-mac/</loc>
+    <loc>http://hunterzhao.io/tags/index.html</loc>
     
     <lastmod>2018-03-27T19:04:41.000Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://hunterzhao.io/tags/index.html</loc>
+    <loc>http://hunterzhao.io/post/2014/01/20/install-and-configure-mysql-on-centos/</loc>
     
     <lastmod>2018-03-27T19:04:41.000Z</lastmod>
     
