@@ -80,6 +80,79 @@
       </tags>
   </entry>
   <entry>
+    <title><![CDATA[SpringCloud自定义Feign解码器]]></title>
+    <url>%2Fpost%2F2017%2F12%2F02%2Fcustomize-feign-decoder-in-spring-cloud%2F</url>
+    <content type="text"><![CDATA[在SpringCloud微服务中，Feign组件帮我们把跨服务HTTP请求模板化，我们的FeignClient看上去可能是下面这样， 返回值都被封装在一个ApiResponse中，调用者获取真正内容时需要再次获取ApiResponse中的data内容，略显恶心。 1234567@FeignClient(value = Const.FeignClient.USER_CENTER, path = "user")public interface UserCloudService &#123; @PostMapping("save") ApiResponse&lt;User&gt; saveUser(@RequestBody UserVo userVo);&#125; 使用其Decoder让我们更方便地自定义FeignClient中的方法返回值， 1234567891011@Beanpublic Decoder decoder() &#123; return (response, type) -&gt; &#123; String body = Util.toString(response.body().asReader()); ObjectMapper mapper = new ObjectMapper(); JavaType javaType = mapper.getTypeFactory() .constructParametricType(ApiResponse.class, mapper.getTypeFactory().constructType(type)); ApiResponse&lt;?&gt; apiResponse = mapper.readValue(body, javaType); return apiResponse.getData(); &#125;;&#125; 所以以上FeignClient就会变成如下，跟普通Service无异，平滑过渡。1234567@FeignClient(value = Const.FeignClient.USER_CENTER, path = "user")public interface UserCloudService &#123; @PostMapping("save") User saveUser(@RequestBody UserVo userVo);&#125;]]></content>
+      <categories>
+        <category>Spring Cloud</category>
+      </categories>
+      <tags>
+        <tag>Spring Cloud</tag>
+        <tag>Spring Boot</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[SpringCloud设置zuul网关跨域访问]]></title>
+    <url>%2Fpost%2F2017%2F11%2F22%2Fcors-filter-settings-in-zuul-of-spring-cloud%2F</url>
+    <content type="text"><![CDATA[SpringCloud设置跨域访问只需在zuul网关服务中加入如下configuration即可。 123456789101112131415161718192021/** * CORS配置 * @return */@Beanpublic CorsFilter corsFilter() &#123; UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource(); CorsConfiguration config = new CorsConfiguration(); config.setAllowCredentials(true); config.addAllowedOrigin("*"); config.addAllowedHeader("*"); config.addAllowedMethod("OPTIONS"); config.addAllowedMethod("HEAD"); config.addAllowedMethod("GET"); config.addAllowedMethod("PUT"); config.addAllowedMethod("POST"); config.addAllowedMethod("DELETE"); config.addAllowedMethod("PATCH"); source.registerCorsConfiguration("/**", config); return new CorsFilter(source);&#125;]]></content>
+      <categories>
+        <category>Spring Cloud</category>
+      </categories>
+      <tags>
+        <tag>Spring Cloud</tag>
+        <tag>Spring Boot</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[SpringCloud集成Redis哨兵]]></title>
+    <url>%2Fpost%2F2017%2F11%2F20%2Fusing-redis-in-spring-cloud%2F</url>
+    <content type="text"><![CDATA[在SpringCloud中我们可以很容易地集成并使用Redis缓存，在pom.xml中加入依赖，pom.xml1234&lt;dependency&gt; &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt; &lt;artifactId&gt;spring-boot-starter-data-redis&lt;/artifactId&gt;&lt;/dependency&gt; 在application.yml中加入如下内容：123456789101112spring: profiles: active: default redis: sentinel: master: $&#123;spring.redis.sentinel.master&#125; nodes: $&#123;spring.redis.sentinel.nodes&#125; pool: max-idle: $&#123;spring.redis.pool.max-idle&#125; min-idle: $&#123;spring.redis.pool.min-idle&#125; max-active: $&#123;spring.redis.pool.max-active&#125; max-wait: $&#123;spring.redis.pool.max-wait&#125; 在Configuration中加入RedisTemplate，然后在代码中注入RedisTemplate即可使用。1234567891011@Beanpublic RedisTemplate&lt;String, Object&gt; redisTemplate(RedisConnectionFactory factory) &#123; RedisTemplate&lt;String, Object&gt; redisTemplate = new RedisTemplate&lt;&gt;(); redisTemplate.setKeySerializer(new StringRedisSerializer()); redisTemplate.setHashKeySerializer(new StringRedisSerializer()); redisTemplate.setHashValueSerializer(new StringRedisSerializer()); redisTemplate.setValueSerializer(new GenericToStringSerializer&lt;&gt;(String.class)); redisTemplate.setConnectionFactory(factory); return redisTemplate;&#125;]]></content>
+      <categories>
+        <category>Spring Cloud</category>
+      </categories>
+      <tags>
+        <tag>Spring Cloud</tag>
+        <tag>Spring Boot</tag>
+        <tag>Redis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[SpringCloud设置HttpMessageConverter为fastjson格式化输出]]></title>
+    <url>%2Fpost%2F2017%2F11%2F16%2Fset-http-message-converter-as-fastjson-in-spring-cloud%2F</url>
+    <content type="text"><![CDATA[我们的API响应的Media类型一般是application/json;charset=UTF-8，在SpringCloud中可以通过如下方式设置， 并且将HttpMessageConverter设置为fastjson，使用fastjson提供的各种功能格式化输出内容。 12345678910111213141516171819202122@Beanpublic HttpMessageConverters fastjsonHttpMessageConverter() &#123; StringHttpMessageConverter converter = new StringHttpMessageConverter(StandardCharsets.UTF_8); FastJsonHttpMessageConverter fastConverter = new FastJsonHttpMessageConverter(); // 配置Media类型 List&lt;MediaType&gt; supportedMediaTypes = new ArrayList&lt;&gt;(); supportedMediaTypes.add(MediaType.TEXT_HTML); supportedMediaTypes.add(MediaType.APPLICATION_JSON_UTF8); fastConverter.setSupportedMediaTypes(supportedMediaTypes); // fastjson配置 FastJsonConfig fastJsonConfig = new FastJsonConfig(); fastJsonConfig.setSerializerFeatures(SerializerFeature.PrettyFormat); fastJsonConfig.setSerializerFeatures(SerializerFeature.DisableCircularReferenceDetect); fastJsonConfig.setSerializerFeatures(SerializerFeature.WriteMapNullValue); fastJsonConfig.setSerializerFeatures(SerializerFeature.WriteNullStringAsEmpty); fastConverter.setFastJsonConfig(fastJsonConfig); return new HttpMessageConverters(converter, fastConverter);&#125;]]></content>
+      <categories>
+        <category>Spring Cloud</category>
+      </categories>
+      <tags>
+        <tag>Spring Cloud</tag>
+        <tag>Spring Boot</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[SpringCloud配置中心多级目录多文件匹配搜索]]></title>
+    <url>%2Fpost%2F2017%2F11%2F14%2Fmultiple-files-and-directories-search-in-config-center-of-spring-cloud%2F</url>
+    <content type="text"><![CDATA[SpringCloud将所有配置通过文件或Git模式集中化，微服务在启动时通过注册中心找到配置中心并拉取对应配置文件，让微服务动态更新配置成为可能。很多情况下，不同功能角色的配置文件分散在不同的配置文件中，比如redis和rabbitmq，多文件匹配SpringCloud也是支持的，如下： 配置中心 application.yml：12345678910111213141516spring: application: name: config-center cloud: bus: trace: enabled: true config: server: git: uri: $&#123;GIT_URL:https://git.xyz.com/cloud-config-repo.git&#125; username: $&#123;GIT_USERNAME:someuser&#125; password: $&#123;GIT_PASSWORD:somepass&#125; clone-on-start: $&#123;CLONE_ON_START:true&#125; # 搜索配置仓库多级目录 search-paths: services/**,platform/** 微服务bootstrap.yml:1234567891011121314spring: application: name: base-service profiles: active: default cloud: config: # 匹配配置中心多个配置文件 name: common,datasource,redis,rabbitmq,$&#123;spring.application.name&#125;,$&#123;spring.application.name&#125;-application profile: $&#123;spring.profiles.active&#125; label: $&#123;COFNIG_BRANCH:master&#125; discovery: enabled: true service-id: config-center 通过命令行spring.profiles.active参数指定目标运行环境（dev、test、prod），比如运行在test环境，微服务启动时会去配置中心匹配如下文件： common-test.properties datasource-test.properties redis-test.properties rabbitmq-test properties base-service-test.properties base-service-application.yml]]></content>
+      <categories>
+        <category>Spring Cloud</category>
+      </categories>
+      <tags>
+        <tag>Spring Cloud</tag>
+        <tag>Spring Boot</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[SpringCloud中读取命令行参数或系统环境变量]]></title>
+    <url>%2Fpost%2F2017%2F11%2F10%2Fuse-environment-variable-or-command-line-parameter-in-spring-cloud%2F</url>
+    <content type="text"><![CDATA[SpringCloud中帮我们很方便地提供了环境适配方案，通过命令行参数或export系统环境变量指定REGISTRY_CENTER_URI值， 如果读取到，SpringCloud优先使用该值，如果该变量未指定则使用默认值http://localhost:9000/eureka/ 123456eureka: instance: prefer-ip-address: true client: serviceUrl: defaultZone: $&#123;REGISTRY_CENTER_URI:http://localhost:9000/eureka/&#125;]]></content>
+      <categories>
+        <category>Spring Cloud</category>
+      </categories>
+      <tags>
+        <tag>Spring Cloud</tag>
+        <tag>Spring Boot</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[通过Nginx内嵌Lua脚本实现资源访问权限控制]]></title>
     <url>%2Fpost%2F2017%2F10%2F15%2Fresource-access-control-via-lua-script-in-nginx%2F</url>
     <content type="text"><![CDATA[有些敏感的静态资源（比如身份证照片，企业执照等）是不能裸奔在互联网上的，被爬虫抓取后果比较严重，所以要加入一定的访问权限，满足某种规则后才可以访问。 最常用的做法是访问者发起请求时首先对资源名使用私钥进行MD5作为signature，再将signature作为参数传入，服务端接到请求后按照同样规则进行验签，signature匹配则视为合法请求，否则deny返回403。 12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061626364---- Author: Hunter Zhao-- Mail: zhaohevip@gmail.com-- Date: 13/10/2017-- Time: 10:25-- Description：敏感资源访问签名认证---- =============================================-- the secret keySECRET_KEY = "iamasecretkey"--[[ 获取资源名 e.g. 访问路径 /image/some_pic_name.jpg 返回 -&gt; some_pic_name.jpg]]function getResourceName() local url = ngx.var.uri local len = string.len(url) local _url = string.reverse(url) local pos = string.find(_url, "/") -- start position index local start_pos = len - pos + 1 -- get substring from the index local img_name = string.sub(url, start_pos + 1, len) return img_nameend--[[ 验证签名合法性]]function validateSignature() local sign = ngx.var.arg_sign -- exit if signature is blank if sign == nil or sign == "" then ngx.exit(401) return false end -- get request resource name local img_name = getResourceName() -- sign the specified string via MD5 algorithm local token = ngx.md5(img_name..SECRET_KEY) -- if signature doesn't equal the token if sign ~= token then ngx.exit(403) return false end -- if everything is OK return trueend-- =============================================-- return the result of access interceptorreturn validateSignature() Nginx配置12345678910server &#123; listen 80 default; server_name localhost; root /path/to/root; location /image/ &#123; default_type 'text/html'; access_by_lua_file "/path/to/resource_access_control.lua"; #通过lua来控制访问权限 &#125;&#125;]]></content>
@@ -158,10 +231,10 @@
         <category>OpenJDK</category>
       </categories>
       <tags>
-        <tag>Linux</tag>
         <tag>CentOS</tag>
         <tag>OpenJDK</tag>
         <tag>JVM</tag>
+        <tag>Linux</tag>
       </tags>
   </entry>
   <entry>
@@ -178,6 +251,18 @@
       </tags>
   </entry>
   <entry>
+    <title><![CDATA[CentOS通过yum安装配置MySQL]]></title>
+    <url>%2Fpost%2F2014%2F01%2F20%2Finstall-and-configure-mysql-on-centos%2F</url>
+    <content type="text"><![CDATA[安装MySQL1[root@HunterWorkStation local]# yum -y install mysql mysql-server 启动MySQL服务1234567891011121314151617181920212223242526272829303132[root@HunterWorkStation local]# service mysqld startInitializing MySQL database: Installing MySQL system tables... OKFilling help tables... OKTo start mysqld at boot time you have to copysupport-files/mysql.server to the right place for your systemPLEASE REMEMBER TO SET A PASSWORD FOR THE MySQL root USER !To do so, start the server, then issue the following commands:/usr/bin/mysqladmin -u root password 'new-password'/usr/bin/mysqladmin -u root -h localhost.localdomain password 'new-password'Alternatively you can run:/usr/bin/mysql_secure_installationwhich will also give you the option of removing the testdatabases and anonymous user created by default. This isstrongly recommended for production servers.See the manual for more instructions.You can start the MySQL daemon with:cd /usr ; /usr/bin/mysqld_safe &amp;You can test the MySQL daemon with mysql-test-run.plcd /usr/mysql-test ; perl mysql-test-run.plPlease report any problems with the /usr/bin/mysqlbug script!Starting mysqld: [ OK ] 设置root用户密码1[root@HunterWorkStation local]# mysqladmin -u root password 'YOUR PASSWORD HERE' 登陆数据库并授权此时用户是无法远程登陆该数据库的，接下来为用户授权1234567891011121314151617[root@HunterWorkStation local]# mysql -u root -pEnter password: Welcome to the MySQL monitor. Commands end with ; or \g.Your MySQL connection id is 4Server version: 5.1.71 Source distributionCopyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.Oracle is a registered trademark of Oracle Corporation and/or itsaffiliates. Other names may be trademarks of their respectiveowners.Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.mysql&gt; grant all on *.* to root@'%' identified by '123456'; # 为所有主机授权使用root用户操作所有库和表，密码123456Query OK, 0 rows affected (0.00 sec) 设置MySQL服务开机自启动1[root@HunterWorkStation local]# chkconfig mysqld on 设置后查看是否设置成功123[root@HunterWorkStation local]# chkconfig --list | grep mysqldmysqld 0:off 1:off 2:on 3:on 4:on 5:on 6:off # 2-5为on则表示自启动 设置服务端编码123456789[root@HunterWorkStation local]# vim /etc/my.cnf[mysqld]datadir=/var/lib/mysqlsocket=/var/lib/mysql/mysql.sockuser=mysqldefault-character-set=utf8# Disabling symbolic-links is recommended to prevent assorted security riskssymbolic-links=0 重启MySQL服务123[root@HunterWorkStation local]# service mysqld restartStopping mysqld: [ OK ]Starting mysqld: [ OK ] 至此，安装配置完毕，接来下可以用客户端连接操作MySQL。]]></content>
+      <categories>
+        <category>MySQL</category>
+      </categories>
+      <tags>
+        <tag>MySQL</tag>
+        <tag>CentOS</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[Mac下vim开启语法高亮&着色]]></title>
     <url>%2Fpost%2F2014%2F01%2F20%2Fconfigure-vim-syntax-highlight-on-mac%2F</url>
     <content type="text"><![CDATA[Mac OS并不像大多数Linux发行版vim默认自带语法着色高亮显示（通常Linux可通过编辑/etc/vimrc进行全局设置或~/vimrc进行单用户设置），使用vi/vim编辑文件时很不方便，如何解决 ? 编辑文件/usr/share/vim/vimrc1234567891011121314BobZhao@mac:~ &gt; sudo vim /usr/share/vim/vimrcPassword:" Configuration file for vimset modelines=0 " CVE-2007-2438" Normally we use vim-extensions. If you want true vi-compatibility" remove change the following statementsset nocompatible " Use Vim defaults instead of 100% vi compatibilityset backspace=2 " more powerful backspacing" Don't write backup file if vim is being called by "crontab -e"au BufWrite /private/tmp/crontab.* set nowritebackup" Don't write backup file if vim is being called by "chpass"au BufWrite /private/etc/pw.* set nowritebackup 在set backspace=2下插入配置1234567891011121314set ai " auto indentingset history=100 " keep 100 lines of historyset ruler " show the cursor positionsyntax on " syntax highlightingset hlsearch " highlight the last searched termfiletype plugin on " use the file type plugins" When editing a file, always jump to the last cursor positionautocmd BufReadPost *\ if ! exists("g:leave_my_cursor_position_alone") |\ if line("'\"") &gt; 0 &amp;&amp; line ("'\"") &lt;= line("$") |\ exe "normal g'\"" |\ endif |\ endif 验证再次打开该文件发现已经生效]]></content>
@@ -188,18 +273,6 @@
         <tag>Linux</tag>
         <tag>vim</tag>
         <tag>Mac</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title><![CDATA[CentOS通过yum安装配置MySQL]]></title>
-    <url>%2Fpost%2F2014%2F01%2F20%2Finstall-and-configure-mysql-on-centos%2F</url>
-    <content type="text"><![CDATA[安装MySQL1[root@HunterWorkStation local]# yum -y install mysql mysql-server 启动MySQL服务1234567891011121314151617181920212223242526272829303132[root@HunterWorkStation local]# service mysqld startInitializing MySQL database: Installing MySQL system tables... OKFilling help tables... OKTo start mysqld at boot time you have to copysupport-files/mysql.server to the right place for your systemPLEASE REMEMBER TO SET A PASSWORD FOR THE MySQL root USER !To do so, start the server, then issue the following commands:/usr/bin/mysqladmin -u root password 'new-password'/usr/bin/mysqladmin -u root -h localhost.localdomain password 'new-password'Alternatively you can run:/usr/bin/mysql_secure_installationwhich will also give you the option of removing the testdatabases and anonymous user created by default. This isstrongly recommended for production servers.See the manual for more instructions.You can start the MySQL daemon with:cd /usr ; /usr/bin/mysqld_safe &amp;You can test the MySQL daemon with mysql-test-run.plcd /usr/mysql-test ; perl mysql-test-run.plPlease report any problems with the /usr/bin/mysqlbug script!Starting mysqld: [ OK ] 设置root用户密码1[root@HunterWorkStation local]# mysqladmin -u root password 'YOUR PASSWORD HERE' 登陆数据库并授权此时用户是无法远程登陆该数据库的，接下来为用户授权1234567891011121314151617[root@HunterWorkStation local]# mysql -u root -pEnter password: Welcome to the MySQL monitor. Commands end with ; or \g.Your MySQL connection id is 4Server version: 5.1.71 Source distributionCopyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.Oracle is a registered trademark of Oracle Corporation and/or itsaffiliates. Other names may be trademarks of their respectiveowners.Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.mysql&gt; grant all on *.* to root@'%' identified by '123456'; # 为所有主机授权使用root用户操作所有库和表，密码123456Query OK, 0 rows affected (0.00 sec) 设置MySQL服务开机自启动1[root@HunterWorkStation local]# chkconfig mysqld on 设置后查看是否设置成功123[root@HunterWorkStation local]# chkconfig --list | grep mysqldmysqld 0:off 1:off 2:on 3:on 4:on 5:on 6:off # 2-5为on则表示自启动 设置服务端编码123456789[root@HunterWorkStation local]# vim /etc/my.cnf[mysqld]datadir=/var/lib/mysqlsocket=/var/lib/mysql/mysql.sockuser=mysqldefault-character-set=utf8# Disabling symbolic-links is recommended to prevent assorted security riskssymbolic-links=0 重启MySQL服务123[root@HunterWorkStation local]# service mysqld restartStopping mysqld: [ OK ]Starting mysqld: [ OK ] 至此，安装配置完毕，接来下可以用客户端连接操作MySQL。]]></content>
-      <categories>
-        <category>MySQL</category>
-      </categories>
-      <tags>
-        <tag>MySQL</tag>
-        <tag>CentOS</tag>
       </tags>
   </entry>
   <entry>
