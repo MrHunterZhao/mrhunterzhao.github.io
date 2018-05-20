@@ -251,7 +251,7 @@
           
   <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档<span class="badge">23</span>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档<span class="badge">24</span>
       </a>
 </li>
 
@@ -759,7 +759,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://hunterzhao.io/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-initialization/">
+    <link itemprop="mainEntityOfPage" href="http://hunterzhao.io/post/2018/02/23/analysis-of-hotspot-jvm-startup-process-initialization/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Hunter Zhao">
@@ -778,7 +778,7 @@
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-initialization/" itemprop="url">【JVM源码探秘】HotSpot启动流程分析-初始化</a></h2>
+                <a class="post-title-link" href="/post/2018/02/23/analysis-of-hotspot-jvm-startup-process-initialization/" itemprop="url">【JVM源码探秘】HotSpot启动流程分析-初始化</a></h2>
         
 
         <div class="post-meta">
@@ -790,7 +790,7 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-30T17:10:35+08:00">2018-04-30</time>
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-23T17:10:35+08:00">2018-02-23</time>
             
 
             
@@ -825,7 +825,7 @@
 
           
           
-             <span id="/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-initialization/" class="leancloud_visitors" data-flag-title="【JVM源码探秘】HotSpot启动流程分析-初始化">
+             <span id="/post/2018/02/23/analysis-of-hotspot-jvm-startup-process-initialization/" class="leancloud_visitors" data-flag-title="【JVM源码探秘】HotSpot启动流程分析-初始化">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -886,11 +886,11 @@
       
         
           <p><img src="/images/post/2018/01/29/openjdk.jpg" alt="openjdk"></p>
-<p>接<a href="/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-creation/">上篇</a>，HotSpot在启动流程完成了参数的解析、JNI入口的定位、环境变量的设置等一系列操作，</p>
+<p>接<a href="/post/2018/02/23/analysis-of-hotspot-jvm-startup-process-creation/">上篇</a>，HotSpot在启动流程完成了参数的解析、JNI入口的定位、环境变量的设置等一系列操作，</p>
 <p>最终在<code>JavaMain()</code>中调用了<code>InitializeJVM()</code>方法，用于完成虚拟机所需的内存申请、挂载和初始化，本文我们就一起一探究竟。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-initialization/#more" rel="contents">
+            <a class="btn" href="/post/2018/02/23/analysis-of-hotspot-jvm-startup-process-initialization/#more" rel="contents">
               More &raquo;
             </a>
           </div>
@@ -950,7 +950,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://hunterzhao.io/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-creation/">
+    <link itemprop="mainEntityOfPage" href="http://hunterzhao.io/post/2018/02/23/analysis-of-hotspot-jvm-startup-process-creation/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Hunter Zhao">
@@ -969,7 +969,7 @@
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-creation/" itemprop="url">【JVM源码探秘】HotSpot启动流程分析-创建</a></h2>
+                <a class="post-title-link" href="/post/2018/02/23/analysis-of-hotspot-jvm-startup-process-creation/" itemprop="url">【JVM源码探秘】HotSpot启动流程分析-创建</a></h2>
         
 
         <div class="post-meta">
@@ -981,7 +981,7 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-30T15:53:30+08:00">2018-04-30</time>
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-23T15:53:30+08:00">2018-02-23</time>
             
 
             
@@ -1016,7 +1016,7 @@
 
           
           
-             <span id="/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-creation/" class="leancloud_visitors" data-flag-title="【JVM源码探秘】HotSpot启动流程分析-创建">
+             <span id="/post/2018/02/23/analysis-of-hotspot-jvm-startup-process-creation/" class="leancloud_visitors" data-flag-title="【JVM源码探秘】HotSpot启动流程分析-创建">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1081,7 +1081,198 @@
 <p>那么，一个Java实例从开始运行至结束经历了什么？本文将从JVM源码角度一探究竟，深入剖析HotSpot其创建流程。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/post/2018/04/30/analysis-of-hotspot-jvm-startup-process-creation/#more" rel="contents">
+            <a class="btn" href="/post/2018/02/23/analysis-of-hotspot-jvm-startup-process-creation/#more" rel="contents">
+              More &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+
+    
+
+    
+
+    
+    
+    
+
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://hunterzhao.io/post/2018/02/12/analysis-of-hotspot-jvm-java-class-file-structure/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Hunter Zhao">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="WorkHoliday">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/post/2018/02/12/analysis-of-hotspot-jvm-java-class-file-structure/" itemprop="url">【JVM源码探秘】Java中的Class文件结构</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-12T17:10:35+08:00">2018-02-12</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/OpenJDK/" itemprop="url" rel="index"><span itemprop="name">OpenJDK</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/post/2018/02/12/analysis-of-hotspot-jvm-java-class-file-structure/" class="leancloud_visitors" data-flag-title="【JVM源码探秘】Java中的Class文件结构">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数：</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-symbolscount">
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计：</span>
+                
+                <span title="字数统计">5.3k</span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长&asymp;</span>
+                
+                <span title="阅读时长">0:05</span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p><img src="/images/post/2018/01/29/openjdk.jpg" alt="openjdk"></p>
+<p>我们都知道JVM并不能直接运行Java源文件，而是程序猿通过JDK提供的<code>javac</code>命令将Java源文件编译成<code>.class</code>二进制文件，<br>然后供JVM加载并使用，也就是说class文件其实是程序猿和JVM之间交互的媒介，相当于介于用户和Linux内核之间的shell。</p>
+<p>一个class文件完整地描述了Java源文件的各种信息，Oracle JVM规范中的<a href="https://docs.oracle.com/javase/specs/jvms/se10/html/jvms-4.html#jvms-4.1" target="_blank" rel="noopener">4.1 The ClassFile Structure</a> 详细定义了一个标准class文件的结构</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/post/2018/02/12/analysis-of-hotspot-jvm-java-class-file-structure/#more" rel="contents">
               More &raquo;
             </a>
           </div>
@@ -2077,197 +2268,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://hunterzhao.io/post/2017/11/16/set-http-message-converter-as-fastjson-in-spring-cloud/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Hunter Zhao">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="WorkHoliday">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/post/2017/11/16/set-http-message-converter-as-fastjson-in-spring-cloud/" itemprop="url">SpringCloud设置HttpMessageConverter为fastjson格式化输出</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-16T23:03:26+08:00">2017-11-16</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Spring-Cloud/" itemprop="url" rel="index"><span itemprop="name">Spring Cloud</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/post/2017/11/16/set-http-message-converter-as-fastjson-in-spring-cloud/" class="leancloud_visitors" data-flag-title="SpringCloud设置HttpMessageConverter为fastjson格式化输出">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">阅读次数：</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-            <div class="post-symbolscount">
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-file-word-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">字数统计：</span>
-                
-                <span title="字数统计">1.2k</span>
-              
-
-              
-                <span class="post-meta-divider">|</span>
-              
-
-              
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-clock-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">阅读时长&asymp;</span>
-                
-                <span title="阅读时长">0:01</span>
-              
-            </div>
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p><img src="/images/post/2017/11/10/spring-cloud-logo.jpg" alt="spring-cloud"></p>
-<p>我们的API响应的Media类型一般是<code>application/json;charset=UTF-8</code>，在SpringCloud中可以通过如下方式设置，</p>
-<p>并且将HttpMessageConverter设置为fastjson，使用fastjson提供的各种功能格式化输出内容。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/post/2017/11/16/set-http-message-converter-as-fastjson-in-spring-cloud/#more" rel="contents">
-              More &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-
-    
-
-    
-
-    
-    
-    
-
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2319,7 +2319,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">23</span>
+                    <span class="site-state-item-count">24</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -2505,7 +2505,7 @@
       <i class="fa fa-area-chart"></i>
     </span>
     
-    <span title="站点总字数">133k</span>
+    <span title="站点总字数">138k</span>
   
 
   
@@ -2514,7 +2514,7 @@
       <i class="fa fa-coffee"></i>
     </span>
     
-    <span title="站点总阅读时长">2:13</span>
+    <span title="站点总阅读时长">2:18</span>
   
 </div>
 
