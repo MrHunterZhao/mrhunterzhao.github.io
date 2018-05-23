@@ -119,7 +119,7 @@
 <meta property="og:description" content="一个Java类在JVM中是如何描述的？创建一个Java对象在JVM中数据又是如何存储的？ 在Hotspot VM中，设计者设计了OOP-Klass模型用来描述class的属性和行为，这里的OOP并不是面向对象编程（Object-oriented programming），而是Ordinary Object Pointer（普通对象指针），之所以设计为OOP和Klass两部分是因为不希望每个对象都">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://hunterzhao.io/images/post/2018/01/29/openjdk.jpg">
-<meta property="og:updated_time" content="2018-05-20T19:36:06.000Z">
+<meta property="og:updated_time" content="2018-05-22T18:20:25.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【JVM源码探秘】Java对象模型OOP-Klass">
 <meta name="twitter:description" content="一个Java类在JVM中是如何描述的？创建一个Java对象在JVM中数据又是如何存储的？ 在Hotspot VM中，设计者设计了OOP-Klass模型用来描述class的属性和行为，这里的OOP并不是面向对象编程（Object-oriented programming），而是Ordinary Object Pointer（普通对象指针），之所以设计为OOP和Klass两部分是因为不希望每个对象都">
@@ -254,7 +254,7 @@
           
   <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档<span class="badge">25</span>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档<span class="badge">26</span>
       </a>
 </li>
 
@@ -503,6 +503,7 @@
         <p><img src="/images/post/2018/01/29/openjdk.jpg" alt="openjdk"></p>
 <p>一个Java类在JVM中是如何描述的？创建一个Java对象在JVM中数据又是如何存储的？</p>
 <p>在Hotspot VM中，设计者设计了OOP-Klass模型用来描述class的属性和行为，这里的OOP并不是面向对象编程（Object-oriented programming），<br>而是Ordinary Object Pointer（普通对象指针），之所以设计为OOP和Klass两部分是因为不希望每个对象都有一个C ++ vtbl指针，<br>因此，普通的oops没有任何虚拟功能。 相反，他们将所有“虚拟”函数转发到它们的klass，它具有vtbl并根据对象的实际类型执行C ++调度。 </p>
+<a id="more"></a>
 <h1 id="OOP"><a href="#OOP" class="headerlink" title="OOP"></a>OOP</h1><p>oopDesc是对象类的最高基类。 {name}Desc类描述了Java对象的格式，因此可以从C++访问这些字段。 oopDesc是抽象的。 </p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">oopDesc</span> &#123;</span></span><br><span class="line"> <span class="keyword">friend</span> <span class="class"><span class="keyword">class</span> <span class="title">VMStructs</span>;</span></span><br><span class="line"> <span class="keyword">friend</span> <span class="class"><span class="keyword">class</span> <span class="title">JVMCIVMStructs</span>;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line"> <span class="comment">// 对象头  </span></span><br><span class="line"> <span class="keyword">volatile</span> markOop _mark;</span><br><span class="line"> <span class="comment">// 元数据</span></span><br><span class="line"> <span class="keyword">union</span> _metadata &#123;</span><br><span class="line">   <span class="comment">// 对应的Klass对象  </span></span><br><span class="line">   Klass*      _klass;</span><br><span class="line">   narrowKlass _compressed_klass;</span><br><span class="line"> &#125; _metadata;</span><br></pre></td></tr></table></figure>
 <p>有关完整的类层次结构，请参见<code>src/hotspot/share/oops/oopsHierarchy.hpp</code></p>
@@ -514,7 +515,6 @@
 <li>1：语言级别的类对象（方法字典等）</li>
 <li>2：为对象提供虚拟机调度行为</li>
 </ul>
-<a id="more"></a>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Klass</span> :</span> <span class="keyword">public</span> Metadata &#123;</span><br><span class="line">  <span class="keyword">friend</span> <span class="class"><span class="keyword">class</span> <span class="title">VMStructs</span>;</span></span><br><span class="line">  <span class="keyword">friend</span> <span class="class"><span class="keyword">class</span> <span class="title">JVMCIVMStructs</span>;</span></span><br><span class="line"> <span class="keyword">protected</span>:</span><br><span class="line">  <span class="comment">// If you add a new field that points to any metaspace object, you</span></span><br><span class="line">  <span class="comment">// must add this field to Klass::metaspace_pointers_do().</span></span><br><span class="line">  <span class="keyword">enum</span> &#123; _primary_super_limit = <span class="number">8</span> &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// The "layout helper" is a combined descriptor of object layout.</span></span><br><span class="line">  <span class="comment">// For klasses which are neither instance nor array, the value is zero.</span></span><br><span class="line">  jint        _layout_helper;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 类名</span></span><br><span class="line">  <span class="comment">// Class name.  Instance classes: java/lang/String, etc.  Array classes: [I,</span></span><br><span class="line">  <span class="comment">// [Ljava/lang/String;, etc.  Set to zero for all other kinds of classes.</span></span><br><span class="line">  Symbol*     _name;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Cache of last observed secondary supertype</span></span><br><span class="line">  Klass*      _secondary_super_cache;</span><br><span class="line">  <span class="comment">// Array of all secondary supertypes</span></span><br><span class="line">  Array&lt;Klass*&gt;* _secondary_supers;</span><br><span class="line">  <span class="comment">// Ordered list of all primary supertypes</span></span><br><span class="line">  Klass*      _primary_supers[_primary_super_limit];</span><br><span class="line"></span><br><span class="line">  <span class="comment">// java.lang.Class镜像类</span></span><br><span class="line">  <span class="comment">// java/lang/Class instance mirroring this class</span></span><br><span class="line">  oop       _java_mirror;</span><br><span class="line">  <span class="comment">// 父类</span></span><br><span class="line">  <span class="comment">// Superclass</span></span><br><span class="line">  Klass*      _super;</span><br><span class="line">  <span class="comment">// First subclass (NULL if none); _subklass-&gt;next_sibling() is next one</span></span><br><span class="line">  Klass*      _subklass;</span><br><span class="line">  <span class="comment">// Sibling link (or NULL); links all subklasses of a klass</span></span><br><span class="line">  Klass*      _next_sibling;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// All klasses loaded by a class loader are chained through these links</span></span><br><span class="line">  Klass*      _next_link;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 加载该类的类加载器</span></span><br><span class="line">  <span class="comment">// The VM's representation of the ClassLoader used to load this class.</span></span><br><span class="line">  <span class="comment">// Provide access the corresponding instance java.lang.ClassLoader.</span></span><br><span class="line">  ClassLoaderData* _class_loader_data;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 修饰符</span></span><br><span class="line">  jint        _modifier_flags;  <span class="comment">// Processed access flags, for use by Class.getModifiers.</span></span><br><span class="line">  <span class="comment">// 访问权限</span></span><br><span class="line">  AccessFlags _access_flags;    <span class="comment">// Access flags. The class/interface distinction is stored here.</span></span><br><span class="line"></span><br><span class="line">  TRACE_DEFINE_TRACE_ID_FIELD;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 偏向锁实现</span></span><br><span class="line">  <span class="comment">// Biased locking implementation and statistics</span></span><br><span class="line">  <span class="comment">// (the 64-bit chunk goes first, to avoid some fragmentation)</span></span><br><span class="line">  jlong    _last_biased_lock_bulk_revocation_time;</span><br><span class="line">  markOop  _prototype_header;   <span class="comment">// Used when biased locking is both enabled and disabled for this type</span></span><br><span class="line">  jint     _biased_lock_revocation_count;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 虚拟表长度</span></span><br><span class="line">  <span class="comment">// vtable length</span></span><br><span class="line">  <span class="keyword">int</span> _vtable_len;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Remembered sets support for the oops in the klasses.</span></span><br><span class="line">  jbyte _modified_oops;             <span class="comment">// Card Table Equivalent (YC/CMS support)</span></span><br><span class="line">  jbyte _accumulated_modified_oops; <span class="comment">// Mod Union Equivalent (CMS support)</span></span><br></pre></td></tr></table></figure>
 
       
@@ -590,8 +590,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/post/2018/05/01/consume-mq-message-with-multithreading/" rel="prev" title="聊一聊使用多线程处理MQ消息的正确姿势">
-                聊一聊使用多线程处理MQ消息的正确姿势 <i class="fa fa-chevron-right"></i>
+              <a href="/post/2018/02/24/analysis-of-hotspot-jvm-java-object-header/" rel="prev" title="【JVM源码探秘】Java对象头">
+                【JVM源码探秘】Java对象头 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -670,7 +670,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">25</span>
+                    <span class="site-state-item-count">26</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -872,7 +872,7 @@
       <i class="fa fa-area-chart"></i>
     </span>
     
-    <span title="站点总字数">143k</span>
+    <span title="站点总字数">148k</span>
   
 
   
@@ -881,7 +881,7 @@
       <i class="fa fa-coffee"></i>
     </span>
     
-    <span title="站点总阅读时长">2:23</span>
+    <span title="站点总阅读时长">2:28</span>
   
 </div>
 
