@@ -119,7 +119,7 @@
 <meta property="og:description" content="一个Java类在JVM中是如何描述的？创建一个Java对象在JVM中数据又是如何存储的？ 在Hotspot VM中，设计者设计了OOP-Klass模型用来描述class的属性和行为，这里的OOP并不是面向对象编程（Object-oriented programming），而是Ordinary Object Pointer（普通对象指针），之所以设计为OOP和Klass两部分是因为不希望每个对象都">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://hunterzhao.io/images/post/2018/01/29/openjdk.jpg">
-<meta property="og:updated_time" content="2018-05-22T18:20:25.000Z">
+<meta property="og:updated_time" content="2018-05-23T16:28:55.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【JVM源码探秘】Java对象模型OOP-Klass">
 <meta name="twitter:description" content="一个Java类在JVM中是如何描述的？创建一个Java对象在JVM中数据又是如何存储的？ 在Hotspot VM中，设计者设计了OOP-Klass模型用来描述class的属性和行为，这里的OOP并不是面向对象编程（Object-oriented programming），而是Ordinary Object Pointer（普通对象指针），之所以设计为OOP和Klass两部分是因为不希望每个对象都">
@@ -466,7 +466,7 @@
                 
                   <span class="post-meta-item-text">字数统计：</span>
                 
-                <span title="字数统计">4.9k</span>
+                <span title="字数统计">3.7k</span>
               
 
               
@@ -480,7 +480,7 @@
                 
                   <span class="post-meta-item-text">阅读时长&asymp;</span>
                 
-                <span title="阅读时长">0:05</span>
+                <span title="阅读时长">0:04</span>
               
             </div>
           
@@ -508,7 +508,6 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">oopDesc</span> &#123;</span></span><br><span class="line"> <span class="keyword">friend</span> <span class="class"><span class="keyword">class</span> <span class="title">VMStructs</span>;</span></span><br><span class="line"> <span class="keyword">friend</span> <span class="class"><span class="keyword">class</span> <span class="title">JVMCIVMStructs</span>;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line"> <span class="comment">// 对象头  </span></span><br><span class="line"> <span class="keyword">volatile</span> markOop _mark;</span><br><span class="line"> <span class="comment">// 元数据</span></span><br><span class="line"> <span class="keyword">union</span> _metadata &#123;</span><br><span class="line">   <span class="comment">// 对应的Klass对象  </span></span><br><span class="line">   Klass*      _klass;</span><br><span class="line">   narrowKlass _compressed_klass;</span><br><span class="line"> &#125; _metadata;</span><br></pre></td></tr></table></figure>
 <p>有关完整的类层次结构，请参见<code>src/hotspot/share/oops/oopsHierarchy.hpp</code></p>
 <p>OOP体系如下：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">class</span> <span class="title">oopDesc</span>*                            <span class="title">oop</span>;</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">class</span>   <span class="title">instanceOopDesc</span>*            <span class="title">instanceOop</span>;</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">class</span>   <span class="title">arrayOopDesc</span>*                    <span class="title">arrayOop</span>;</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">class</span>     <span class="title">objArrayOopDesc</span>*            <span class="title">objArrayOop</span>;</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">class</span>     <span class="title">typeArrayOopDesc</span>*            <span class="title">typeArrayOop</span>;</span></span><br></pre></td></tr></table></figure></p>
-<p><code>markOop</code>描述了一个对象的头信息，它用于存储对象的运行时记录信息，如哈希值、GC分代年龄、锁状态标志、线程持有的锁、偏向线程ID、偏向时间戳等：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">//  32 bits:</span><br><span class="line">//  --------</span><br><span class="line">//             hash:25 ------------&gt;| age:4    biased_lock:1 lock:2 (normal object)</span><br><span class="line">//             JavaThread*:23 epoch:2 age:4    biased_lock:1 lock:2 (biased object)</span><br><span class="line">//             size:32 ------------------------------------------&gt;| (CMS free block)</span><br><span class="line">//             PromotedObject*:29 ----------&gt;| promo_bits:3 -----&gt;| (CMS promoted object)</span><br><span class="line">//</span><br><span class="line">//  64 bits:</span><br><span class="line">//  --------</span><br><span class="line">//  unused:25 hash:31 --&gt;| unused:1   age:4    biased_lock:1 lock:2 (normal object)</span><br><span class="line">//  JavaThread*:54 epoch:2 unused:1   age:4    biased_lock:1 lock:2 (biased object)</span><br><span class="line">//  PromotedObject*:61 ---------------------&gt;| promo_bits:3 -----&gt;| (CMS promoted object)</span><br><span class="line">//  size:64 -----------------------------------------------------&gt;| (CMS free block)</span><br><span class="line">//</span><br><span class="line">//  unused:25 hash:31 --&gt;| cms_free:1 age:4    biased_lock:1 lock:2 (COOPs &amp;&amp; normal object)</span><br><span class="line">//  JavaThread*:54 epoch:2 cms_free:1 age:4    biased_lock:1 lock:2 (COOPs &amp;&amp; biased object)</span><br><span class="line">//  narrowOop:32 unused:24 cms_free:1 unused:4 promo_bits:3 -----&gt;| (COOPs &amp;&amp; CMS promoted object)</span><br><span class="line">//  unused:21 size:35 --&gt;| cms_free:1 unused:7 ------------------&gt;| (COOPs &amp;&amp; CMS free block)</span><br></pre></td></tr></table></figure></p>
 <h1 id="Klass"><a href="#Klass" class="headerlink" title="Klass"></a>Klass</h1><p>Klass体系如下：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Klass</span>;</span></span><br><span class="line"><span class="class"><span class="keyword">class</span>   <span class="title">InstanceKlass</span>;</span></span><br><span class="line"><span class="class"><span class="keyword">class</span>     <span class="title">InstanceMirrorKlass</span>;</span></span><br><span class="line"><span class="class"><span class="keyword">class</span>     <span class="title">InstanceClassLoaderKlass</span>;</span></span><br><span class="line"><span class="class"><span class="keyword">class</span>     <span class="title">InstanceRefKlass</span>;</span></span><br><span class="line"><span class="class"><span class="keyword">class</span>   <span class="title">ArrayKlass</span>;</span></span><br><span class="line"><span class="class"><span class="keyword">class</span>     <span class="title">ObjArrayKlass</span>;</span></span><br><span class="line"><span class="class"><span class="keyword">class</span>     <span class="title">TypeArrayKlass</span>;</span></span><br></pre></td></tr></table></figure></p>
 <p>Klass对象提供：</p>
 <ul>
@@ -590,8 +589,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/post/2018/02/24/analysis-of-hotspot-jvm-java-object-header/" rel="prev" title="【JVM源码探秘】Java对象头">
-                【JVM源码探秘】Java对象头 <i class="fa fa-chevron-right"></i>
+              <a href="/post/2018/02/25/analysis-of-hotspot-jvm-java-object-header/" rel="prev" title="【JVM源码探秘】Java对象模型之对象头">
+                【JVM源码探秘】Java对象模型之对象头 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -872,7 +871,7 @@
       <i class="fa fa-area-chart"></i>
     </span>
     
-    <span title="站点总字数">148k</span>
+    <span title="站点总字数">144k</span>
   
 
   
@@ -881,7 +880,7 @@
       <i class="fa fa-coffee"></i>
     </span>
     
-    <span title="站点总阅读时长">2:28</span>
+    <span title="站点总阅读时长">2:24</span>
   
 </div>
 
