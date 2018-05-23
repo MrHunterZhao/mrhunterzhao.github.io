@@ -110,23 +110,27 @@
 
 
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="关于我">
-<meta property="og:url" content="http://hunterzhao.io/about/index.html">
+  <meta name="description" content="今天从某网站上看到一些文档觉得还不错， 一共有300+篇，一个个手动下载？这简直是对一个程序员的侮辱。 怎么办呢，写个简单的爬虫吧。 BeautifulSoup是做爬虫的好手，requests是HTTP访问的强者，这里的Demo场景比较简单略显大材小用， 有效代码不超十行，十分简洁优雅，人生苦短，我用Python。">
+<meta name="keywords" content="Python,爬虫">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用Python十行代码打造简单爬虫">
+<meta property="og:url" content="http://hunterzhao.io/post/2018/05/05/parse_web_content_and_download_files_using_python/index.html">
 <meta property="og:site_name" content="WorkHoliday">
+<meta property="og:description" content="今天从某网站上看到一些文档觉得还不错， 一共有300+篇，一个个手动下载？这简直是对一个程序员的侮辱。 怎么办呢，写个简单的爬虫吧。 BeautifulSoup是做爬虫的好手，requests是HTTP访问的强者，这里的Demo场景比较简单略显大材小用， 有效代码不超十行，十分简洁优雅，人生苦短，我用Python。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://hunterzhao.io/images/Wechat.jpg">
-<meta property="og:updated_time" content="2018-04-06T17:44:17.000Z">
+<meta property="og:image" content="http://hunterzhao.io/images/post/2018/05/05/python_logo.jpg">
+<meta property="og:updated_time" content="2018-05-23T17:18:37.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="关于我">
-<meta name="twitter:image" content="http://hunterzhao.io/images/Wechat.jpg">
+<meta name="twitter:title" content="使用Python十行代码打造简单爬虫">
+<meta name="twitter:description" content="今天从某网站上看到一些文档觉得还不错， 一共有300+篇，一个个手动下载？这简直是对一个程序员的侮辱。 怎么办呢，写个简单的爬虫吧。 BeautifulSoup是做爬虫的好手，requests是HTTP访问的强者，这里的Demo场景比较简单略显大材小用， 有效代码不超十行，十分简洁优雅，人生苦短，我用Python。">
+<meta name="twitter:image" content="http://hunterzhao.io/images/post/2018/05/05/python_logo.jpg">
 
 
 
 
 
 
-  <link rel="canonical" href="http://hunterzhao.io/about/"/>
+  <link rel="canonical" href="http://hunterzhao.io/post/2018/05/05/parse_web_content_and_download_files_using_python/"/>
 
 
 
@@ -136,7 +140,7 @@
   };
 </script>
 
-  <title>关于我 | WorkHoliday</title>
+  <title>使用Python十行代码打造简单爬虫 | WorkHoliday</title>
   
 
 
@@ -351,77 +355,261 @@
           
             
 
-    
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-    
-
-  
-
-
           
           <div id="content" class="content">
             
 
   <div id="posts" class="posts-expand">
     
+
+  
+
+  
+  
+  
+
+  
+    <div class="reading-progress-bar"></div>
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://hunterzhao.io/post/2018/05/05/parse_web_content_and_download_files_using_python/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Hunter Zhao">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="WorkHoliday">
+    </span>
+
     
-    
-    <div class="post-block page">
       <header class="post-header">
 
-<h2 class="post-title" itemprop="name headline">关于我</h2>
-
-<div class="post-meta">
-  
-  
-
-
-
-</div>
-
-</header>
-
-      
-      
-      
-      <div class="post-body">
         
         
-          <p><img src="/images/Wechat.jpg" alt="我的微信"></p>
-
+          <h2 class="post-title" itemprop="name headline">使用Python十行代码打造简单爬虫</h2>
         
-      </div>
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-05T21:12:00+08:00">2018-05-05</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/post/2018/05/05/parse_web_content_and_download_files_using_python/" class="leancloud_visitors" data-flag-title="使用Python十行代码打造简单爬虫">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数：</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+            <div class="post-symbolscount">
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计：</span>
+                
+                <span title="字数统计">1.1k</span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长&asymp;</span>
+                
+                <span title="阅读时长">0:01</span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
       
+
+      
+        <p><img src="/images/post/2018/05/05/python_logo.jpg" alt="python"></p>
+<p>今天从<a href="http://docs.huihoo.com/javaone/2015/" target="_blank" rel="noopener">某网站</a>上看到一些文档觉得还不错， 一共有300+篇，一个个手动下载？这简直是对一个程序员的侮辱。</p>
+<p>怎么办呢，写个简单的爬虫吧。</p>
+<p><code>BeautifulSoup</code>是做爬虫的好手，<code>requests</code>是HTTP访问的强者，这里的Demo场景比较简单略显大材小用，</p>
+<p>有效代码不超十行，十分简洁优雅，人生苦短，我用Python。</p>
+<a id="more"></a>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*- coding:utf-8 -*-</span></span><br><span class="line"><span class="comment"># author: HunterZhao</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">解析网页内容并下载文件</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">parse_and_download</span><span class="params">()</span>:</span></span><br><span class="line">    url = <span class="string">'http://docs.huihoo.com/javaone/2015/'</span></span><br><span class="line">    r = requests.get(url)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> r.status_code == requests.codes.ok:</span><br><span class="line">        <span class="comment"># 解析网页内容</span></span><br><span class="line">        soup = BeautifulSoup(r.text)</span><br><span class="line">        <span class="comment"># 获取到所有&lt;a&gt;标签</span></span><br><span class="line">        <span class="keyword">for</span> e <span class="keyword">in</span> soup.select(<span class="string">'a'</span>):</span><br><span class="line">            <span class="comment"># 获取到href属性，即文件名</span></span><br><span class="line">            file_name = e[<span class="string">'href'</span>]</span><br><span class="line">            <span class="comment"># 忽略返回上层的链接</span></span><br><span class="line">            <span class="keyword">if</span> file_name == <span class="string">'../'</span>:</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">            <span class="comment"># 读取文件</span></span><br><span class="line">            file_req = requests.get(url + file_name)</span><br><span class="line">            <span class="comment"># 写出文件</span></span><br><span class="line">            <span class="keyword">with</span> open(<span class="string">'/Users/hunterzhao/PycharmProjects/files/'</span> + file_name, <span class="string">'wb'</span>) <span class="keyword">as</span> f:</span><br><span class="line">                f.write(file_req.content)</span><br><span class="line">            print(file_name + <span class="string">' has been downloaded.'</span>)</span><br><span class="line"></span><br><span class="line">    print(<span class="string">'============= ALL DONE. ==============='</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    parse_and_download()</span><br></pre></td></tr></table></figure>
+
       
     </div>
+
+
+    
+      <div>
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">- EOF -</div>
+    
+</div>
+
+      </div>
+    
+
+    
+
+    
+    
     
 
 
+    
 
     
+
     
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Hunter Zhao</li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://hunterzhao.io/post/2018/05/05/parse_web_content_and_download_files_using_python/" title="使用Python十行代码打造简单爬虫">http://hunterzhao.io/post/2018/05/05/parse_web_content_and_download_files_using_python/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-ND 4.0</a> 许可协议。转载请注明出处！</li>
+</ul>
+
+      </div>
     
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Python/" rel="tag"># Python</a>
+          
+            <a href="/tags/爬虫/" rel="tag"># 爬虫</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/post/2018/05/01/consume-mq-message-with-multithreading/" rel="next" title="聊一聊使用多线程处理MQ消息的正确姿势">
+                <i class="fa fa-chevron-left"></i> 聊一聊使用多线程处理MQ消息的正确姿势
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/post/2018/05/06/async-callback-model-in-cluster-architecture/" rel="prev" title="集群架构中的异步回调模型实现">
+                集群架构中的异步回调模型实现 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
   </div>
 
 
           </div>
           
+
+  
+
+
 
         </div>
         
