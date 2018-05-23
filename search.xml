@@ -302,18 +302,6 @@
       </tags>
   </entry>
   <entry>
-    <title><![CDATA[CentOS通过yum安装配置MySQL]]></title>
-    <url>%2Fpost%2F2014%2F01%2F20%2Finstall-and-configure-mysql-on-centos%2F</url>
-    <content type="text"><![CDATA[安装MySQL1[root@HunterWorkStation local]# yum -y install mysql mysql-server 启动MySQL服务1234567891011121314151617181920212223242526272829303132[root@HunterWorkStation local]# service mysqld startInitializing MySQL database: Installing MySQL system tables... OKFilling help tables... OKTo start mysqld at boot time you have to copysupport-files/mysql.server to the right place for your systemPLEASE REMEMBER TO SET A PASSWORD FOR THE MySQL root USER !To do so, start the server, then issue the following commands:/usr/bin/mysqladmin -u root password 'new-password'/usr/bin/mysqladmin -u root -h localhost.localdomain password 'new-password'Alternatively you can run:/usr/bin/mysql_secure_installationwhich will also give you the option of removing the testdatabases and anonymous user created by default. This isstrongly recommended for production servers.See the manual for more instructions.You can start the MySQL daemon with:cd /usr ; /usr/bin/mysqld_safe &amp;You can test the MySQL daemon with mysql-test-run.plcd /usr/mysql-test ; perl mysql-test-run.plPlease report any problems with the /usr/bin/mysqlbug script!Starting mysqld: [ OK ] 设置root用户密码1[root@HunterWorkStation local]# mysqladmin -u root password 'YOUR PASSWORD HERE' 登陆数据库并授权此时用户是无法远程登陆该数据库的，接下来为用户授权1234567891011121314151617[root@HunterWorkStation local]# mysql -u root -pEnter password: Welcome to the MySQL monitor. Commands end with ; or \g.Your MySQL connection id is 4Server version: 5.1.71 Source distributionCopyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.Oracle is a registered trademark of Oracle Corporation and/or itsaffiliates. Other names may be trademarks of their respectiveowners.Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.mysql&gt; grant all on *.* to root@'%' identified by '123456'; # 为所有主机授权使用root用户操作所有库和表，密码123456Query OK, 0 rows affected (0.00 sec) 设置MySQL服务开机自启动1[root@HunterWorkStation local]# chkconfig mysqld on 设置后查看是否设置成功123[root@HunterWorkStation local]# chkconfig --list | grep mysqldmysqld 0:off 1:off 2:on 3:on 4:on 5:on 6:off # 2-5为on则表示自启动 设置服务端编码123456789[root@HunterWorkStation local]# vim /etc/my.cnf[mysqld]datadir=/var/lib/mysqlsocket=/var/lib/mysql/mysql.sockuser=mysqldefault-character-set=utf8# Disabling symbolic-links is recommended to prevent assorted security riskssymbolic-links=0 重启MySQL服务123[root@HunterWorkStation local]# service mysqld restartStopping mysqld: [ OK ]Starting mysqld: [ OK ] 至此，安装配置完毕，接来下可以用客户端连接操作MySQL。]]></content>
-      <categories>
-        <category>MySQL</category>
-      </categories>
-      <tags>
-        <tag>MySQL</tag>
-        <tag>CentOS</tag>
-      </tags>
-  </entry>
-  <entry>
     <title><![CDATA[Mac下vim开启语法高亮&着色]]></title>
     <url>%2Fpost%2F2014%2F01%2F20%2Fconfigure-vim-syntax-highlight-on-mac%2F</url>
     <content type="text"><![CDATA[Mac OS并不像大多数Linux发行版vim默认自带语法着色高亮显示（通常Linux可通过编辑/etc/vimrc进行全局设置或~/vimrc进行单用户设置），使用vi/vim编辑文件时很不方便，如何解决 ? 编辑文件/usr/share/vim/vimrc1234567891011121314BobZhao@mac:~ &gt; sudo vim /usr/share/vim/vimrcPassword:" Configuration file for vimset modelines=0 " CVE-2007-2438" Normally we use vim-extensions. If you want true vi-compatibility" remove change the following statementsset nocompatible " Use Vim defaults instead of 100% vi compatibilityset backspace=2 " more powerful backspacing" Don't write backup file if vim is being called by "crontab -e"au BufWrite /private/tmp/crontab.* set nowritebackup" Don't write backup file if vim is being called by "chpass"au BufWrite /private/etc/pw.* set nowritebackup 在set backspace=2下插入配置1234567891011121314set ai " auto indentingset history=100 " keep 100 lines of historyset ruler " show the cursor positionsyntax on " syntax highlightingset hlsearch " highlight the last searched termfiletype plugin on " use the file type plugins" When editing a file, always jump to the last cursor positionautocmd BufReadPost *\ if ! exists("g:leave_my_cursor_position_alone") |\ if line("'\"") &gt; 0 &amp;&amp; line ("'\"") &lt;= line("$") |\ exe "normal g'\"" |\ endif |\ endif 验证再次打开该文件发现已经生效]]></content>
@@ -324,6 +312,18 @@
         <tag>Linux</tag>
         <tag>vim</tag>
         <tag>Mac</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[CentOS通过yum安装配置MySQL]]></title>
+    <url>%2Fpost%2F2014%2F01%2F20%2Finstall-and-configure-mysql-on-centos%2F</url>
+    <content type="text"><![CDATA[安装MySQL1[root@HunterWorkStation local]# yum -y install mysql mysql-server 启动MySQL服务1234567891011121314151617181920212223242526272829303132[root@HunterWorkStation local]# service mysqld startInitializing MySQL database: Installing MySQL system tables... OKFilling help tables... OKTo start mysqld at boot time you have to copysupport-files/mysql.server to the right place for your systemPLEASE REMEMBER TO SET A PASSWORD FOR THE MySQL root USER !To do so, start the server, then issue the following commands:/usr/bin/mysqladmin -u root password 'new-password'/usr/bin/mysqladmin -u root -h localhost.localdomain password 'new-password'Alternatively you can run:/usr/bin/mysql_secure_installationwhich will also give you the option of removing the testdatabases and anonymous user created by default. This isstrongly recommended for production servers.See the manual for more instructions.You can start the MySQL daemon with:cd /usr ; /usr/bin/mysqld_safe &amp;You can test the MySQL daemon with mysql-test-run.plcd /usr/mysql-test ; perl mysql-test-run.plPlease report any problems with the /usr/bin/mysqlbug script!Starting mysqld: [ OK ] 设置root用户密码1[root@HunterWorkStation local]# mysqladmin -u root password 'YOUR PASSWORD HERE' 登陆数据库并授权此时用户是无法远程登陆该数据库的，接下来为用户授权1234567891011121314151617[root@HunterWorkStation local]# mysql -u root -pEnter password: Welcome to the MySQL monitor. Commands end with ; or \g.Your MySQL connection id is 4Server version: 5.1.71 Source distributionCopyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.Oracle is a registered trademark of Oracle Corporation and/or itsaffiliates. Other names may be trademarks of their respectiveowners.Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.mysql&gt; grant all on *.* to root@'%' identified by '123456'; # 为所有主机授权使用root用户操作所有库和表，密码123456Query OK, 0 rows affected (0.00 sec) 设置MySQL服务开机自启动1[root@HunterWorkStation local]# chkconfig mysqld on 设置后查看是否设置成功123[root@HunterWorkStation local]# chkconfig --list | grep mysqldmysqld 0:off 1:off 2:on 3:on 4:on 5:on 6:off # 2-5为on则表示自启动 设置服务端编码123456789[root@HunterWorkStation local]# vim /etc/my.cnf[mysqld]datadir=/var/lib/mysqlsocket=/var/lib/mysql/mysql.sockuser=mysqldefault-character-set=utf8# Disabling symbolic-links is recommended to prevent assorted security riskssymbolic-links=0 重启MySQL服务123[root@HunterWorkStation local]# service mysqld restartStopping mysqld: [ OK ]Starting mysqld: [ OK ] 至此，安装配置完毕，接来下可以用客户端连接操作MySQL。]]></content>
+      <categories>
+        <category>MySQL</category>
+      </categories>
+      <tags>
+        <tag>MySQL</tag>
+        <tag>CentOS</tag>
       </tags>
   </entry>
   <entry>
