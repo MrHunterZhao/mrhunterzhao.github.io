@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://hunterzhao.io/post/2018/04/06/analysis-of-hotspot-jvm-register-natives/</loc>
+    
+    <lastmod>2018-06-03T17:33:45.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://hunterzhao.io/post/2018/04/05/analysis-of-hotspot-jvm-system-gc/</loc>
     
     <lastmod>2018-06-03T14:24:45.000Z</lastmod>
@@ -65,28 +72,14 @@
   </url>
   
   <url>
-    <loc>http://hunterzhao.io/post/2017/11/20/using-redis-in-spring-cloud/</loc>
-    
-    <lastmod>2018-05-14T16:50:14.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://hunterzhao.io/post/2017/11/10/use-environment-variable-or-command-line-parameter-in-spring-cloud/</loc>
-    
-    <lastmod>2018-05-14T16:50:14.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://hunterzhao.io/post/2017/11/14/multiple-files-and-directories-search-in-config-center-of-spring-cloud/</loc>
-    
-    <lastmod>2018-05-14T16:50:14.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://hunterzhao.io/post/2017/11/16/set-http-message-converter-as-fastjson-in-spring-cloud/</loc>
+    
+    <lastmod>2018-05-14T16:50:14.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://hunterzhao.io/post/2017/11/20/using-redis-in-spring-cloud/</loc>
     
     <lastmod>2018-05-14T16:50:14.000Z</lastmod>
     
@@ -101,6 +94,20 @@
   
   <url>
     <loc>http://hunterzhao.io/post/2017/12/02/customize-feign-decoder-in-spring-cloud/</loc>
+    
+    <lastmod>2018-05-14T16:50:14.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://hunterzhao.io/post/2017/11/14/multiple-files-and-directories-search-in-config-center-of-spring-cloud/</loc>
+    
+    <lastmod>2018-05-14T16:50:14.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://hunterzhao.io/post/2017/11/10/use-environment-variable-or-command-line-parameter-in-spring-cloud/</loc>
     
     <lastmod>2018-05-14T16:50:14.000Z</lastmod>
     
@@ -149,14 +156,14 @@
   </url>
   
   <url>
-    <loc>http://hunterzhao.io/post/2014/12/01/analyse-jvm-startup-flow-through-source-code-initialize/</loc>
+    <loc>http://hunterzhao.io/post/2014/12/01/analyse-jvm-startup-flow-through-source-code-create/</loc>
     
     <lastmod>2018-04-29T20:31:08.000Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://hunterzhao.io/post/2014/12/01/analyse-jvm-startup-flow-through-source-code-create/</loc>
+    <loc>http://hunterzhao.io/post/2014/12/01/analyse-jvm-startup-flow-through-source-code-initialize/</loc>
     
     <lastmod>2018-04-29T20:31:08.000Z</lastmod>
     
@@ -205,13 +212,6 @@
   </url>
   
   <url>
-    <loc>http://hunterzhao.io/post/2011/01/10/hello-world/</loc>
-    
-    <lastmod>2018-03-27T19:04:41.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://hunterzhao.io/post/2014/01/20/install-and-configure-mysql-on-centos/</loc>
     
     <lastmod>2018-03-27T19:04:41.000Z</lastmod>
@@ -234,6 +234,13 @@
   
   <url>
     <loc>http://hunterzhao.io/post/2014/01/20/configure-vim-syntax-highlight-on-mac/</loc>
+    
+    <lastmod>2018-03-27T19:04:41.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://hunterzhao.io/post/2011/01/10/hello-world/</loc>
     
     <lastmod>2018-03-27T19:04:41.000Z</lastmod>
     
