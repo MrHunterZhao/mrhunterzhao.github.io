@@ -119,7 +119,7 @@
 <meta property="og:description" content="对于Java语言来说是不用手动释放内存的，并且不需要手动干预JVM的GC行为，但在一些监控和agent工具里却是必要的。 Hotspot为我们开放了Java语言级别的GC手动触发入口System.gc()，本文将深入介绍JVM底层实现。">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://hunterzhao.io/images/post/2018/01/29/openjdk.jpg">
-<meta property="og:updated_time" content="2018-06-03T14:24:45.000Z">
+<meta property="og:updated_time" content="2018-06-03T17:40:58.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【JVM源码探秘】深入System.gc()底层实现">
 <meta name="twitter:description" content="对于Java语言来说是不用手动释放内存的，并且不需要手动干预JVM的GC行为，但在一些监控和agent工具里却是必要的。 Hotspot为我们开放了Java语言级别的GC手动触发入口System.gc()，本文将深入介绍JVM底层实现。">
@@ -501,20 +501,20 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">JVM_ENTRY_NO_ENV(<span class="keyword">void</span>, JVM_GC(<span class="keyword">void</span>))</span><br><span class="line">  JVMWrapper(<span class="string">"JVM_GC"</span>);</span><br><span class="line">  <span class="keyword">if</span> (!DisableExplicitGC) &#123;</span><br><span class="line">     <span class="comment">// 调用具体堆实现的collect方法</span></span><br><span class="line">    Universe::heap()-&gt;collect(GCCause::_java_lang_system_gc);</span><br><span class="line">  &#125;</span><br><span class="line">JVM_END</span><br></pre></td></tr></table></figure>
 <p>通过Universe调用具体堆实现的collect方法，取决于使用当前实例使用的GC模式，在JVM中目前堆实现主要有：</p>
 <ul>
-<li>串行回收堆<ul>
+<li>串行回收堆实现<ul>
 <li>src/hotspot/share/gc/serial/defNewGeneration.cpp（年轻代）</li>
 <li>src/hotspot/share/gc/serial/tenuredGeneration.cpp（年老代）</li>
 </ul>
 </li>
-<li>并行回收堆<ul>
+<li>并行回收堆实现<ul>
 <li>src/hotspot/share/gc/parallel/parallelScavengeHeap.cpp</li>
 </ul>
 </li>
-<li>CMS并发回收堆<ul>
+<li>CMS并发回收堆实现<ul>
 <li>src/hotspot/share/gc/shared/genCollectedHeap.cpp</li>
 </ul>
 </li>
-<li>G1并发回收堆<ul>
+<li>G1并发回收堆实现<ul>
 <li>src/hotspot/share/gc/g1/g1CollectedHeap.cpp</li>
 </ul>
 </li>
