@@ -66,10 +66,10 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.0.6">
 
 
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.ico?v=6.0.6">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-rh-32x32.png?v=6.0.6">
 
 
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.ico?v=6.0.6">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-rh-16x16.png?v=6.0.6">
 
 
   <link rel="mask-icon" href="/images/logo.svg?v=6.0.6" color="#222">
@@ -110,19 +110,19 @@
 
 
 
-  <meta name="description" content="在Java的系统包下如：  java.lang.System java.lang.Object java.lang.Class  等类中均有一个静态块用来执行一个叫做registerNatives()的native方法，这个native方法里究竟都做了啥？我们进去瞧瞧。 1234private static native void registerNatives();static &amp;#123;">
+  <meta name="description" content="在Java的系统包下如：  java.lang.System java.lang.Object java.lang.Class  等类中均有一个静态块用来执行一个叫做registerNatives()的native方法， 1234private static native void registerNatives();static &amp;#123;    registerNatives();&amp;#12">
 <meta name="keywords" content="OpenJDK,JVM,HotSpot">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【JVM源码探秘】深入registerNatives()底层实现">
 <meta property="og:url" content="http://hunterzhao.io/post/2018/04/06/analysis-of-hotspot-jvm-register-natives/index.html">
 <meta property="og:site_name" content="WorkHoliday">
-<meta property="og:description" content="在Java的系统包下如：  java.lang.System java.lang.Object java.lang.Class  等类中均有一个静态块用来执行一个叫做registerNatives()的native方法，这个native方法里究竟都做了啥？我们进去瞧瞧。 1234private static native void registerNatives();static &amp;#123;">
+<meta property="og:description" content="在Java的系统包下如：  java.lang.System java.lang.Object java.lang.Class  等类中均有一个静态块用来执行一个叫做registerNatives()的native方法， 1234private static native void registerNatives();static &amp;#123;    registerNatives();&amp;#12">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://hunterzhao.io/images/post/2018/01/29/openjdk.jpg">
-<meta property="og:updated_time" content="2018-06-03T17:33:45.000Z">
+<meta property="og:updated_time" content="2018-06-03T18:12:36.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【JVM源码探秘】深入registerNatives()底层实现">
-<meta name="twitter:description" content="在Java的系统包下如：  java.lang.System java.lang.Object java.lang.Class  等类中均有一个静态块用来执行一个叫做registerNatives()的native方法，这个native方法里究竟都做了啥？我们进去瞧瞧。 1234private static native void registerNatives();static &amp;#123;">
+<meta name="twitter:description" content="在Java的系统包下如：  java.lang.System java.lang.Object java.lang.Class  等类中均有一个静态块用来执行一个叫做registerNatives()的native方法， 1234private static native void registerNatives();static &amp;#123;    registerNatives();&amp;#12">
 <meta name="twitter:image" content="http://hunterzhao.io/images/post/2018/01/29/openjdk.jpg">
 
 
@@ -496,8 +496,9 @@
 <li>java.lang.Object</li>
 <li>java.lang.Class</li>
 </ul>
-<p>等类中均有一个静态块用来执行一个叫做<code>registerNatives()</code>的native方法，这个native方法里究竟都做了啥？我们进去瞧瞧。</p>
+<p>等类中均有一个静态块用来执行一个叫做<code>registerNatives()</code>的native方法，</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title">registerNatives</span><span class="params">()</span></span>;</span><br><span class="line"><span class="keyword">static</span> &#123;</span><br><span class="line">    registerNatives();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个native方法里究竟都做了啥？我们进去瞧瞧。</p>
 <a id="more"></a>
 <h1 id="System-c"><a href="#System-c" class="headerlink" title="System.c"></a>System.c</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Only register the performance-critical methods */</span></span><br><span class="line"><span class="keyword">static</span> JNINativeMethod methods[] = &#123;</span><br><span class="line">    &#123;<span class="string">"currentTimeMillis"</span>, <span class="string">"()J"</span>,              (<span class="keyword">void</span> *)&amp;JVM_CurrentTimeMillis&#125;,</span><br><span class="line">    &#123;<span class="string">"nanoTime"</span>,          <span class="string">"()J"</span>,              (<span class="keyword">void</span> *)&amp;JVM_NanoTime&#125;,</span><br><span class="line">    &#123;<span class="string">"arraycopy"</span>,     <span class="string">"("</span> OBJ <span class="string">"I"</span> OBJ <span class="string">"II)V"</span>, (<span class="keyword">void</span> *)&amp;JVM_ArrayCopy&#125;,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">undef</span> OBJ</span></span><br><span class="line"></span><br><span class="line">JNIEXPORT <span class="keyword">void</span> JNICALL</span><br><span class="line">Java_java_lang_System_registerNatives(JNIEnv *env, jclass cls)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 注册本地方法</span></span><br><span class="line">    (*env)-&gt;RegisterNatives(env, cls,</span><br><span class="line">                            methods, <span class="keyword">sizeof</span>(methods)/<span class="keyword">sizeof</span>(methods[<span class="number">0</span>]));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h1 id="Object-c"><a href="#Object-c" class="headerlink" title="Object.c"></a>Object.c</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> JNINativeMethod methods[] = &#123;</span><br><span class="line">    &#123;<span class="string">"hashCode"</span>,    <span class="string">"()I"</span>,                    (<span class="keyword">void</span> *)&amp;JVM_IHashCode&#125;,</span><br><span class="line">    &#123;<span class="string">"wait"</span>,        <span class="string">"(J)V"</span>,                   (<span class="keyword">void</span> *)&amp;JVM_MonitorWait&#125;,</span><br><span class="line">    &#123;<span class="string">"notify"</span>,      <span class="string">"()V"</span>,                    (<span class="keyword">void</span> *)&amp;JVM_MonitorNotify&#125;,</span><br><span class="line">    &#123;<span class="string">"notifyAll"</span>,   <span class="string">"()V"</span>,                    (<span class="keyword">void</span> *)&amp;JVM_MonitorNotifyAll&#125;,</span><br><span class="line">    &#123;<span class="string">"clone"</span>,       <span class="string">"()Ljava/lang/Object;"</span>,   (<span class="keyword">void</span> *)&amp;JVM_Clone&#125;,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">JNIEXPORT <span class="keyword">void</span> JNICALL</span><br><span class="line">Java_java_lang_Object_registerNatives(JNIEnv *env, jclass cls)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 注册本地方法</span></span><br><span class="line">    (*env)-&gt;RegisterNatives(env, cls,</span><br><span class="line">                            methods, <span class="keyword">sizeof</span>(methods)/<span class="keyword">sizeof</span>(methods[<span class="number">0</span>]));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>

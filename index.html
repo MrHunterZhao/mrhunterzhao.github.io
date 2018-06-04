@@ -66,10 +66,10 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.0.6">
 
 
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.ico?v=6.0.6">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-rh-32x32.png?v=6.0.6">
 
 
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.ico?v=6.0.6">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-rh-16x16.png?v=6.0.6">
 
 
   <link rel="mask-icon" href="/images/logo.svg?v=6.0.6" color="#222">
@@ -1041,8 +1041,9 @@
 <li>java.lang.Object</li>
 <li>java.lang.Class</li>
 </ul>
-<p>等类中均有一个静态块用来执行一个叫做<code>registerNatives()</code>的native方法，这个native方法里究竟都做了啥？我们进去瞧瞧。</p>
+<p>等类中均有一个静态块用来执行一个叫做<code>registerNatives()</code>的native方法，</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title">registerNatives</span><span class="params">()</span></span>;</span><br><span class="line"><span class="keyword">static</span> &#123;</span><br><span class="line">    registerNatives();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个native方法里究竟都做了啥？我们进去瞧瞧。</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/post/2018/04/06/analysis-of-hotspot-jvm-register-natives/#more" rel="contents">
