@@ -110,19 +110,19 @@
 
 
 
-  <meta name="description" content="一个Java对象在JVM中是由一个对应角色的oop对象来描述的，比如instanceOopDesc用来描述普通实例对象，arrayOopDesc用来描述数组对象，而这些类型的oop对象均是继承自oopDesc。">
+  <meta name="description" content="在Java的系统包下如：  java.lang.System java.lang.Object java.lang.Class  等类中均有一个静态块用来执行一个叫做registerNatives()的native方法， 1234private static native void registerNatives();static &amp;#123;    registerNatives();&amp;#12">
 <meta name="keywords" content="OpenJDK,JVM,HotSpot">
 <meta property="og:type" content="article">
-<meta property="og:title" content="【JVM源码探秘】Java对象模型之对象头">
-<meta property="og:url" content="http://hunterzhao.io/post/2018/02/25/analysis-of-hotspot-jvm-java-object-header/index.html">
+<meta property="og:title" content="【JVM源码探秘】深入registerNatives()底层实现">
+<meta property="og:url" content="http://hunterzhao.io/post/2018/04/06/hotspot-explore-register-natives/index.html">
 <meta property="og:site_name" content="WorkHoliday">
-<meta property="og:description" content="一个Java对象在JVM中是由一个对应角色的oop对象来描述的，比如instanceOopDesc用来描述普通实例对象，arrayOopDesc用来描述数组对象，而这些类型的oop对象均是继承自oopDesc。">
+<meta property="og:description" content="在Java的系统包下如：  java.lang.System java.lang.Object java.lang.Class  等类中均有一个静态块用来执行一个叫做registerNatives()的native方法， 1234private static native void registerNatives();static &amp;#123;    registerNatives();&amp;#12">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://hunterzhao.io/images/post/2018/01/29/openjdk.jpg">
-<meta property="og:updated_time" content="2018-05-23T16:33:45.000Z">
+<meta property="og:updated_time" content="2018-06-03T18:12:36.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="【JVM源码探秘】Java对象模型之对象头">
-<meta name="twitter:description" content="一个Java对象在JVM中是由一个对应角色的oop对象来描述的，比如instanceOopDesc用来描述普通实例对象，arrayOopDesc用来描述数组对象，而这些类型的oop对象均是继承自oopDesc。">
+<meta name="twitter:title" content="【JVM源码探秘】深入registerNatives()底层实现">
+<meta name="twitter:description" content="在Java的系统包下如：  java.lang.System java.lang.Object java.lang.Class  等类中均有一个静态块用来执行一个叫做registerNatives()的native方法， 1234private static native void registerNatives();static &amp;#123;    registerNatives();&amp;#12">
 <meta name="twitter:image" content="http://hunterzhao.io/images/post/2018/01/29/openjdk.jpg">
 
 
@@ -130,7 +130,7 @@
 
 
 
-  <link rel="canonical" href="http://hunterzhao.io/post/2018/02/25/analysis-of-hotspot-jvm-java-object-header/"/>
+  <link rel="canonical" href="http://hunterzhao.io/post/2018/04/06/hotspot-explore-register-natives/"/>
 
 
 
@@ -140,7 +140,7 @@
   };
 </script>
 
-  <title>【JVM源码探秘】Java对象模型之对象头 | WorkHoliday</title>
+  <title>【JVM源码探秘】深入registerNatives()底层实现 | WorkHoliday</title>
   
 
 
@@ -254,7 +254,7 @@
           
   <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档<span class="badge">30</span>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档<span class="badge">26</span>
       </a>
 </li>
 
@@ -377,7 +377,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://hunterzhao.io/post/2018/02/25/analysis-of-hotspot-jvm-java-object-header/">
+    <link itemprop="mainEntityOfPage" href="http://hunterzhao.io/post/2018/04/06/hotspot-explore-register-natives/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Hunter Zhao">
@@ -394,7 +394,7 @@
 
         
         
-          <h2 class="post-title" itemprop="name headline">【JVM源码探秘】Java对象模型之对象头</h2>
+          <h2 class="post-title" itemprop="name headline">【JVM源码探秘】深入registerNatives()底层实现</h2>
         
 
         <div class="post-meta">
@@ -406,7 +406,7 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-25T21:10:00+08:00">2018-02-25</time>
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-06T19:30:00+08:00">2018-04-06</time>
             
 
             
@@ -455,7 +455,7 @@
                 
                   <span class="post-meta-item-text">字数统计：</span>
                 
-                <span title="字数统计">1.8k</span>
+                <span title="字数统计">7.3k</span>
               
 
               
@@ -469,7 +469,7 @@
                 
                   <span class="post-meta-item-text">阅读时长&asymp;</span>
                 
-                <span title="阅读时长">0:02</span>
+                <span title="阅读时长">0:07</span>
               
             </div>
           
@@ -490,18 +490,22 @@
 
       
         <p><img src="/images/post/2018/01/29/openjdk.jpg" alt="openjdk"></p>
-<p>一个Java对象在JVM中是由一个对应角色的<code>oop</code>对象来描述的，比如<code>instanceOopDesc</code>用来描述普通实例对象，<code>arrayOopDesc</code>用来描述数组对象，而这些类型的oop对象均是继承自<code>oopDesc</code>。 </p>
+<p>在Java的系统包下如：</p>
+<ul>
+<li>java.lang.System</li>
+<li>java.lang.Object</li>
+<li>java.lang.Class</li>
+</ul>
+<p>等类中均有一个静态块用来执行一个叫做<code>registerNatives()</code>的native方法，</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title">registerNatives</span><span class="params">()</span></span>;</span><br><span class="line"><span class="keyword">static</span> &#123;</span><br><span class="line">    registerNatives();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个native方法里究竟都做了啥？我们进去瞧瞧。</p>
 <a id="more"></a>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">oopDesc</span> &#123;</span></span><br><span class="line"> <span class="keyword">friend</span> <span class="class"><span class="keyword">class</span> <span class="title">VMStructs</span>;</span></span><br><span class="line"> <span class="keyword">friend</span> <span class="class"><span class="keyword">class</span> <span class="title">JVMCIVMStructs</span>;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line"> <span class="comment">// 对象头  </span></span><br><span class="line"> <span class="keyword">volatile</span> markOop _mark;</span><br><span class="line"> <span class="comment">// 元数据</span></span><br><span class="line"> <span class="keyword">union</span> _metadata &#123;</span><br><span class="line">   <span class="comment">// 对应的Klass对象  </span></span><br><span class="line">   Klass*      _klass;</span><br><span class="line">   narrowKlass _compressed_klass;</span><br><span class="line"> &#125; _metadata;</span><br></pre></td></tr></table></figure>
-<p>oopDesc主要包含两部分，一部分是<code>_mark</code>，一部分是<code>_metadata</code>，</p>
-<ul>
-<li><code>_mark</code> _mark是一个<code>markOop</code>实例，它描述了一个对象的头信息，用于存储对象的运行时记录信息，如哈希值、GC分代年龄、锁状态标志、线程持有的锁、偏向线程ID、偏向时间戳等：</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">//  32 bits:</span><br><span class="line">//  --------</span><br><span class="line">//             hash:25 ------------&gt;| age:4    biased_lock:1 lock:2 (normal object)</span><br><span class="line">//             JavaThread*:23 epoch:2 age:4    biased_lock:1 lock:2 (biased object)</span><br><span class="line">//             size:32 ------------------------------------------&gt;| (CMS free block)</span><br><span class="line">//             PromotedObject*:29 ----------&gt;| promo_bits:3 -----&gt;| (CMS promoted object)</span><br><span class="line">//</span><br><span class="line">//  64 bits:</span><br><span class="line">//  --------</span><br><span class="line">//  unused:25 hash:31 --&gt;| unused:1   age:4    biased_lock:1 lock:2 (normal object)</span><br><span class="line">//  JavaThread*:54 epoch:2 unused:1   age:4    biased_lock:1 lock:2 (biased object)</span><br><span class="line">//  PromotedObject*:61 ---------------------&gt;| promo_bits:3 -----&gt;| (CMS promoted object)</span><br><span class="line">//  size:64 -----------------------------------------------------&gt;| (CMS free block)</span><br><span class="line">//</span><br><span class="line">//  unused:25 hash:31 --&gt;| cms_free:1 age:4    biased_lock:1 lock:2 (COOPs &amp;&amp; normal object)</span><br><span class="line">//  JavaThread*:54 epoch:2 cms_free:1 age:4    biased_lock:1 lock:2 (COOPs &amp;&amp; biased object)</span><br><span class="line">//  narrowOop:32 unused:24 cms_free:1 unused:4 promo_bits:3 -----&gt;| (COOPs &amp;&amp; CMS promoted object)</span><br><span class="line">//  unused:21 size:35 --&gt;| cms_free:1 unused:7 ------------------&gt;| (COOPs &amp;&amp; CMS free block)</span><br></pre></td></tr></table></figure>
-<ul>
-<li><code>_metadata</code> 包含一个普通<code>_klass</code>和一个压缩后的<code>_compressed_klass</code>，详细信息参见<a href="https://wiki.openjdk.java.net/display/HotSpot/CompressedOops" target="_blank" rel="noopener">OpenJDK Wiki</a>。</li>
-</ul>
-
+<h1 id="System-c"><a href="#System-c" class="headerlink" title="System.c"></a>System.c</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Only register the performance-critical methods */</span></span><br><span class="line"><span class="keyword">static</span> JNINativeMethod methods[] = &#123;</span><br><span class="line">    &#123;<span class="string">"currentTimeMillis"</span>, <span class="string">"()J"</span>,              (<span class="keyword">void</span> *)&amp;JVM_CurrentTimeMillis&#125;,</span><br><span class="line">    &#123;<span class="string">"nanoTime"</span>,          <span class="string">"()J"</span>,              (<span class="keyword">void</span> *)&amp;JVM_NanoTime&#125;,</span><br><span class="line">    &#123;<span class="string">"arraycopy"</span>,     <span class="string">"("</span> OBJ <span class="string">"I"</span> OBJ <span class="string">"II)V"</span>, (<span class="keyword">void</span> *)&amp;JVM_ArrayCopy&#125;,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">undef</span> OBJ</span></span><br><span class="line"></span><br><span class="line">JNIEXPORT <span class="keyword">void</span> JNICALL</span><br><span class="line">Java_java_lang_System_registerNatives(JNIEnv *env, jclass cls)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 注册本地方法</span></span><br><span class="line">    (*env)-&gt;RegisterNatives(env, cls,</span><br><span class="line">                            methods, <span class="keyword">sizeof</span>(methods)/<span class="keyword">sizeof</span>(methods[<span class="number">0</span>]));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="Object-c"><a href="#Object-c" class="headerlink" title="Object.c"></a>Object.c</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> JNINativeMethod methods[] = &#123;</span><br><span class="line">    &#123;<span class="string">"hashCode"</span>,    <span class="string">"()I"</span>,                    (<span class="keyword">void</span> *)&amp;JVM_IHashCode&#125;,</span><br><span class="line">    &#123;<span class="string">"wait"</span>,        <span class="string">"(J)V"</span>,                   (<span class="keyword">void</span> *)&amp;JVM_MonitorWait&#125;,</span><br><span class="line">    &#123;<span class="string">"notify"</span>,      <span class="string">"()V"</span>,                    (<span class="keyword">void</span> *)&amp;JVM_MonitorNotify&#125;,</span><br><span class="line">    &#123;<span class="string">"notifyAll"</span>,   <span class="string">"()V"</span>,                    (<span class="keyword">void</span> *)&amp;JVM_MonitorNotifyAll&#125;,</span><br><span class="line">    &#123;<span class="string">"clone"</span>,       <span class="string">"()Ljava/lang/Object;"</span>,   (<span class="keyword">void</span> *)&amp;JVM_Clone&#125;,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">JNIEXPORT <span class="keyword">void</span> JNICALL</span><br><span class="line">Java_java_lang_Object_registerNatives(JNIEnv *env, jclass cls)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 注册本地方法</span></span><br><span class="line">    (*env)-&gt;RegisterNatives(env, cls,</span><br><span class="line">                            methods, <span class="keyword">sizeof</span>(methods)/<span class="keyword">sizeof</span>(methods[<span class="number">0</span>]));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="Class-c"><a href="#Class-c" class="headerlink" title="Class.c"></a>Class.c</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> JNINativeMethod methods[] = &#123;</span><br><span class="line">    &#123;<span class="string">"getName0"</span>,         <span class="string">"()"</span> STR,          (<span class="keyword">void</span> *)&amp;JVM_GetClassName&#125;,</span><br><span class="line">    &#123;<span class="string">"getSuperclass"</span>,    <span class="string">"()"</span> CLS,          <span class="literal">NULL</span>&#125;,</span><br><span class="line">    &#123;<span class="string">"getInterfaces0"</span>,   <span class="string">"()["</span> CLS,         (<span class="keyword">void</span> *)&amp;JVM_GetClassInterfaces&#125;,</span><br><span class="line">    &#123;<span class="string">"isInterface"</span>,      <span class="string">"()Z"</span>,             (<span class="keyword">void</span> *)&amp;JVM_IsInterface&#125;,</span><br><span class="line">    &#123;<span class="string">"getSigners"</span>,       <span class="string">"()["</span> OBJ,         (<span class="keyword">void</span> *)&amp;JVM_GetClassSigners&#125;,</span><br><span class="line">    &#123;<span class="string">"setSigners"</span>,       <span class="string">"(["</span> OBJ <span class="string">")V"</span>,     (<span class="keyword">void</span> *)&amp;JVM_SetClassSigners&#125;,</span><br><span class="line">    &#123;<span class="string">"isArray"</span>,          <span class="string">"()Z"</span>,             (<span class="keyword">void</span> *)&amp;JVM_IsArrayClass&#125;,</span><br><span class="line">    &#123;<span class="string">"isPrimitive"</span>,      <span class="string">"()Z"</span>,             (<span class="keyword">void</span> *)&amp;JVM_IsPrimitiveClass&#125;,</span><br><span class="line">    &#123;<span class="string">"getModifiers"</span>,     <span class="string">"()I"</span>,             (<span class="keyword">void</span> *)&amp;JVM_GetClassModifiers&#125;,</span><br><span class="line">    &#123;<span class="string">"getDeclaredFields0"</span>,<span class="string">"(Z)["</span> FLD,       (<span class="keyword">void</span> *)&amp;JVM_GetClassDeclaredFields&#125;,</span><br><span class="line">    &#123;<span class="string">"getDeclaredMethods0"</span>,<span class="string">"(Z)["</span> MHD,      (<span class="keyword">void</span> *)&amp;JVM_GetClassDeclaredMethods&#125;,</span><br><span class="line">    &#123;<span class="string">"getDeclaredConstructors0"</span>,<span class="string">"(Z)["</span> CTR, (<span class="keyword">void</span> *)&amp;JVM_GetClassDeclaredConstructors&#125;,</span><br><span class="line">    &#123;<span class="string">"getProtectionDomain0"</span>, <span class="string">"()"</span> PD,       (<span class="keyword">void</span> *)&amp;JVM_GetProtectionDomain&#125;,</span><br><span class="line">    &#123;<span class="string">"getDeclaredClasses0"</span>,  <span class="string">"()["</span> CLS,      (<span class="keyword">void</span> *)&amp;JVM_GetDeclaredClasses&#125;,</span><br><span class="line">    &#123;<span class="string">"getDeclaringClass0"</span>,   <span class="string">"()"</span> CLS,      (<span class="keyword">void</span> *)&amp;JVM_GetDeclaringClass&#125;,</span><br><span class="line">    &#123;<span class="string">"getSimpleBinaryName0"</span>, <span class="string">"()"</span> STR,      (<span class="keyword">void</span> *)&amp;JVM_GetSimpleBinaryName&#125;,</span><br><span class="line">    &#123;<span class="string">"getGenericSignature0"</span>, <span class="string">"()"</span> STR,      (<span class="keyword">void</span> *)&amp;JVM_GetClassSignature&#125;,</span><br><span class="line">    &#123;<span class="string">"getRawAnnotations"</span>,      <span class="string">"()"</span> BA,        (<span class="keyword">void</span> *)&amp;JVM_GetClassAnnotations&#125;,</span><br><span class="line">    &#123;<span class="string">"getConstantPool"</span>,     <span class="string">"()"</span> CPL,       (<span class="keyword">void</span> *)&amp;JVM_GetClassConstantPool&#125;,</span><br><span class="line">    &#123;<span class="string">"desiredAssertionStatus0"</span>,<span class="string">"("</span>CLS<span class="string">")Z"</span>,(<span class="keyword">void</span> *)&amp;JVM_DesiredAssertionStatus&#125;,</span><br><span class="line">    &#123;<span class="string">"getEnclosingMethod0"</span>, <span class="string">"()["</span> OBJ,      (<span class="keyword">void</span> *)&amp;JVM_GetEnclosingMethodInfo&#125;,</span><br><span class="line">    &#123;<span class="string">"getRawTypeAnnotations"</span>, <span class="string">"()"</span> BA,      (<span class="keyword">void</span> *)&amp;JVM_GetClassTypeAnnotations&#125;,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">JNIEXPORT <span class="keyword">void</span> JNICALL</span><br><span class="line">Java_java_lang_Class_registerNatives(JNIEnv *env, jclass cls)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 注册本地方法</span></span><br><span class="line">    methods[<span class="number">1</span>].fnPtr = (<span class="keyword">void</span> *)(*env)-&gt;GetSuperclass;</span><br><span class="line">    (*env)-&gt;RegisterNatives(env, cls, methods,</span><br><span class="line">                            <span class="keyword">sizeof</span>(methods)/<span class="keyword">sizeof</span>(JNINativeMethod));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="jni-cpp-jni-RegisterNatives"><a href="#jni-cpp-jni-RegisterNatives" class="headerlink" title="jni.cpp # jni_RegisterNatives()"></a>jni.cpp # jni_RegisterNatives()</h1><p>通过以上源码发现均调用的<code>(*env)-&gt;RegisterNatives(env, cls, methods...</code>，这里的<code>*env</code>为<code>JNI</code>环境，<br>方法进入<code>jni_RegisterNatives()</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">  <span class="comment">// 注册Java系统类中的本地方法</span></span><br><span class="line">JNI_ENTRY(jint, jni_RegisterNatives(JNIEnv *env, jclass clazz,</span><br><span class="line">                                    <span class="keyword">const</span> JNINativeMethod *methods,</span><br><span class="line">                                    jint nMethods))</span><br><span class="line">  JNIWrapper(<span class="string">"RegisterNatives"</span>);</span><br><span class="line">  HOTSPOT_JNI_REGISTERNATIVES_ENTRY(env, clazz, (<span class="keyword">void</span> *) methods, nMethods);</span><br><span class="line">  jint ret = <span class="number">0</span>;</span><br><span class="line">  DT_RETURN_MARK(RegisterNatives, jint, (<span class="keyword">const</span> jint&amp;)ret);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 加载对应的类并转换成Klass对象</span></span><br><span class="line">  Klass* k = java_lang_Class::as_Klass(JNIHandles::resolve_non_null(clazz));</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> index = <span class="number">0</span>; index &lt; nMethods; index++) &#123;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span>* meth_name = methods[index].name;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span>* meth_sig = methods[index].signature;</span><br><span class="line">    <span class="keyword">int</span> meth_name_len = (<span class="keyword">int</span>)<span class="built_in">strlen</span>(meth_name);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// The class should have been loaded (we have an instance of the class</span></span><br><span class="line">    <span class="comment">// passed in) so the method and signature should already be in the symbol</span></span><br><span class="line">    <span class="comment">// table.  If they're not there, the method doesn't exist.</span></span><br><span class="line">    <span class="comment">// 方法名</span></span><br><span class="line">    TempNewSymbol  name = SymbolTable::probe(meth_name, meth_name_len);</span><br><span class="line">    <span class="comment">// 方法签名</span></span><br><span class="line">    TempNewSymbol  signature = SymbolTable::probe(meth_sig, (<span class="keyword">int</span>)<span class="built_in">strlen</span>(meth_sig));</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果没找到该方法则抛出java.lang.NoSuchMethodError()</span></span><br><span class="line">    <span class="keyword">if</span> (name == <span class="literal">NULL</span> || signature == <span class="literal">NULL</span>) &#123;</span><br><span class="line">      ResourceMark rm;</span><br><span class="line">      stringStream st;</span><br><span class="line">      st.print(<span class="string">"Method %s.%s%s not found"</span>, k-&gt;external_name(), meth_name, meth_sig);</span><br><span class="line">      <span class="comment">// Must return negative value on failure</span></span><br><span class="line">      THROW_MSG_(vmSymbols::java_lang_NoSuchMethodError(), st.as_string(), <span class="number">-1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 执行注册本地方法</span></span><br><span class="line">    <span class="keyword">bool</span> res = register_native(k, name, signature,</span><br><span class="line">                               (address) methods[index].fnPtr, THREAD);</span><br><span class="line">    <span class="keyword">if</span> (!res) &#123;</span><br><span class="line">      ret = <span class="number">-1</span>;</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> ret;</span><br><span class="line">JNI_END</span><br></pre></td></tr></table></figure>
+<h1 id="jni-cpp-register-native"><a href="#jni-cpp-register-native" class="headerlink" title="jni.cpp # register_native()"></a>jni.cpp # register_native()</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">bool</span> <span class="title">register_native</span><span class="params">(Klass* k, Symbol* name, Symbol* signature, address entry, TRAPS)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 找到对应的方法</span></span><br><span class="line">  Method* method = k-&gt;lookup_method(name, signature);</span><br><span class="line">  <span class="keyword">if</span> (method == <span class="literal">NULL</span>) &#123;</span><br><span class="line">    ResourceMark rm;</span><br><span class="line">    stringStream st;</span><br><span class="line">    st.print(<span class="string">"Method %s name or signature does not match"</span>,</span><br><span class="line">             Method::name_and_sig_as_C_string(k, name, signature));</span><br><span class="line">    THROW_MSG_(vmSymbols::java_lang_NoSuchMethodError(), st.as_string(), <span class="literal">false</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (!method-&gt;is_native()) &#123;</span><br><span class="line">    <span class="comment">// 检查JVMTI是否指定native方法前缀</span></span><br><span class="line">    <span class="comment">// trying to register to a non-native method, see if a JVM TI agent has added prefix(es)</span></span><br><span class="line">    method = find_prefixed_native(k, name, signature, THREAD);</span><br><span class="line">    <span class="keyword">if</span> (method == <span class="literal">NULL</span>) &#123;</span><br><span class="line">      ResourceMark rm;</span><br><span class="line">      stringStream st;</span><br><span class="line">      st.print(<span class="string">"Method %s is not declared as native"</span>,</span><br><span class="line">               Method::name_and_sig_as_C_string(k, name, signature));</span><br><span class="line">      THROW_MSG_(vmSymbols::java_lang_NoSuchMethodError(), st.as_string(), <span class="literal">false</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (entry != <span class="literal">NULL</span>) &#123;</span><br><span class="line">    <span class="comment">// 设置本为本地方法</span></span><br><span class="line">    method-&gt;set_native_function(entry,</span><br><span class="line">      Method::native_bind_event_is_interesting);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    method-&gt;clear_native_function();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (PrintJNIResolving) &#123;</span><br><span class="line">    <span class="function">ResourceMark <span class="title">rm</span><span class="params">(THREAD)</span></span>;</span><br><span class="line">    tty-&gt;print_cr(<span class="string">"[Registering JNI native method %s.%s]"</span>,</span><br><span class="line">      method-&gt;method_holder()-&gt;external_name(),</span><br><span class="line">      method-&gt;name()-&gt;as_C_string());</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
       
     </div>
 
@@ -535,7 +539,7 @@
     <strong>本文作者： </strong>Hunter Zhao</li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="http://hunterzhao.io/post/2018/02/25/analysis-of-hotspot-jvm-java-object-header/" title="【JVM源码探秘】Java对象模型之对象头">http://hunterzhao.io/post/2018/02/25/analysis-of-hotspot-jvm-java-object-header/</a>
+    <a href="http://hunterzhao.io/post/2018/04/06/hotspot-explore-register-natives/" title="【JVM源码探秘】深入registerNatives()底层实现">http://hunterzhao.io/post/2018/04/06/hotspot-explore-register-natives/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-ND 4.0</a> 许可协议。转载请注明出处！</li>
@@ -565,8 +569,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/post/2018/02/24/analysis-of-hotspot-jvm-java-object-model-oop-klass/" rel="next" title="【JVM源码探秘】Java对象模型OOP-Klass">
-                <i class="fa fa-chevron-left"></i> 【JVM源码探秘】Java对象模型OOP-Klass
+              <a href="/post/2018/04/05/hotspot-explore-system-gc/" rel="next" title="【JVM源码探秘】深入System.gc()底层实现">
+                <i class="fa fa-chevron-left"></i> 【JVM源码探秘】深入System.gc()底层实现
               </a>
             
           </div>
@@ -575,8 +579,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/post/2018/04/05/analysis-of-hotspot-jvm-system-gc/" rel="prev" title="【JVM源码探秘】深入System.gc()底层实现">
-                【JVM源码探秘】深入System.gc()底层实现 <i class="fa fa-chevron-right"></i>
+              <a href="/post/2018/05/01/consume-mq-message-with-multithreading/" rel="prev" title="聊一聊使用多线程处理MQ消息的正确姿势">
+                聊一聊使用多线程处理MQ消息的正确姿势 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -626,8 +630,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -646,7 +659,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">30</span>
+                    <span class="site-state-item-count">26</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -802,6 +815,22 @@
       </section>
 
       
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#System-c"><span class="nav-number">1.</span> <span class="nav-text">System.c</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Object-c"><span class="nav-number">2.</span> <span class="nav-text">Object.c</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Class-c"><span class="nav-number">3.</span> <span class="nav-text">Class.c</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#jni-cpp-jni-RegisterNatives"><span class="nav-number">4.</span> <span class="nav-text">jni.cpp # jni_RegisterNatives()</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#jni-cpp-register-native"><span class="nav-number">5.</span> <span class="nav-text">jni.cpp # register_native()</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
 
       
         <div class="back-to-top">
@@ -834,7 +863,7 @@
       <i class="fa fa-area-chart"></i>
     </span>
     
-    <span title="站点总字数">181k</span>
+    <span title="站点总字数">126k</span>
   
 
   
@@ -843,7 +872,7 @@
       <i class="fa fa-coffee"></i>
     </span>
     
-    <span title="站点总阅读时长">3:01</span>
+    <span title="站点总阅读时长">2:06</span>
   
 </div>
 

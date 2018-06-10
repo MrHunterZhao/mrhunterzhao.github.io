@@ -251,7 +251,7 @@
           
   <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档<span class="badge">30</span>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档<span class="badge">26</span>
       </a>
 </li>
 
@@ -372,7 +372,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://hunterzhao.io/post/2018/02/12/analysis-of-hotspot-jvm-java-class-file-structure/">
+    <link itemprop="mainEntityOfPage" href="http://hunterzhao.io/post/2018/02/12/hotspot-explore-java-class-file-structure/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Hunter Zhao">
@@ -391,7 +391,7 @@
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/post/2018/02/12/analysis-of-hotspot-jvm-java-class-file-structure/" itemprop="url">【JVM源码探秘】Java中的Class文件结构</a></h2>
+                <a class="post-title-link" href="/post/2018/02/12/hotspot-explore-java-class-file-structure/" itemprop="url">【JVM源码探秘】Java中的Class文件结构</a></h2>
         
 
         <div class="post-meta">
@@ -492,7 +492,7 @@
 <p>一个class文件完整地描述了Java源文件的各种信息，Oracle JVM规范中的<a href="https://docs.oracle.com/javase/specs/jvms/se10/html/jvms-4.html#jvms-4.1" target="_blank" rel="noopener">4.1 The ClassFile Structure</a> 详细定义了一个标准class文件的结构</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/post/2018/02/12/analysis-of-hotspot-jvm-java-class-file-structure/#more" rel="contents">
+            <a class="btn" href="/post/2018/02/12/hotspot-explore-java-class-file-structure/#more" rel="contents">
               More &raquo;
             </a>
           </div>
@@ -813,7 +813,7 @@
                 
                   <span class="post-meta-item-text">字数统计：</span>
                 
-                <span title="字数统计">3.6k</span>
+                <span title="字数统计">4k</span>
               
 
               
@@ -849,8 +849,20 @@
       
         
           <p><img src="/images/post/2018/01/29/openjdk-logo.jpg" alt="openjdk"></p>
-<p>以前尝试编译过OpenJDK7、8和9，由于源代码中存在诸多BUG，导致各种编译问题，解决来解决去，还是很难编译通过，很是不爽。</p>
-<p>今天抱着试试看的态度又服用了一个疗程，拿起桌上的OpenJDK10，反手就是一次编译，居然像德芙一样丝滑，一次通过。</p>
+<p>博主在11年到12年的时候曾连续研究过十个月的JVM，读过的相关书籍包括：</p>
+<ul>
+<li><p><a href="https://book.douban.com/subject/1138768/" target="_blank" rel="noopener">深入Java虚拟机</a><br>这本书可以说是介绍JVM内部原理的鼻祖了，于2003年出版现已绝版，不过可以再某宝买到影印版。虽然当时JDK最高仅为1.4但JVM内部的构造已大体形成，所以博主强烈推荐此书。p.s 我肯定不会告诉你这书博主看了3遍：D</p>
+</li>
+<li><p><a href="https://book.douban.com/subject/6522893/" target="_blank" rel="noopener">深入理解Java虚拟机</a><br>国内周某人写的，鉴于博主对于国人写的书向来不怎么感兴趣还是不提了。</p>
+</li>
+<li><p><a href="https://book.douban.com/subject/25847620/" target="_blank" rel="noopener">HotSpot实战</a></p>
+</li>
+<li><p><a href="https://book.douban.com/subject/27086821/" target="_blank" rel="noopener">揭秘Java虚拟机 JVM设计原理与实现</a></p>
+</li>
+<li><p><a href="https://book.douban.com/subject/26802084/" target="_blank" rel="noopener">自己动手写Java虚拟机</a></p>
+</li>
+</ul>
+<p>之前的研究基本上都是虚拟机规范和JVM参数调优层面的内容，但是总觉得有些意犹未尽所以决定深入研究一下Hotspot实现，<br>由大部分C/C++和少量汇编代码构成，但清晰的结构和优雅的编码使其并不难读，不得不赞叹一句SUN的大师们的智慧。<br>今天就从编译OpenJDK开始我们的《JVM源码探秘》系列文章之旅。</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/post/2018/01/29/compile-openjdk10-source-code-on-mac/#more" rel="contents">
@@ -2203,7 +2215,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">30</span>
+                    <span class="site-state-item-count">26</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -2391,7 +2403,7 @@
       <i class="fa fa-area-chart"></i>
     </span>
     
-    <span title="站点总字数">181k</span>
+    <span title="站点总字数">126k</span>
   
 
   
@@ -2400,7 +2412,7 @@
       <i class="fa fa-coffee"></i>
     </span>
     
-    <span title="站点总阅读时长">3:01</span>
+    <span title="站点总阅读时长">2:06</span>
   
 </div>
 

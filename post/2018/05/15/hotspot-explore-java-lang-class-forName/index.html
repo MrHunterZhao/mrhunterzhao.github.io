@@ -114,7 +114,7 @@
 <meta name="keywords" content="OpenJDK,JVM,HotSpot">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【JVM源码探秘】细说Class.forName()底层实现">
-<meta property="og:url" content="http://hunterzhao.io/post/2018/05/15/analysis-of-hotspot-java-lang-class-forName/index.html">
+<meta property="og:url" content="http://hunterzhao.io/post/2018/05/15/hotspot-explore-java-lang-class-forName/index.html">
 <meta property="og:site_name" content="WorkHoliday">
 <meta property="og:description" content="JVM允许在运行时动态装载类，这为开发者提供了极大方便，使用Class.forName(&amp;quot;com.xxx.Xxx&amp;quot;)，装载完成后可以通过调用其newInstance()完成对象的创建，然后便可以正常操作该类。 接下来我们就细说说Class.forName()在JVM层面所做的事情。">
 <meta property="og:locale" content="zh-CN">
@@ -130,7 +130,7 @@
 
 
 
-  <link rel="canonical" href="http://hunterzhao.io/post/2018/05/15/analysis-of-hotspot-java-lang-class-forName/"/>
+  <link rel="canonical" href="http://hunterzhao.io/post/2018/05/15/hotspot-explore-java-lang-class-forName/"/>
 
 
 
@@ -254,7 +254,7 @@
           
   <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档<span class="badge">30</span>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档<span class="badge">26</span>
       </a>
 </li>
 
@@ -377,7 +377,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://hunterzhao.io/post/2018/05/15/analysis-of-hotspot-java-lang-class-forName/">
+    <link itemprop="mainEntityOfPage" href="http://hunterzhao.io/post/2018/05/15/hotspot-explore-java-lang-class-forName/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Hunter Zhao">
@@ -538,7 +538,7 @@
     <strong>本文作者： </strong>Hunter Zhao</li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="http://hunterzhao.io/post/2018/05/15/analysis-of-hotspot-java-lang-class-forName/" title="【JVM源码探秘】细说Class.forName()底层实现">http://hunterzhao.io/post/2018/05/15/analysis-of-hotspot-java-lang-class-forName/</a>
+    <a href="http://hunterzhao.io/post/2018/05/15/hotspot-explore-java-lang-class-forName/" title="【JVM源码探秘】细说Class.forName()底层实现">http://hunterzhao.io/post/2018/05/15/hotspot-explore-java-lang-class-forName/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-ND 4.0</a> 许可协议。转载请注明出处！</li>
@@ -654,7 +654,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">30</span>
+                    <span class="site-state-item-count">26</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -858,7 +858,7 @@
       <i class="fa fa-area-chart"></i>
     </span>
     
-    <span title="站点总字数">181k</span>
+    <span title="站点总字数">126k</span>
   
 
   
@@ -867,7 +867,7 @@
       <i class="fa fa-coffee"></i>
     </span>
     
-    <span title="站点总阅读时长">3:01</span>
+    <span title="站点总阅读时长">2:06</span>
   
 </div>
 

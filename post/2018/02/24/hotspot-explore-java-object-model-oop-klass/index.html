@@ -114,7 +114,7 @@
 <meta name="keywords" content="OpenJDK,JVM,HotSpot">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【JVM源码探秘】Java对象模型OOP-Klass">
-<meta property="og:url" content="http://hunterzhao.io/post/2018/02/24/analysis-of-hotspot-jvm-java-object-model-oop-klass/index.html">
+<meta property="og:url" content="http://hunterzhao.io/post/2018/02/24/hotspot-explore-java-object-model-oop-klass/index.html">
 <meta property="og:site_name" content="WorkHoliday">
 <meta property="og:description" content="一个Java类在JVM中是如何描述的？创建一个Java对象在JVM中数据又是如何存储的？ 在Hotspot VM中，设计者设计了OOP-Klass模型用来描述class的属性和行为，这里的OOP并不是面向对象编程（Object-oriented programming），而是Ordinary Object Pointer（普通对象指针），之所以设计为OOP和Klass两部分是因为不希望每个对象都">
 <meta property="og:locale" content="zh-CN">
@@ -130,7 +130,7 @@
 
 
 
-  <link rel="canonical" href="http://hunterzhao.io/post/2018/02/24/analysis-of-hotspot-jvm-java-object-model-oop-klass/"/>
+  <link rel="canonical" href="http://hunterzhao.io/post/2018/02/24/hotspot-explore-java-object-model-oop-klass/"/>
 
 
 
@@ -254,7 +254,7 @@
           
   <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档<span class="badge">30</span>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档<span class="badge">26</span>
       </a>
 </li>
 
@@ -377,7 +377,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://hunterzhao.io/post/2018/02/24/analysis-of-hotspot-jvm-java-object-model-oop-klass/">
+    <link itemprop="mainEntityOfPage" href="http://hunterzhao.io/post/2018/02/24/hotspot-explore-java-object-model-oop-klass/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Hunter Zhao">
@@ -538,7 +538,7 @@
     <strong>本文作者： </strong>Hunter Zhao</li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="http://hunterzhao.io/post/2018/02/24/analysis-of-hotspot-jvm-java-object-model-oop-klass/" title="【JVM源码探秘】Java对象模型OOP-Klass">http://hunterzhao.io/post/2018/02/24/analysis-of-hotspot-jvm-java-object-model-oop-klass/</a>
+    <a href="http://hunterzhao.io/post/2018/02/24/hotspot-explore-java-object-model-oop-klass/" title="【JVM源码探秘】Java对象模型OOP-Klass">http://hunterzhao.io/post/2018/02/24/hotspot-explore-java-object-model-oop-klass/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-ND 4.0</a> 许可协议。转载请注明出处！</li>
@@ -568,7 +568,7 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/post/2018/02/23/analysis-of-hotspot-jvm-startup-process-initialization/" rel="next" title="【JVM源码探秘】HotSpot启动流程分析-初始化">
+              <a href="/post/2018/02/23/hotspot-explore-startup-process-initialization/" rel="next" title="【JVM源码探秘】HotSpot启动流程分析-初始化">
                 <i class="fa fa-chevron-left"></i> 【JVM源码探秘】HotSpot启动流程分析-初始化
               </a>
             
@@ -578,7 +578,7 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/post/2018/02/25/analysis-of-hotspot-jvm-java-object-header/" rel="prev" title="【JVM源码探秘】Java对象模型之对象头">
+              <a href="/post/2018/02/25/hotspot-explore-java-object-header/" rel="prev" title="【JVM源码探秘】Java对象模型之对象头">
                 【JVM源码探秘】Java对象模型之对象头 <i class="fa fa-chevron-right"></i>
               </a>
             
@@ -658,7 +658,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">30</span>
+                    <span class="site-state-item-count">26</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -862,7 +862,7 @@
       <i class="fa fa-area-chart"></i>
     </span>
     
-    <span title="站点总字数">181k</span>
+    <span title="站点总字数">126k</span>
   
 
   
@@ -871,7 +871,7 @@
       <i class="fa fa-coffee"></i>
     </span>
     
-    <span title="站点总阅读时长">3:01</span>
+    <span title="站点总阅读时长">2:06</span>
   
 </div>
 

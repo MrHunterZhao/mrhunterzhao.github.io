@@ -110,19 +110,19 @@
 
 
 
-  <meta name="description" content="以前尝试编译过OpenJDK7、8和9，由于源代码中存在诸多BUG，导致各种编译问题，解决来解决去，还是很难编译通过，很是不爽。 今天抱着试试看的态度又服用了一个疗程，拿起桌上的OpenJDK10，反手就是一次编译，居然像德芙一样丝滑，一次通过。">
+  <meta name="description" content="博主在11年到12年的时候曾连续研究过十个月的JVM，读过的相关书籍包括：  深入Java虚拟机这本书可以说是介绍JVM内部原理的鼻祖了，于2003年出版现已绝版，不过可以再某宝买到影印版。虽然当时JDK最高仅为1.4但JVM内部的构造已大体形成，所以博主强烈推荐此书。p.s 我肯定不会告诉你这书博主看了3遍：D  深入理解Java虚拟机国内周某人写的，鉴于博主对于国人写的书向来不怎么感兴趣还是">
 <meta name="keywords" content="OpenJDK,JVM,HotSpot">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【JVM源码探秘】在Mac上编译OpenJDK10源码">
 <meta property="og:url" content="http://hunterzhao.io/post/2018/01/29/compile-openjdk10-source-code-on-mac/index.html">
 <meta property="og:site_name" content="WorkHoliday">
-<meta property="og:description" content="以前尝试编译过OpenJDK7、8和9，由于源代码中存在诸多BUG，导致各种编译问题，解决来解决去，还是很难编译通过，很是不爽。 今天抱着试试看的态度又服用了一个疗程，拿起桌上的OpenJDK10，反手就是一次编译，居然像德芙一样丝滑，一次通过。">
+<meta property="og:description" content="博主在11年到12年的时候曾连续研究过十个月的JVM，读过的相关书籍包括：  深入Java虚拟机这本书可以说是介绍JVM内部原理的鼻祖了，于2003年出版现已绝版，不过可以再某宝买到影印版。虽然当时JDK最高仅为1.4但JVM内部的构造已大体形成，所以博主强烈推荐此书。p.s 我肯定不会告诉你这书博主看了3遍：D  深入理解Java虚拟机国内周某人写的，鉴于博主对于国人写的书向来不怎么感兴趣还是">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://hunterzhao.io/images/post/2018/01/29/openjdk-logo.jpg">
-<meta property="og:updated_time" content="2018-04-30T08:46:22.000Z">
+<meta property="og:updated_time" content="2018-06-10T09:18:18.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【JVM源码探秘】在Mac上编译OpenJDK10源码">
-<meta name="twitter:description" content="以前尝试编译过OpenJDK7、8和9，由于源代码中存在诸多BUG，导致各种编译问题，解决来解决去，还是很难编译通过，很是不爽。 今天抱着试试看的态度又服用了一个疗程，拿起桌上的OpenJDK10，反手就是一次编译，居然像德芙一样丝滑，一次通过。">
+<meta name="twitter:description" content="博主在11年到12年的时候曾连续研究过十个月的JVM，读过的相关书籍包括：  深入Java虚拟机这本书可以说是介绍JVM内部原理的鼻祖了，于2003年出版现已绝版，不过可以再某宝买到影印版。虽然当时JDK最高仅为1.4但JVM内部的构造已大体形成，所以博主强烈推荐此书。p.s 我肯定不会告诉你这书博主看了3遍：D  深入理解Java虚拟机国内周某人写的，鉴于博主对于国人写的书向来不怎么感兴趣还是">
 <meta name="twitter:image" content="http://hunterzhao.io/images/post/2018/01/29/openjdk-logo.jpg">
 
 
@@ -254,7 +254,7 @@
           
   <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档<span class="badge">30</span>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档<span class="badge">26</span>
       </a>
 </li>
 
@@ -455,7 +455,7 @@
                 
                   <span class="post-meta-item-text">字数统计：</span>
                 
-                <span title="字数统计">3.6k</span>
+                <span title="字数统计">4k</span>
               
 
               
@@ -490,9 +490,22 @@
 
       
         <p><img src="/images/post/2018/01/29/openjdk-logo.jpg" alt="openjdk"></p>
-<p>以前尝试编译过OpenJDK7、8和9，由于源代码中存在诸多BUG，导致各种编译问题，解决来解决去，还是很难编译通过，很是不爽。</p>
-<p>今天抱着试试看的态度又服用了一个疗程，拿起桌上的OpenJDK10，反手就是一次编译，居然像德芙一样丝滑，一次通过。</p>
+<p>博主在11年到12年的时候曾连续研究过十个月的JVM，读过的相关书籍包括：</p>
+<ul>
+<li><p><a href="https://book.douban.com/subject/1138768/" target="_blank" rel="noopener">深入Java虚拟机</a><br>这本书可以说是介绍JVM内部原理的鼻祖了，于2003年出版现已绝版，不过可以再某宝买到影印版。虽然当时JDK最高仅为1.4但JVM内部的构造已大体形成，所以博主强烈推荐此书。p.s 我肯定不会告诉你这书博主看了3遍：D</p>
+</li>
+<li><p><a href="https://book.douban.com/subject/6522893/" target="_blank" rel="noopener">深入理解Java虚拟机</a><br>国内周某人写的，鉴于博主对于国人写的书向来不怎么感兴趣还是不提了。</p>
+</li>
+<li><p><a href="https://book.douban.com/subject/25847620/" target="_blank" rel="noopener">HotSpot实战</a></p>
+</li>
+<li><p><a href="https://book.douban.com/subject/27086821/" target="_blank" rel="noopener">揭秘Java虚拟机 JVM设计原理与实现</a></p>
+</li>
+<li><p><a href="https://book.douban.com/subject/26802084/" target="_blank" rel="noopener">自己动手写Java虚拟机</a></p>
+</li>
+</ul>
+<p>之前的研究基本上都是虚拟机规范和JVM参数调优层面的内容，但是总觉得有些意犹未尽所以决定深入研究一下Hotspot实现，<br>由大部分C/C++和少量汇编代码构成，但清晰的结构和优雅的编码使其并不难读，不得不赞叹一句SUN的大师们的智慧。<br>今天就从编译OpenJDK开始我们的《JVM源码探秘》系列文章之旅。</p>
 <a id="more"></a>
+<p>以前尝试编译过OpenJDK7、8和9，由于源代码中存在诸多BUG，导致各种编译问题，解决来解决去，还是很难编译通过，很是不爽。<br>今天抱着试试看的态度又服用了一个疗程，拿起桌上的OpenJDK10，反手就是一次编译，居然像德芙一样丝滑，一次通过。</p>
 <h1 id="软件环境"><a href="#软件环境" class="headerlink" title="软件环境"></a>软件环境</h1><ul>
 <li>OS：macOS Sierra 10.12</li>
 <li>Xcode: 8.3.3</li>
@@ -673,7 +686,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">30</span>
+                    <span class="site-state-item-count">26</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -877,7 +890,7 @@
       <i class="fa fa-area-chart"></i>
     </span>
     
-    <span title="站点总字数">181k</span>
+    <span title="站点总字数">126k</span>
   
 
   
@@ -886,7 +899,7 @@
       <i class="fa fa-coffee"></i>
     </span>
     
-    <span title="站点总阅读时长">3:01</span>
+    <span title="站点总阅读时长">2:06</span>
   
 </div>
 

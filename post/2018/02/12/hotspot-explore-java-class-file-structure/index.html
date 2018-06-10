@@ -110,23 +110,27 @@
 
 
 
-  <meta name="description" content="道与术。">
-<meta property="og:type" content="website">
-<meta property="og:title" content="WorkHoliday">
-<meta property="og:url" content="http://hunterzhao.io/tags/OpenJDK/page/2/index.html">
+  <meta name="description" content="我们都知道JVM并不能直接运行Java源文件，而是程序猿通过JDK提供的javac命令将Java源文件编译成.class二进制文件，然后供JVM加载并使用，也就是说class文件其实是程序猿和JVM之间交互的媒介，相当于介于用户和Linux内核之间的shell。 一个class文件完整地描述了Java源文件的各种信息，Oracle JVM规范中的4.1 The ClassFile Structu">
+<meta name="keywords" content="OpenJDK,JVM,HotSpot">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【JVM源码探秘】Java中的Class文件结构">
+<meta property="og:url" content="http://hunterzhao.io/post/2018/02/12/hotspot-explore-java-class-file-structure/index.html">
 <meta property="og:site_name" content="WorkHoliday">
-<meta property="og:description" content="道与术。">
+<meta property="og:description" content="我们都知道JVM并不能直接运行Java源文件，而是程序猿通过JDK提供的javac命令将Java源文件编译成.class二进制文件，然后供JVM加载并使用，也就是说class文件其实是程序猿和JVM之间交互的媒介，相当于介于用户和Linux内核之间的shell。 一个class文件完整地描述了Java源文件的各种信息，Oracle JVM规范中的4.1 The ClassFile Structu">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://hunterzhao.io/images/post/2018/01/29/openjdk.jpg">
+<meta property="og:updated_time" content="2018-05-20T16:46:30.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="WorkHoliday">
-<meta name="twitter:description" content="道与术。">
+<meta name="twitter:title" content="【JVM源码探秘】Java中的Class文件结构">
+<meta name="twitter:description" content="我们都知道JVM并不能直接运行Java源文件，而是程序猿通过JDK提供的javac命令将Java源文件编译成.class二进制文件，然后供JVM加载并使用，也就是说class文件其实是程序猿和JVM之间交互的媒介，相当于介于用户和Linux内核之间的shell。 一个class文件完整地描述了Java源文件的各种信息，Oracle JVM规范中的4.1 The ClassFile Structu">
+<meta name="twitter:image" content="http://hunterzhao.io/images/post/2018/01/29/openjdk.jpg">
 
 
 
 
 
 
-  <link rel="canonical" href="http://hunterzhao.io/tags/OpenJDK/page/2/"/>
+  <link rel="canonical" href="http://hunterzhao.io/post/2018/02/12/hotspot-explore-java-class-file-structure/"/>
 
 
 
@@ -136,7 +140,7 @@
   };
 </script>
 
-  <title>标签: OpenJDK | WorkHoliday</title>
+  <title>【JVM源码探秘】Java中的Class文件结构 | WorkHoliday</title>
   
 
 
@@ -199,7 +203,7 @@
     
   
 
-  <div class="container sidebar-position-left ">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -250,7 +254,7 @@
           
   <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档<span class="badge">30</span>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档<span class="badge">26</span>
       </a>
 </li>
 
@@ -351,172 +355,380 @@
           
             
 
-    
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-    
-
-  
-
-
           
           <div id="content" class="content">
             
 
+  <div id="posts" class="posts-expand">
+    
+
+  
+
   
   
   
-  <div class="post-block tag">
 
-    <div id="posts" class="posts-collapse">
-      <div class="collection-title">
-        <h2>OpenJDK<small>标签</small>
-        </h2>
-      </div>
-
-      
-        
+  
+    <div class="reading-progress-bar"></div>
+  
 
   <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://hunterzhao.io/post/2018/02/12/hotspot-explore-java-class-file-structure/">
 
-      <h3 class="post-title">
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Hunter Zhao">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="WorkHoliday">
+    </span>
+
+    
+      <header class="post-header">
+
         
-            <a class="post-title-link" href="/post/2014/12/01/analyse-jvm-startup-flow-through-source-code-initialize/" itemprop="url">
-              
-                <span itemprop="name">【Hotspot源码分析】从HotSpot源码角度深入分析Java程序启动过程-初始化</span>
-              
-            </a>
         
-      </h3>
+          <h2 class="post-title" itemprop="name headline">【JVM源码探秘】Java中的Class文件结构</h2>
+        
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2014-12-01T04:20:08+08:00"
-              content="2014-12-01" >
-          12-01
-        </time>
-      </div>
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-12T17:10:35+08:00">2018-02-12</time>
+            
 
-    </header>
-  </article>
+            
+            
 
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/OpenJDK/" itemprop="url" rel="index"><span itemprop="name">OpenJDK</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-symbolscount">
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计：</span>
+                
+                <span title="字数统计">5.3k</span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长&asymp;</span>
+                
+                <span title="阅读时长">0:05</span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h3 class="post-title">
-        
-            <a class="post-title-link" href="/post/2014/12/01/analyse-jvm-startup-flow-through-source-code-create/" itemprop="url">
-              
-                <span itemprop="name">【Hotspot源码分析】从HotSpot源码角度深入分析Java程序启动过程-创建</span>
-              
-            </a>
-        
-      </h3>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2014-12-01T03:43:40+08:00"
-              content="2014-12-01" >
-          12-01
-        </time>
-      </div>
-
-    </header>
-  </article>
-
+      
 
       
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h3 class="post-title">
-        
-            <a class="post-title-link" href="/post/2014/11/19/build-hotspot-jvm-debug-environment-on-linux/" itemprop="url">
-              
-                <span itemprop="name">在Linux下搭建OpenJDK7源码调试环境</span>
-              
-            </a>
-        
-      </h3>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2014-11-19T17:17:53+08:00"
-              content="2014-11-19" >
-          11-19
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-      
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h3 class="post-title">
-        
-            <a class="post-title-link" href="/post/2014/11/08/compile-jdk7-source-code-on-centos/" itemprop="url">
-              
-                <span itemprop="name">在Linux上编译OpenJDK7源码</span>
-              
-            </a>
-        
-      </h3>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2014-11-08T05:50:46+08:00"
-              content="2014-11-08" >
-          11-08
-        </time>
-      </div>
-
-    </header>
-  </article>
-
+        <p><img src="/images/post/2018/01/29/openjdk.jpg" alt="openjdk"></p>
+<p>我们都知道JVM并不能直接运行Java源文件，而是程序猿通过JDK提供的<code>javac</code>命令将Java源文件编译成<code>.class</code>二进制文件，<br>然后供JVM加载并使用，也就是说class文件其实是程序猿和JVM之间交互的媒介，相当于介于用户和Linux内核之间的shell。</p>
+<p>一个class文件完整地描述了Java源文件的各种信息，Oracle JVM规范中的<a href="https://docs.oracle.com/javase/specs/jvms/se10/html/jvms-4.html#jvms-4.1" target="_blank" rel="noopener">4.1 The ClassFile Structure</a> 详细定义了一个标准class文件的结构</p>
+<a id="more"></a>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">ClassFile &#123;</span><br><span class="line">       u4             magic;</span><br><span class="line">       u2             minor_version;</span><br><span class="line">       u2             major_version;</span><br><span class="line">       u2             constant_pool_count;</span><br><span class="line">       cp_info        constant_pool[constant_pool_count-1];</span><br><span class="line">       u2             access_flags;</span><br><span class="line">       u2             this_class;</span><br><span class="line">       u2             super_class;</span><br><span class="line">       u2             interfaces_count;</span><br><span class="line">       u2             interfaces[interfaces_count];</span><br><span class="line">       u2             fields_count;</span><br><span class="line">       field_info     fields[fields_count];</span><br><span class="line">       u2             methods_count;</span><br><span class="line">       method_info    methods[methods_count];</span><br><span class="line">       u2             attributes_count;</span><br><span class="line">       attribute_info attributes[attributes_count];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="magic"><a href="#magic" class="headerlink" title="magic"></a>magic</h1><p>class文件的魔数值，用于鉴定是否为一个合法class文件，值为<code>0xCAFEBABE</code></p>
+<h1 id="minor-version-amp-major-version"><a href="#minor-version-amp-major-version" class="headerlink" title="minor_version &amp; major_version"></a>minor_version &amp; major_version</h1><p>class文件的主次版本号，随着JDK版本release递增，JVM运行时向下兼容，也就是说在JDK10上编译出的class文件在JRE7上无法运行，否则会抛出<code>java.lang.UnsupportedClassVersionError</code><br>minor_version和major_version项目的值是该类文件的次版本号和主版本号。 主版本号和次版本号一起决定了类文件格式的版本。<br>如果一个类文件的主版本号为M，次版本号为m，那么我们将它的类文件格式的版本表示为M.m. 因此，类文件格式版本可以按照字典顺序排列，例如，1.5 &lt;2.0 &lt;2.1。<br>Java虚拟机实现可以支持版本v的类文件格式，当且仅当v处于某个连续范围Mi.0≤v≤Mj.m. 范围基于实现符合的Java SE平台的版本。<br>符合给定Java SE平台版本的实现必须支持表4.1-A中为该版本指定的范围，并且不支持其他范围。 （对于历史案例，显示的是JDK版本而不是Java SE平台版本。）</p>
+<table>
+<thead>
+<tr>
+<th>Java SE版本</th>
+<th>class文件格式版本号范围</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1.0.2</td>
+<td>45.0 ≤ v ≤ 45.3</td>
+</tr>
+<tr>
+<td>1.1</td>
+<td>45.0 ≤ v ≤ 45.65535</td>
+</tr>
+<tr>
+<td>1.2</td>
+<td>45.0 ≤ v ≤ 46.0</td>
+</tr>
+<tr>
+<td>1.3</td>
+<td>45.0 ≤ v ≤ 47.0</td>
+</tr>
+<tr>
+<td>1.4</td>
+<td>45.0 ≤ v ≤ 48.0</td>
+</tr>
+<tr>
+<td>5.0</td>
+<td>45.0 ≤ v ≤ 49.0</td>
+</tr>
+<tr>
+<td>6</td>
+<td>45.0 ≤ v ≤ 50.0</td>
+</tr>
+<tr>
+<td>7</td>
+<td>45.0 ≤ v ≤ 51.0</td>
+</tr>
+<tr>
+<td>8</td>
+<td>45.0 ≤ v ≤ 52.0</td>
+</tr>
+<tr>
+<td>9</td>
+<td>45.0 ≤ v ≤ 53.0</td>
+</tr>
+<tr>
+<td>10</td>
+<td>45.0 ≤ v ≤ 54.0</td>
+</tr>
+</tbody>
+</table>
+<h1 id="constant-pool-count"><a href="#constant-pool-count" class="headerlink" title="constant_pool_count"></a>constant_pool_count</h1><p>常量池元素条目数量，constant_pool_count项的值等于constant_pool表中的条目数加1。</p>
+<h1 id="constant-pool-constant-pool-count-1"><a href="#constant-pool-constant-pool-count-1" class="headerlink" title="constant_pool[constant_pool_count-1]"></a>constant_pool[constant_pool_count-1]</h1><p>constant_pool是一个结构表，它表示在ClassFile结构及其子结构中引用的各种字符串常量，类和接口名称，字段名称以及其他常量。<br>每个constant_pool表项的格式由其第一个“标记”字节指示。constant_pool表的索引从1到constant_pool_count - 1。</p>
+<h1 id="access-flags"><a href="#access-flags" class="headerlink" title="access_flags"></a>access_flags</h1><p>access_flags项的值是用于表示对此类或接口的访问权限和属性的标志掩码。</p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ACC_PUBLIC</td>
+<td>0x0001</td>
+<td>Declared public; may be accessed from outside its package.</td>
+</tr>
+<tr>
+<td>ACC_FINAL</td>
+<td>0x0010</td>
+<td>Declared final; no subclasses allowed.</td>
+</tr>
+<tr>
+<td>ACC_SUPER</td>
+<td>0x0020</td>
+<td>Treat superclass methods specially when invoked by the invokespecial instruction.</td>
+</tr>
+<tr>
+<td>ACC_INTERFACE</td>
+<td>0x0200</td>
+<td>Is an interface, not a class.</td>
+</tr>
+<tr>
+<td>ACC_ABSTRACT</td>
+<td>0x0400</td>
+<td>Declared abstract; must not be instantiated.</td>
+</tr>
+<tr>
+<td>ACC_SYNTHETIC</td>
+<td>0x1000</td>
+<td>Declared synthetic; not present in the source code.</td>
+</tr>
+<tr>
+<td>ACC_ANNOTATION</td>
+<td>0x2000</td>
+<td>Declared as an annotation type.</td>
+</tr>
+<tr>
+<td>ACC_ENUM</td>
+<td>0x4000</td>
+<td>Declared as an enum type.</td>
+</tr>
+<tr>
+<td>ACC_MODULE</td>
+<td>0x8000</td>
+<td>Is a module, not a class or interface.</td>
+</tr>
+</tbody>
+</table>
+<p>ACC_MODULE标志表明这个类文件定义了一个模块，而不是类或接口。如果设置了ACC_MODULE标志，则特殊规则适用于本节末尾给出的类文件。<br>如果未设置ACC_MODULE标志，则当前段落下方的规则将应用于类文件。一个接口通过设置ACC_INTERFACE标志来区分。<br>如果未设置ACC_INTERFACE标志，则此类文件定义一个类，而不是接口或模块。<br>如果设置了ACC_INTERFACE标志，则还必须设置ACC_ABSTRACT标志，并且不得设置ACC_FINAL，ACC_SUPER，ACC_ENUM和ACC_MODULE标志集。<br>如果ACC_INTERFACE标志没有置位，除了ACC_ANNOTATION和ACC_MODULE之外，可以设置表4.1-B中的其他任何标志。但是，这样的类文件不能同时设置<br>其ACC_FINAL和ACC_ABSTRACT标志（JLS§8.1.1.2）。<br>ACC_SUPER标志指示如果它出现在这个类或接口中，则由invokespecial指令（§invokespecial）表示两个可选语义中的哪一个。<br>Java虚拟机指令集的编译器应该设置ACC_SUPER标志。在Java SE 8及更高版本中，Java虚拟机认为ACC_SUPER标志将在每个类文件中设置，<br>而不管类文件中标志的实际值和类文件的版本如何。</p>
+<p>ACC_SUPER标志的存在是为了与用于Java编程语言的早期编译器编译的代码向后兼容。 在1.0.2之前的JDK版本中，编译器生成了access_flags，<br>其中现在表示ACC_SUPER的标志没有指定的含义，并且Oracle的Java虚拟机实现忽略该标志（如果已设置）。ACC_SYNTHETIC标志表示该类或接口<br>是由编译器生成的，并未出现在源代码中。<br>注释类型（JLS§9.6）必须设置其ACC_ANNOTATION标志。 如果设置了ACC_ANNOTATION标志，则还必须设置ACC_INTERFACE标志。<br>ACC_ENUM标志表明该类或其超类被声明为枚举类型（JLS§8.9）。<br>未在表4.1-B中分配的access_flags项目的所有位保留供将来使用。 它们应该在生成的类文件中设置为零，并且应该被Java虚拟机实现忽略。</p>
+<h1 id="this-class"><a href="#this-class" class="headerlink" title="this_class"></a>this_class</h1><p>this_class项的值必须是constant_pool表中的有效索引。 该索引处的constant_pool条目必须是表示由此类文件定义的类或接口的CONSTANT_Class_info结构。</p>
+<h1 id="super-class"><a href="#super-class" class="headerlink" title="super_class"></a>super_class</h1><p>对于类来说，super_class项的值必须为零，或者必须是常量池表中的有效索引。 如果super_class项的值不为零，则该索引处的constant_pool条目<br>必须是表示由此类文件定义的类的直接超类的CONSTANT_Class_info结构。 直接超类或其任何超类都不能在其ClassFile结构的access_flags项中<br>设置ACC_FINAL标志。如果super_class项的值为零，那么这个类文件必须表示类Object，唯一没有直接超类的类或接口。<br>对于接口来说，super_class项的值必须始终是constant_pool表中的有效索引。 该索引处的constant_pool条目必须是表示类Object的<br>CONSTANT_Class_info结构。</p>
+<h1 id="interfaces-count"><a href="#interfaces-count" class="headerlink" title="interfaces_count"></a>interfaces_count</h1><p>interfaces_count项的值给出了此类或接口类型的直接超接口的数量。</p>
+<h1 id="interfaces-interfaces-count"><a href="#interfaces-interfaces-count" class="headerlink" title="interfaces[interfaces_count]"></a>interfaces[interfaces_count]</h1><p>interfaces数组中的每个值都必须是constant_pool表中的有效索引。 在接口[i]的每个值处的constant_pool条目（其中0≤i&lt;interfaces_count）<br>必须是CONSTANT_Class_info结构，该结构表示作为该类或接口类型的直接超级接口的接口，按照从左到右的顺序 类型的来源。</p>
+<h1 id="fields-count"><a href="#fields-count" class="headerlink" title="fields_count"></a>fields_count</h1><p>fields_count项的值给出了field表中field_info结构的数量。 field_info结构表示由此类或接口类型声明的所有字段，包括类变量和实例变量。</p>
+<h1 id="fields-fields-count"><a href="#fields-fields-count" class="headerlink" title="fields[fields_count]"></a>fields[fields_count]</h1><p>字段表中的每个值都必须是一个field_info结构，以便对此类或接口中的字段进行完整描述。 字段表仅包含由此类或接口声明的那些字段。<br>它不包含表示从超类或超接口继承的字段的项。</p>
+<h1 id="methods-count"><a href="#methods-count" class="headerlink" title="methods_count"></a>methods_count</h1><p>methods_count项的值给出了method_info的编号<br>结构在方法表中。</p>
+<h1 id="methods-methods-count"><a href="#methods-methods-count" class="headerlink" title="methods[methods_count]"></a>methods[methods_count]</h1><p>方法表中的每个值都必须是一个method_info结构（第4.6节），以提供此类或接口中方法的完整描述。 如果在method_info结构的access_flags项中<br>没有设置ACC_NATIVE和ACC_ABSTRACT标志，则也会提供实现该方法的Java虚拟机指令。<br>method_info结构表示由此类或接口类型声明的所有方法，包括实例方法，类方法，实例初始化方法）以及任何类或接口初始化方法。<br>方法表不包含表示从超类或超接口继承的方法的项。</p>
+<h1 id="attributes-count"><a href="#attributes-count" class="headerlink" title="attributes_count"></a>attributes_count</h1><p>attributes_count项的值给出了此类的属性表中的属性数量。</p>
+<h1 id="attributes-attributes-count"><a href="#attributes-attributes-count" class="headerlink" title="attributes[attributes_count]"></a>attributes[attributes_count]</h1><p>属性表的每个值必须是一个attribute_info结构</p>
+<blockquote>
+<p>如果在access_flags项中设置了ACC_MODULE标志，则可以设置access_flags项中的其他标志，并且以下规则适用于ClassFile结构的其余部分：<br>  •major_version，minor_version：≥53.0（即Java SE 9及以上）<br>  •this_class：模块信息<br>  •super_class，interfaces_count，fields_count，methods_count：零<br>  •属性：必须存在一个模块属性。 除了Module，ModulePackages，ModuleMainClass，InnerClasses，SourceFile，SourceDebugExtension，<br>  RuntimeVisibleAnnotations和RuntimeInvisibleAnnotations之外，可能不会出现任何预定义的属性（§4.7）。</p>
+</blockquote>
 
       
     </div>
 
+
+    
+      <div>
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">- EOF -</div>
+    
+</div>
+
+      </div>
+    
+
+    
+
+    
+    
+    
+
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Hunter Zhao</li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://hunterzhao.io/post/2018/02/12/hotspot-explore-java-class-file-structure/" title="【JVM源码探秘】Java中的Class文件结构">http://hunterzhao.io/post/2018/02/12/hotspot-explore-java-class-file-structure/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-ND 4.0</a> 许可协议。转载请注明出处！</li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/OpenJDK/" rel="tag"># OpenJDK</a>
+          
+            <a href="/tags/JVM/" rel="tag"># JVM</a>
+          
+            <a href="/tags/HotSpot/" rel="tag"># HotSpot</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/post/2018/01/30/debug-openjdk10-source-code-on-mac-with-clion-ide/" rel="next" title="【JVM源码探秘】在Mac上搭建OpenJDK10源码调试环境">
+                <i class="fa fa-chevron-left"></i> 【JVM源码探秘】在Mac上搭建OpenJDK10源码调试环境
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/post/2018/02/23/hotspot-explore-startup-process-creation/" rel="prev" title="【JVM源码探秘】HotSpot启动流程分析-创建">
+                【JVM源码探秘】HotSpot启动流程分析-创建 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
+  </article>
 
-  
-  <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/tags/OpenJDK/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/tags/OpenJDK/">1</a><span class="page-number current">2</span>
-  </nav>
 
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
           
+
+  
+
+
 
         </div>
         
@@ -537,8 +749,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -557,7 +778,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">30</span>
+                    <span class="site-state-item-count">26</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -713,6 +934,22 @@
       </section>
 
       
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#magic"><span class="nav-number">1.</span> <span class="nav-text">magic</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#minor-version-amp-major-version"><span class="nav-number">2.</span> <span class="nav-text">minor_version &amp; major_version</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#constant-pool-count"><span class="nav-number">3.</span> <span class="nav-text">constant_pool_count</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#constant-pool-constant-pool-count-1"><span class="nav-number">4.</span> <span class="nav-text">constant_pool[constant_pool_count-1]</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#access-flags"><span class="nav-number">5.</span> <span class="nav-text">access_flags</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#this-class"><span class="nav-number">6.</span> <span class="nav-text">this_class</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#super-class"><span class="nav-number">7.</span> <span class="nav-text">super_class</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#interfaces-count"><span class="nav-number">8.</span> <span class="nav-text">interfaces_count</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#interfaces-interfaces-count"><span class="nav-number">9.</span> <span class="nav-text">interfaces[interfaces_count]</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#fields-count"><span class="nav-number">10.</span> <span class="nav-text">fields_count</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#fields-fields-count"><span class="nav-number">11.</span> <span class="nav-text">fields[fields_count]</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#methods-count"><span class="nav-number">12.</span> <span class="nav-text">methods_count</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#methods-methods-count"><span class="nav-number">13.</span> <span class="nav-text">methods[methods_count]</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#attributes-count"><span class="nav-number">14.</span> <span class="nav-text">attributes_count</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#attributes-attributes-count"><span class="nav-number">15.</span> <span class="nav-text">attributes[attributes_count]</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
 
       
         <div class="back-to-top">
@@ -745,7 +982,7 @@
       <i class="fa fa-area-chart"></i>
     </span>
     
-    <span title="站点总字数">181k</span>
+    <span title="站点总字数">126k</span>
   
 
   
@@ -754,7 +991,7 @@
       <i class="fa fa-coffee"></i>
     </span>
     
-    <span title="站点总阅读时长">3:01</span>
+    <span title="站点总阅读时长">2:06</span>
   
 </div>
 
@@ -872,6 +1109,10 @@
 
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.0.6"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.0.6"></script>
+
+
 
   
 
