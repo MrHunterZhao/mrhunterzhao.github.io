@@ -4,8 +4,8 @@
 
     
   <url>
-    <loc>http://hunterzhao.io/post/2018/06/11/hotspot-explore-understand-java-thread-run/</loc>
-    <lastmod>2018-07-01T19:02:38.000Z</lastmod>
+    <loc>http://hunterzhao.io/post/2018/06/11/hotspot-explore-inside-java-thread-run/</loc>
+    <lastmod>2018-07-01T19:33:06.000Z</lastmod>
     <data>
         <display>
         <title>【JVM源码探秘】深入理解Thread.run()底层实现</title>
@@ -204,9 +204,9 @@
         <title>使用Python十行代码打造简单爬虫</title>
         <pubTime>2018-05-05T13:12:00.000Z</pubTime>
         
-        <tag>爬虫</tag>
-         
         <tag>Python</tag>
+         
+        <tag>爬虫</tag>
          
          
            
@@ -316,12 +316,36 @@
 
     
   <url>
-    <loc>http://hunterzhao.io/post/2017/11/16/set-http-message-converter-as-fastjson-in-spring-cloud/</loc>
+    <loc>http://hunterzhao.io/post/2017/11/20/using-redis-in-spring-cloud/</loc>
     <lastmod>2018-05-14T16:50:14.000Z</lastmod>
     <data>
         <display>
-        <title>SpringCloud设置HttpMessageConverter为fastjson格式化输出</title>
-        <pubTime>2017-11-16T15:03:26.000Z</pubTime>
+        <title>SpringCloud集成Redis哨兵</title>
+        <pubTime>2017-11-20T13:03:26.000Z</pubTime>
+        
+        <tag>Spring Cloud</tag>
+         
+        <tag>Spring Boot</tag>
+         
+        <tag>Redis</tag>
+         
+         
+           
+             
+              <breadCrumb title="Spring Cloud" url="http://hunterzhao.io/categories/Spring-Cloud/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://hunterzhao.io/post/2017/11/10/use-environment-variable-or-command-line-parameter-in-spring-cloud/</loc>
+    <lastmod>2018-05-14T16:50:14.000Z</lastmod>
+    <data>
+        <display>
+        <title>SpringCloud中读取命令行参数或系统环境变量</title>
+        <pubTime>2017-11-10T12:03:26.000Z</pubTime>
         
         <tag>Spring Cloud</tag>
          
@@ -382,36 +406,12 @@
 
     
   <url>
-    <loc>http://hunterzhao.io/post/2017/11/20/using-redis-in-spring-cloud/</loc>
+    <loc>http://hunterzhao.io/post/2017/11/16/set-http-message-converter-as-fastjson-in-spring-cloud/</loc>
     <lastmod>2018-05-14T16:50:14.000Z</lastmod>
     <data>
         <display>
-        <title>SpringCloud集成Redis哨兵</title>
-        <pubTime>2017-11-20T13:03:26.000Z</pubTime>
-        
-        <tag>Spring Cloud</tag>
-         
-        <tag>Spring Boot</tag>
-         
-        <tag>Redis</tag>
-         
-         
-           
-             
-              <breadCrumb title="Spring Cloud" url="http://hunterzhao.io/categories/Spring-Cloud/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>http://hunterzhao.io/post/2017/11/10/use-environment-variable-or-command-line-parameter-in-spring-cloud/</loc>
-    <lastmod>2018-05-14T16:50:14.000Z</lastmod>
-    <data>
-        <display>
-        <title>SpringCloud中读取命令行参数或系统环境变量</title>
-        <pubTime>2017-11-10T12:03:26.000Z</pubTime>
+        <title>SpringCloud设置HttpMessageConverter为fastjson格式化输出</title>
+        <pubTime>2017-11-16T15:03:26.000Z</pubTime>
         
         <tag>Spring Cloud</tag>
          
@@ -612,29 +612,6 @@
 
     
   <url>
-    <loc>http://hunterzhao.io/post/2014/01/20/install-and-configure-mysql-on-centos/</loc>
-    <lastmod>2018-03-27T19:04:41.000Z</lastmod>
-    <data>
-        <display>
-        <title>CentOS通过yum安装配置MySQL</title>
-        <pubTime>2014-01-20T04:06:34.000Z</pubTime>
-        
-        <tag>CentOS</tag>
-         
-        <tag>MySQL</tag>
-         
-         
-           
-             
-              <breadCrumb title="MySQL" url="http://hunterzhao.io/categories/MySQL/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-    
-  <url>
     <loc>http://hunterzhao.io/post/2014/01/20/configure-vim-syntax-highlight-on-mac/</loc>
     <lastmod>2018-03-27T19:04:41.000Z</lastmod>
     <data>
@@ -657,6 +634,29 @@
     </data>
     </url>
 
+    
+  <url>
+    <loc>http://hunterzhao.io/post/2014/01/20/install-and-configure-mysql-on-centos/</loc>
+    <lastmod>2018-03-27T19:04:41.000Z</lastmod>
+    <data>
+        <display>
+        <title>CentOS通过yum安装配置MySQL</title>
+        <pubTime>2014-01-20T04:06:34.000Z</pubTime>
+        
+        <tag>CentOS</tag>
+         
+        <tag>MySQL</tag>
+         
+         
+           
+             
+              <breadCrumb title="MySQL" url="http://hunterzhao.io/categories/MySQL/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
     
     
   <url>
