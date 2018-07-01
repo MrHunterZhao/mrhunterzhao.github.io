@@ -110,27 +110,27 @@
 
 
 
-  <meta name="description" content="博主在11年到12年的时候曾连续研究过十个月的JVM，读过的相关书籍包括：  深入Java虚拟机这本书可以说是介绍JVM内部原理的鼻祖了，于2003年出版现已绝版，不过可以再某宝买到影印版。虽然当时JDK最高仅为1.4但JVM内部的构造已大体形成，所以博主强烈推荐此书。p.s 我肯定不会告诉你这书博主看了3遍：D  深入理解Java虚拟机国内周某人写的，鉴于博主对于国人写的书向来不怎么感兴趣还是">
+  <meta name="description" content="HotSpot中的线程模型是Java线程（java.lang.Thread）与本地操作系统线程一一映射，本地线程在Java线程启动（调用start()）时创建，并在终止时回收。操作系统负责调度本地线程给可用的CPU来执行。Java线程优先级和操作系统优先级之间的关系是相当复杂的，并且因操作系统而异。">
 <meta name="keywords" content="OpenJDK,JVM,HotSpot">
 <meta property="og:type" content="article">
-<meta property="og:title" content="【JVM源码探秘】在Mac上编译OpenJDK10源码">
-<meta property="og:url" content="http://hunterzhao.io/post/2018/01/29/compile-openjdk10-source-code-on-mac/index.html">
+<meta property="og:title" content="【JVM源码探秘】JVM线程模型概览">
+<meta property="og:url" content="http://hunterzhao.io/post/2018/05/20/hotspot-explore-thread-model/index.html">
 <meta property="og:site_name" content="WorkHoliday">
-<meta property="og:description" content="博主在11年到12年的时候曾连续研究过十个月的JVM，读过的相关书籍包括：  深入Java虚拟机这本书可以说是介绍JVM内部原理的鼻祖了，于2003年出版现已绝版，不过可以再某宝买到影印版。虽然当时JDK最高仅为1.4但JVM内部的构造已大体形成，所以博主强烈推荐此书。p.s 我肯定不会告诉你这书博主看了3遍：D  深入理解Java虚拟机国内周某人写的，鉴于博主对于国人写的书向来不怎么感兴趣还是">
+<meta property="og:description" content="HotSpot中的线程模型是Java线程（java.lang.Thread）与本地操作系统线程一一映射，本地线程在Java线程启动（调用start()）时创建，并在终止时回收。操作系统负责调度本地线程给可用的CPU来执行。Java线程优先级和操作系统优先级之间的关系是相当复杂的，并且因操作系统而异。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://hunterzhao.io/images/post/2018/01/29/openjdk-logo.jpg">
-<meta property="og:updated_time" content="2018-06-10T09:18:18.000Z">
+<meta property="og:image" content="http://hunterzhao.io/images/post/2018/01/29/openjdk.jpg">
+<meta property="og:updated_time" content="2018-07-01T17:37:16.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="【JVM源码探秘】在Mac上编译OpenJDK10源码">
-<meta name="twitter:description" content="博主在11年到12年的时候曾连续研究过十个月的JVM，读过的相关书籍包括：  深入Java虚拟机这本书可以说是介绍JVM内部原理的鼻祖了，于2003年出版现已绝版，不过可以再某宝买到影印版。虽然当时JDK最高仅为1.4但JVM内部的构造已大体形成，所以博主强烈推荐此书。p.s 我肯定不会告诉你这书博主看了3遍：D  深入理解Java虚拟机国内周某人写的，鉴于博主对于国人写的书向来不怎么感兴趣还是">
-<meta name="twitter:image" content="http://hunterzhao.io/images/post/2018/01/29/openjdk-logo.jpg">
+<meta name="twitter:title" content="【JVM源码探秘】JVM线程模型概览">
+<meta name="twitter:description" content="HotSpot中的线程模型是Java线程（java.lang.Thread）与本地操作系统线程一一映射，本地线程在Java线程启动（调用start()）时创建，并在终止时回收。操作系统负责调度本地线程给可用的CPU来执行。Java线程优先级和操作系统优先级之间的关系是相当复杂的，并且因操作系统而异。">
+<meta name="twitter:image" content="http://hunterzhao.io/images/post/2018/01/29/openjdk.jpg">
 
 
 
 
 
 
-  <link rel="canonical" href="http://hunterzhao.io/post/2018/01/29/compile-openjdk10-source-code-on-mac/"/>
+  <link rel="canonical" href="http://hunterzhao.io/post/2018/05/20/hotspot-explore-thread-model/"/>
 
 
 
@@ -140,7 +140,7 @@
   };
 </script>
 
-  <title>【JVM源码探秘】在Mac上编译OpenJDK10源码 | WorkHoliday</title>
+  <title>【JVM源码探秘】JVM线程模型概览 | WorkHoliday</title>
   
 
 
@@ -377,7 +377,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://hunterzhao.io/post/2018/01/29/compile-openjdk10-source-code-on-mac/">
+    <link itemprop="mainEntityOfPage" href="http://hunterzhao.io/post/2018/05/20/hotspot-explore-thread-model/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Hunter Zhao">
@@ -394,7 +394,7 @@
 
         
         
-          <h2 class="post-title" itemprop="name headline">【JVM源码探秘】在Mac上编译OpenJDK10源码</h2>
+          <h2 class="post-title" itemprop="name headline">【JVM源码探秘】JVM线程模型概览</h2>
         
 
         <div class="post-meta">
@@ -406,7 +406,7 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-29T01:03:13+08:00">2018-01-29</time>
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-20T15:30:00+08:00">2018-05-20</time>
             
 
             
@@ -455,7 +455,7 @@
                 
                   <span class="post-meta-item-text">字数统计：</span>
                 
-                <span title="字数统计">4k</span>
+                <span title="字数统计">8.4k</span>
               
 
               
@@ -469,7 +469,7 @@
                 
                   <span class="post-meta-item-text">阅读时长&asymp;</span>
                 
-                <span title="阅读时长">0:04</span>
+                <span title="阅读时长">0:08</span>
               
             </div>
           
@@ -489,49 +489,52 @@
       
 
       
-        <p><img src="/images/post/2018/01/29/openjdk-logo.jpg" alt="openjdk"></p>
-<p>博主在11年到12年的时候曾连续研究过十个月的JVM，读过的相关书籍包括：</p>
-<ul>
-<li><p><a href="https://book.douban.com/subject/1138768/" target="_blank" rel="noopener">深入Java虚拟机</a><br>这本书可以说是介绍JVM内部原理的鼻祖了，于2003年出版现已绝版，不过可以再某宝买到影印版。虽然当时JDK最高仅为1.4但JVM内部的构造已大体形成，所以博主强烈推荐此书。p.s 我肯定不会告诉你这书博主看了3遍：D</p>
-</li>
-<li><p><a href="https://book.douban.com/subject/6522893/" target="_blank" rel="noopener">深入理解Java虚拟机</a><br>国内周某人写的，鉴于博主对于国人写的书向来不怎么感兴趣还是不提了。</p>
-</li>
-<li><p><a href="https://book.douban.com/subject/25847620/" target="_blank" rel="noopener">HotSpot实战</a></p>
-</li>
-<li><p><a href="https://book.douban.com/subject/27086821/" target="_blank" rel="noopener">揭秘Java虚拟机 JVM设计原理与实现</a></p>
-</li>
-<li><p><a href="https://book.douban.com/subject/26802084/" target="_blank" rel="noopener">自己动手写Java虚拟机</a></p>
-</li>
-</ul>
-<p>之前的研究基本上都是虚拟机规范和JVM参数调优层面的内容，但是总觉得有些意犹未尽所以决定深入研究一下Hotspot实现，<br>由大部分C/C++和少量汇编代码构成，但清晰的结构和优雅的编码使其并不难读，不得不赞叹一句SUN的大师们的智慧。<br>今天就从编译OpenJDK开始我们的《JVM源码探秘》系列文章之旅。</p>
+        <p><img src="/images/post/2018/01/29/openjdk.jpg" alt="openjdk"></p>
+<p>HotSpot中的线程模型是Java线程（java.lang.Thread）与本地操作系统线程一一映射，本地线程在Java线程启动（调用start()）时创建，<br>并在终止时回收。操作系统负责调度本地线程给可用的CPU来执行。Java线程优先级和操作系统优先级之间的关系是相当复杂的，并且因操作系统而异。</p>
 <a id="more"></a>
-<p>以前尝试编译过OpenJDK7、8和9，由于源代码中存在诸多BUG，导致各种编译问题，解决来解决去，还是很难编译通过，很是不爽。<br>今天抱着试试看的态度又服用了一个疗程，拿起桌上的OpenJDK10，反手就是一次编译，居然像德芙一样丝滑，一次通过。</p>
-<h1 id="软件环境"><a href="#软件环境" class="headerlink" title="软件环境"></a>软件环境</h1><ul>
-<li>OS：macOS Sierra 10.12</li>
-<li>Xcode: 8.3.3</li>
-<li>Oracle JDK: 1.8.0_151</li>
-<li>freetype: 2.9</li>
-<li>ccache: 3.3.5(Optional)</li>
-</ul>
-<h1 id="前置条件"><a href="#前置条件" class="headerlink" title="前置条件"></a>前置条件</h1><p>先确保系统已安装freetype和ccache<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ brew install freetype ccache</span><br></pre></td></tr></table></figure></p>
-<h1 id="拉取代码"><a href="#拉取代码" class="headerlink" title="拉取代码"></a>拉取代码</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hg clone http://hg.openjdk.java.net/jdk10/master openjdk10</span><br></pre></td></tr></table></figure>
-<p>此处需要耐心等待一段时间，必要情况下需要多尝试几次才能拉取成功。</p>
-<h1 id="配置参数"><a href="#配置参数" class="headerlink" title="配置参数"></a>配置参数</h1><p>接下来配置编译参数，以下是相关选项说明</p>
+<h1 id="JVM线程类结构"><a href="#JVM线程类结构" class="headerlink" title="JVM线程类结构"></a>JVM线程类结构</h1><p>JVM中线程模型是相当重要的一部分，如执行虚拟机指令的VM线程、执行内存垃圾回收的GC线程、采集虚拟机内存及CPU状况的监控线程，<br>还有专门用于执行用户线程的Java线程，如此多的线程之间是怎样一种联系和区别，我们一起来看一下。</p>
+<p>JVM内部主要的线程主要分为以下几类：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ==================================================</span></span><br><span class="line"><span class="comment">//              线程实现类结构</span></span><br><span class="line"><span class="comment">// ==================================================</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Class hierarchy</span></span><br><span class="line"><span class="comment">// - Thread</span></span><br><span class="line"><span class="comment">//   - NamedThread               支持命名的非Java线程</span></span><br><span class="line"><span class="comment">//     - VMThread                   VM原始线程，用于执行VM操作</span></span><br><span class="line"><span class="comment">//     - ConcurrentGCThread         并发GC线程</span></span><br><span class="line"><span class="comment">//     - WorkerThread               工作线程</span></span><br><span class="line"><span class="comment">//       - GangWorker               一组线程，类似线程池</span></span><br><span class="line"><span class="comment">//       - GCTaskThread             GC任务线程</span></span><br><span class="line"><span class="comment">//   - JavaThread                C++层面的Java线程实现</span></span><br><span class="line"><span class="comment">//     - various subclasses eg CompilerThread, ServiceThread</span></span><br><span class="line"><span class="comment">//                                  各种子类，如：编译器线程，服务线程</span></span><br><span class="line"><span class="comment">//   - WatcherThread             监视器线程，用于模拟计时器中断</span></span><br></pre></td></tr></table></figure>
+<p>比较重要的还有OSThread操作系统层面的本地线程并且包含跟踪线程状态所需的附加操作系统级信息。OSThread还包含一个特定于平台的“句柄”，用于标识操作系统的实际线程</p>
+<h1 id="线程的创建与销毁"><a href="#线程的创建与销毁" class="headerlink" title="线程的创建与销毁"></a>线程的创建与销毁</h1><p>在JVM内部产生一个线程的基本方法有两种</p>
 <ul>
-<li><code>--with-debug-level=slowdebug</code> 启用slowdebug级别调试</li>
-<li><code>--enable-dtrace</code> 启用dtrace</li>
-<li><code>--with-jvm-variants=server</code> 编译server类型JVM</li>
-<li><code>--with-target-bits=64</code> 指定JVM为64位</li>
-<li><code>--enable-ccache</code> 启用ccache，加快编译</li>
-<li><code>--with-num-cores=8</code> 编译使用CPU核心数</li>
-<li><code>--with-memory-size=8000</code> 编译使用内存</li>
-<li><code>--disable-warnings-as-errors</code> 忽略警告 </li>
+<li>调用java.lang.Thread的start()方法</li>
+<li>通过JNI attach到一个已经存在的本地线程上</li>
 </ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">$ bash configure --with-debug-level=slowdebug --<span class="built_in">enable</span>-dtrace --with-jvm-variants=server --with-target-bits=64 --<span class="built_in">enable</span>-ccache --with-num-cores=8 --with-memory-size=8000  --<span class="built_in">disable</span>-warnings-as-errors</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">====================================================</span><br><span class="line">A new configuration has been successfully created <span class="keyword">in</span></span><br><span class="line">/Users/hunterzhao/CLionProjects/OpenJDK10/build/macosx-x86_64-normal-server-slowdebug</span><br><span class="line">using configure arguments <span class="string">'--with-debug-level=slowdebug --enable-dtrace --with-jvm-variants=server --with-target-bits=64 --enable-ccache --with-num-cores=8 --with-memory-size=8000 --disable-warnings-as-errors'</span>.</span><br><span class="line"></span><br><span class="line">Configuration summary:</span><br><span class="line">* Debug level:    slowdebug</span><br><span class="line">* HS debug level: debug</span><br><span class="line">* JDK variant:    normal</span><br><span class="line">* JVM variants:   server</span><br><span class="line">* OpenJDK target: OS: macosx, CPU architecture: x86, address length: 64</span><br><span class="line">* Version string: 10-internal+0-adhoc.hunterzhao.OpenJDK10 (10-internal)</span><br><span class="line"></span><br><span class="line">Tools summary:</span><br><span class="line">* Boot JDK:       java version <span class="string">"1.8.0_151"</span> Java(TM) SE Runtime Environment (build 1.8.0_151-b12) Java HotSpot(TM) 64-Bit Server VM (build 25.151-b12, mixed mode)  (at /Library/Java/JavaVirtualMachines/jdk1.8.0_151.jdk/Contents/Home)</span><br><span class="line">* Toolchain:      clang (clang/LLVM from Xcode 8.3.3)</span><br><span class="line">* C Compiler:     Version 8.1.0 (at /usr/bin/clang)</span><br><span class="line">* C++ Compiler:   Version 8.1.0 (at /usr/bin/clang++)</span><br><span class="line"></span><br><span class="line">Build performance summary:</span><br><span class="line">* Cores to use:   7</span><br><span class="line">* Memory <span class="built_in">limit</span>:   8000 MB</span><br><span class="line">* ccache status:  Active (3.3.5)</span><br></pre></td></tr></table></figure>
-<h1 id="执行编译"><a href="#执行编译" class="headerlink" title="执行编译"></a>执行编译</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">$ make images</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">Creating support/demos/image/jfc/CodePointIM/CodePointIM.jar</span><br><span class="line">Creating support/demos/image/applets/MoleculeViewer/MoleculeViewer.jar</span><br><span class="line">Creating support/demos/image/applets/WireFrame/WireFrame.jar</span><br><span class="line">Creating support/demos/image/jfc/SwingApplet/SwingApplet.jar</span><br><span class="line">Creating support/demos/image/jfc/FileChooserDemo/FileChooserDemo.jar</span><br><span class="line">Creating support/demos/image/jfc/Font2DTest/Font2DTest.jar</span><br><span class="line">Creating support/demos/image/jfc/Metalworks/Metalworks.jar</span><br><span class="line">Creating support/demos/image/jfc/Notepad/Notepad.jar</span><br><span class="line">Creating support/demos/image/jfc/SampleTree/SampleTree.jar</span><br><span class="line">Creating support/demos/image/jfc/TableExample/TableExample.jar</span><br><span class="line">Creating support/demos/image/jfc/TransparentRuler/TransparentRuler.jar</span><br><span class="line">Creating support/classlist.jar</span><br><span class="line">Creating images/jmods/jdk.jlink.jmod</span><br><span class="line">Creating images/jmods/java.base.jmod</span><br><span class="line">Creating jre jimage</span><br><span class="line">Creating jdk jimage</span><br><span class="line">WARNING: Using incubator modules: jdk.incubator.httpclient</span><br><span class="line">WARNING: Using incubator modules: jdk.incubator.httpclient</span><br><span class="line">Stopping sjavac server</span><br><span class="line">Finished building target &apos;images&apos; in configuration &apos;macosx-x86_64-normal-server-slowdebug&apos;</span><br></pre></td></tr></table></figure>
-<p>大约10分钟后编译完成，由于机器配置不同可能会导致编译时长有所差异。</p>
-<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ ./build/macosx-x86_64-normal-server-slowdebug/jdk/bin/java -version</span><br><span class="line">openjdk version <span class="string">"10-internal"</span></span><br><span class="line">OpenJDK Runtime Environment (slowdebug build 10-internal+0-adhoc.hunterzhao.OpenJDK10)</span><br><span class="line">OpenJDK 64-Bit Server VM (slowdebug build 10-internal+0-adhoc.hunterzhao.OpenJDK10, mixed mode)</span><br></pre></td></tr></table></figure>
-<p>本篇文章至此结束，下篇介绍搭建OpenJDK10 DEBUG环境。</p>
+<p>在java.lang.Thread启动时，JVM会分别创建一个相关联的JavaThread和OSThread对象，最终创建本地线程。<br>在准备完所有的VM状态（例如线程本地存储和分配缓冲区，同步对象等等）之后，本地线程启动。 本地线程完成初始化，<br>然后执行启动方法，该方法导致执行java.lang.Thread对象的run()方法，然后在返回时在处理任何未捕获的异常之后<br>终止该线程，并且交互 与VM一起检查此线程的终止是否需要终止整个VM。 线程终止释放所有分配的资源，从一组已知线程中<br>删除JavaThread，调用OSThread和JavaThread的析构函数，并最终在初始启动方法完成时停止执行。</p>
+<h1 id="C-层面的JavaThread状态"><a href="#C-层面的JavaThread状态" class="headerlink" title="C++层面的JavaThread状态"></a>C++层面的JavaThread状态</h1><p>源码位于<code>src/hotspot/share/utilities/globalDefinitions.hpp</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> JavaThreadState &#123;</span><br><span class="line">  _thread_uninitialized     =  <span class="number">0</span>, <span class="comment">// should never happen (missing initialization)</span></span><br><span class="line">  _thread_new               =  <span class="number">2</span>, <span class="comment">// just starting up, i.e., in process of being initialized</span></span><br><span class="line">  _thread_new_trans         =  <span class="number">3</span>, <span class="comment">// corresponding transition state (not used, included for completness)</span></span><br><span class="line">  _thread_in_native         =  <span class="number">4</span>, <span class="comment">// running in native code</span></span><br><span class="line">  _thread_in_native_trans   =  <span class="number">5</span>, <span class="comment">// corresponding transition state</span></span><br><span class="line">  _thread_in_vm             =  <span class="number">6</span>, <span class="comment">// running in VM</span></span><br><span class="line">  _thread_in_vm_trans       =  <span class="number">7</span>, <span class="comment">// corresponding transition state</span></span><br><span class="line">  _thread_in_Java           =  <span class="number">8</span>, <span class="comment">// running in Java or in stub code</span></span><br><span class="line">  _thread_in_Java_trans     =  <span class="number">9</span>, <span class="comment">// corresponding transition state (not used, included for completness)</span></span><br><span class="line">  _thread_blocked           = <span class="number">10</span>, <span class="comment">// blocked in vm</span></span><br><span class="line">  _thread_blocked_trans     = <span class="number">11</span>, <span class="comment">// corresponding transition state</span></span><br><span class="line">  _thread_max_state         = <span class="number">12</span>  <span class="comment">// maximum thread state+1 - used for statistics allocation</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>最主要的有四个：</p>
+<ul>
+<li>_thread_new         : 刚启动但还没有初始化</li>
+<li>_thread_in_native   : 在执行本地代码</li>
+<li>_thread_in_vm       : 在执行JVM本身的代码</li>
+<li>_thread_in_Java     : 在执行解释的或编译的Java代码</li>
+</ul>
+<h1 id="Java语言层面的线程状态"><a href="#Java语言层面的线程状态" class="headerlink" title="Java语言层面的线程状态"></a>Java语言层面的线程状态</h1><p>源码位于<code>src/hotspot/share/classfile/javaClasses.hpp</code></p>
+<p>这些线程状态主要用于JVMTI和MANGEMENT状态输出。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> ThreadStatus &#123;</span><br><span class="line">    NEW                      = <span class="number">0</span>,</span><br><span class="line">    RUNNABLE                 = JVMTI_THREAD_STATE_ALIVE +          <span class="comment">// runnable / running</span></span><br><span class="line">                               JVMTI_THREAD_STATE_RUNNABLE,</span><br><span class="line">    SLEEPING                 = JVMTI_THREAD_STATE_ALIVE +          <span class="comment">// Thread.sleep()</span></span><br><span class="line">                               JVMTI_THREAD_STATE_WAITING +</span><br><span class="line">                               JVMTI_THREAD_STATE_WAITING_WITH_TIMEOUT +</span><br><span class="line">                               JVMTI_THREAD_STATE_SLEEPING,</span><br><span class="line">    IN_OBJECT_WAIT           = JVMTI_THREAD_STATE_ALIVE +          <span class="comment">// Object.wait()</span></span><br><span class="line">                               JVMTI_THREAD_STATE_WAITING +</span><br><span class="line">                               JVMTI_THREAD_STATE_WAITING_INDEFINITELY +</span><br><span class="line">                               JVMTI_THREAD_STATE_IN_OBJECT_WAIT,</span><br><span class="line">    IN_OBJECT_WAIT_TIMED     = JVMTI_THREAD_STATE_ALIVE +          <span class="comment">// Object.wait(long)</span></span><br><span class="line">                               JVMTI_THREAD_STATE_WAITING +</span><br><span class="line">                               JVMTI_THREAD_STATE_WAITING_WITH_TIMEOUT +</span><br><span class="line">                               JVMTI_THREAD_STATE_IN_OBJECT_WAIT,</span><br><span class="line">    PARKED                   = JVMTI_THREAD_STATE_ALIVE +          <span class="comment">// LockSupport.park()</span></span><br><span class="line">                               JVMTI_THREAD_STATE_WAITING +</span><br><span class="line">                               JVMTI_THREAD_STATE_WAITING_INDEFINITELY +</span><br><span class="line">                               JVMTI_THREAD_STATE_PARKED,</span><br><span class="line">    PARKED_TIMED             = JVMTI_THREAD_STATE_ALIVE +          <span class="comment">// LockSupport.park(long)</span></span><br><span class="line">                               JVMTI_THREAD_STATE_WAITING +</span><br><span class="line">                               JVMTI_THREAD_STATE_WAITING_WITH_TIMEOUT +</span><br><span class="line">                               JVMTI_THREAD_STATE_PARKED,</span><br><span class="line">    BLOCKED_ON_MONITOR_ENTER = JVMTI_THREAD_STATE_ALIVE +          <span class="comment">// (re-)entering a synchronization block</span></span><br><span class="line">                               JVMTI_THREAD_STATE_BLOCKED_ON_MONITOR_ENTER,</span><br><span class="line">    TERMINATED               = JVMTI_THREAD_STATE_TERMINATED</span><br><span class="line">  &#125;;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>SLEEPING              调用Thread.sleep()进入</li>
+<li>IN_OBJECT_WAIT        调用Object.wait()进入</li>
+<li>IN_OBJECT_WAIT_TIMED  调用Object.wait(long)进入</li>
+<li>PARKED                调用LockSupport.park()进入</li>
+<li>PARKED_TIMED          调用LockSupport.park(long)进入</li>
+</ul>
+<h1 id="Java线程状态名称"><a href="#Java线程状态名称" class="headerlink" title="Java线程状态名称"></a>Java线程状态名称</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">char</span>* java_lang_Thread::thread_status_name(oop java_thread) &#123;</span><br><span class="line">  assert(_thread_status_offset != <span class="number">0</span>, <span class="string">"Must have thread status"</span>);</span><br><span class="line">  ThreadStatus status = (java_lang_Thread::ThreadStatus)java_thread-&gt;int_field(_thread_status_offset);</span><br><span class="line">  <span class="keyword">switch</span> (status) &#123;</span><br><span class="line">    <span class="keyword">case</span> NEW                      : <span class="keyword">return</span> <span class="string">"NEW"</span>;</span><br><span class="line">    <span class="keyword">case</span> RUNNABLE                 : <span class="keyword">return</span> <span class="string">"RUNNABLE"</span>;</span><br><span class="line">    <span class="keyword">case</span> SLEEPING                 : <span class="keyword">return</span> <span class="string">"TIMED_WAITING (sleeping)"</span>;</span><br><span class="line">    <span class="keyword">case</span> IN_OBJECT_WAIT           : <span class="keyword">return</span> <span class="string">"WAITING (on object monitor)"</span>;</span><br><span class="line">    <span class="keyword">case</span> IN_OBJECT_WAIT_TIMED     : <span class="keyword">return</span> <span class="string">"TIMED_WAITING (on object monitor)"</span>;</span><br><span class="line">    <span class="keyword">case</span> PARKED                   : <span class="keyword">return</span> <span class="string">"WAITING (parking)"</span>;</span><br><span class="line">    <span class="keyword">case</span> PARKED_TIMED             : <span class="keyword">return</span> <span class="string">"TIMED_WAITING (parking)"</span>;</span><br><span class="line">    <span class="keyword">case</span> BLOCKED_ON_MONITOR_ENTER : <span class="keyword">return</span> <span class="string">"BLOCKED (on object monitor)"</span>;</span><br><span class="line">    <span class="keyword">case</span> TERMINATED               : <span class="keyword">return</span> <span class="string">"TERMINATED"</span>;</span><br><span class="line">    <span class="keyword">default</span>                       : <span class="keyword">return</span> <span class="string">"UNKNOWN"</span>;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="实例验证"><a href="#实例验证" class="headerlink" title="实例验证"></a>实例验证</h1><p>随便实现一个Java线程并在内部sleep，</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Main</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line"></span><br><span class="line">        Thread t = <span class="keyword">new</span> DemoThread();</span><br><span class="line">        <span class="comment">// 启动线程</span></span><br><span class="line">        t.start();</span><br><span class="line">        System.in.read();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">DemoThread</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                TimeUnit.HOURS.sleep(<span class="number">1</span>);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后通过jstack命令获取其运行状态：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ jps</span><br><span class="line">82005 Jps</span><br><span class="line">81869 Main</span><br><span class="line">81868 Launcher</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">$ jstack 81869</span><br><span class="line">2018-07-02 00:28:52</span><br><span class="line">Full thread dump Java HotSpot(TM) 64-Bit Server VM (25.151-b12 mixed mode):</span><br><span class="line"></span><br><span class="line"><span class="string">"Attach Listener"</span> <span class="comment">#12 daemon prio=9 os_prio=31 tid=0x00007f99af000000 nid=0x1307 waiting on condition [0x0000000000000000]</span></span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line"><span class="string">"Thread-0"</span> <span class="comment">#11 prio=5 os_prio=31 tid=0x00007f99ae817000 nid=0x5a03 waiting on condition [0x0000700011471000]</span></span><br><span class="line">   java.lang.Thread.State: TIMED_WAITING (sleeping)</span><br><span class="line">	at java.lang.Thread.sleep(Native Method)</span><br><span class="line">	at java.lang.Thread.sleep(Thread.java:340)</span><br><span class="line">	at java.util.concurrent.TimeUnit.sleep(TimeUnit.java:386)</span><br><span class="line">	at com.workholiday.demoapp.Main<span class="variable">$DemoThread</span>.run(Main.java:30)</span><br><span class="line"></span><br><span class="line"><span class="string">"Service Thread"</span> <span class="comment">#10 daemon prio=9 os_prio=31 tid=0x00007f99ae800800 nid=0x5603 runnable [0x0000000000000000]</span></span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="string">"Finalizer"</span> <span class="comment">#3 daemon prio=8 os_prio=31 tid=0x00007f99ab814000 nid=0x3903 in Object.wait() [0x0000700010ad3000]</span></span><br><span class="line">   java.lang.Thread.State: WAITING (on object monitor)</span><br><span class="line">	at java.lang.Object.wait(Native Method)</span><br><span class="line">	- waiting on &lt;0x000000076ab08ec8&gt; (a java.lang.ref.ReferenceQueue<span class="variable">$Lock</span>)</span><br><span class="line">	at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:143)</span><br><span class="line">	- locked &lt;0x000000076ab08ec8&gt; (a java.lang.ref.ReferenceQueue<span class="variable">$Lock</span>)</span><br><span class="line">	at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:164)</span><br><span class="line">	at java.lang.ref.Finalizer<span class="variable">$FinalizerThread</span>.run(Finalizer.java:209)</span><br><span class="line"></span><br><span class="line"><span class="string">"main"</span> <span class="comment">#1 prio=5 os_prio=31 tid=0x00007f99ae802000 nid=0x1c03 runnable [0x000070000ffb2000]</span></span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line">	at java.io.FileInputStream.readBytes(Native Method)</span><br><span class="line">	at java.io.FileInputStream.read(FileInputStream.java:255)</span><br><span class="line">	at java.io.BufferedInputStream.fill(BufferedInputStream.java:246)</span><br><span class="line">	at java.io.BufferedInputStream.read(BufferedInputStream.java:265)</span><br><span class="line">	- locked &lt;0x000000076ab20660&gt; (a java.io.BufferedInputStream)</span><br><span class="line">	at com.workholiday.demoapp.Main.main(Main.java:19)</span><br></pre></td></tr></table></figure>
+<p>通过日志输出会发现线程中的状态</p>
+<ul>
+<li>RUNNABLE</li>
+<li>TIMED_WAITING (sleeping)</li>
+<li>WAITING (on object monitor)</li>
+</ul>
+<p>正是通过java_lang_Thread::thread_status_name()方法获取的。</p>
+<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><p><a href="http://openjdk.java.net/groups/hotspot/docs/RuntimeOverview.html#Thread%20Management%7Coutline" target="_blank" rel="noopener">HotSpot Threading Model</a></p>
 
       
     </div>
@@ -566,7 +569,7 @@
     <strong>本文作者： </strong>Hunter Zhao</li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="http://hunterzhao.io/post/2018/01/29/compile-openjdk10-source-code-on-mac/" title="【JVM源码探秘】在Mac上编译OpenJDK10源码">http://hunterzhao.io/post/2018/01/29/compile-openjdk10-source-code-on-mac/</a>
+    <a href="http://hunterzhao.io/post/2018/05/20/hotspot-explore-thread-model/" title="【JVM源码探秘】JVM线程模型概览">http://hunterzhao.io/post/2018/05/20/hotspot-explore-thread-model/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-ND 4.0</a> 许可协议。转载请注明出处！</li>
@@ -596,8 +599,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/post/2017/12/02/customize-feign-decoder-in-spring-cloud/" rel="next" title="SpringCloud自定义Feign解码器">
-                <i class="fa fa-chevron-left"></i> SpringCloud自定义Feign解码器
+              <a href="/post/2018/05/17/hotspot-explore-class-loading-linking-and-initializing/" rel="next" title="【JVM源码探秘】细说Class的装载、链接和初始化">
+                <i class="fa fa-chevron-left"></i> 【JVM源码探秘】细说Class的装载、链接和初始化
               </a>
             
           </div>
@@ -605,10 +608,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/post/2018/01/30/debug-openjdk10-source-code-on-mac-with-clion-ide/" rel="prev" title="【JVM源码探秘】在Mac上搭建OpenJDK10源码调试环境">
-                【JVM源码探秘】在Mac上搭建OpenJDK10源码调试环境 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -851,7 +850,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#软件环境"><span class="nav-number">1.</span> <span class="nav-text">软件环境</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#前置条件"><span class="nav-number">2.</span> <span class="nav-text">前置条件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#拉取代码"><span class="nav-number">3.</span> <span class="nav-text">拉取代码</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#配置参数"><span class="nav-number">4.</span> <span class="nav-text">配置参数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#执行编译"><span class="nav-number">5.</span> <span class="nav-text">执行编译</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#测试"><span class="nav-number">6.</span> <span class="nav-text">测试</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#JVM线程类结构"><span class="nav-number">1.</span> <span class="nav-text">JVM线程类结构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线程的创建与销毁"><span class="nav-number">2.</span> <span class="nav-text">线程的创建与销毁</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#C-层面的JavaThread状态"><span class="nav-number">3.</span> <span class="nav-text">C++层面的JavaThread状态</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Java语言层面的线程状态"><span class="nav-number">4.</span> <span class="nav-text">Java语言层面的线程状态</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Java线程状态名称"><span class="nav-number">5.</span> <span class="nav-text">Java线程状态名称</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实例验证"><span class="nav-number">6.</span> <span class="nav-text">实例验证</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Reference"><span class="nav-number">7.</span> <span class="nav-text">Reference</span></a></li></ol></div>
             
 
           </div>
