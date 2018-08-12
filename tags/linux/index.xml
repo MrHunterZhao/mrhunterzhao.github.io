@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Linux on WorkHoliday</title>
+    <link>https://hunterzhao.io/tags/linux/</link>
+    <description>Recent content in Linux on WorkHoliday</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <managingEditor>mailto:zhaohevip@gmail.com (HunterZhao)</managingEditor>
+    <webMaster>mailto:zhaohevip@gmail.com (HunterZhao)</webMaster>
+    <lastBuildDate>Mon, 20 Jan 2014 12:06:34 +0000</lastBuildDate>
+    
+	<atom:link href="https://hunterzhao.io/tags/linux/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Mac下vim开启语法高亮&amp;着色</title>
+      <link>https://hunterzhao.io/post/2014/01/20/configure-vim-syntax-highlight-on-mac/</link>
+      <pubDate>Mon, 20 Jan 2014 12:06:34 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2014/01/20/configure-vim-syntax-highlight-on-mac/</guid>
+      <description>&lt;p&gt;Mac OS并不像大多数Linux发行版vim默认自带语法着色高亮显示（通常Linux可通过编辑/etc/vimrc进行全局设置或~/vimrc进行单用户设置），使用vi/vim编辑文件时很不方便，如何解决 ?&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

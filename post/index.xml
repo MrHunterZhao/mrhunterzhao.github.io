@@ -1,0 +1,494 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on WorkHoliday</title>
+    <link>https://hunterzhao.io/post/</link>
+    <description>Recent content in Posts on WorkHoliday</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <managingEditor>mailto:zhaohevip@gmail.com (HunterZhao)</managingEditor>
+    <webMaster>mailto:zhaohevip@gmail.com (HunterZhao)</webMaster>
+    <lastBuildDate>Mon, 11 Jun 2018 13:30:00 +0000</lastBuildDate>
+    
+	<atom:link href="https://hunterzhao.io/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>【JVM源码探秘】深入理解Thread.run()底层实现</title>
+      <link>https://hunterzhao.io/post/2018/06/11/hotspot-explore-inside-java-thread-run/</link>
+      <pubDate>Mon, 11 Jun 2018 13:30:00 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2018/06/11/hotspot-explore-inside-java-thread-run/</guid>
+      <description>&lt;p&gt;对于Java程序猿来说可以通过new java.lang.Thread.start()来启动一个线程，只需要将业务逻辑放在run()方法里即可，
+如此高效且易用的Java线程在JVM层面是怎样的呢？本文将从源码角度深入解读。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>【JVM源码探秘】JVM线程模型概览</title>
+      <link>https://hunterzhao.io/post/2018/05/20/hotspot-explore-thread-model/</link>
+      <pubDate>Sun, 20 May 2018 15:30:00 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2018/05/20/hotspot-explore-thread-model/</guid>
+      <description>&lt;p&gt;HotSpot中的线程模型是Java线程（java.lang.Thread）与本地操作系统线程一一映射，本地线程在Java线程启动（调用start()）时创建，
+并在终止时回收。操作系统负责调度本地线程给可用的CPU来执行。Java线程优先级和操作系统优先级之间的关系是相当复杂的，并且因操作系统而异。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>【JVM源码探秘】细说Class的装载、链接和初始化</title>
+      <link>https://hunterzhao.io/post/2018/05/17/hotspot-explore-class-loading-linking-and-initializing/</link>
+      <pubDate>Thu, 17 May 2018 19:30:00 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2018/05/17/hotspot-explore-class-loading-linking-and-initializing/</guid>
+      <description>&lt;p&gt;接上篇&lt;a href=&#34;https://hunterzhao.io/post/2018/05/15/hotspot-explore-java-lang-class-forname/&#34;&gt;《【JVM源码探秘】细说Class.forName()底层实现》&lt;/a&gt;执行Class.forName(&amp;ldquo;com.xxx.Xxx&amp;rdquo;)通过&lt;code&gt;JavaCalls&lt;/code&gt;组件调用了
+Java方法&lt;code&gt;ClassLoader.loadClass()&lt;/code&gt;对该类进行加载&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>【JVM源码探秘】细说Class.forName()底层实现</title>
+      <link>https://hunterzhao.io/post/2018/05/15/hotspot-explore-java-lang-class-forname/</link>
+      <pubDate>Tue, 15 May 2018 19:30:00 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2018/05/15/hotspot-explore-java-lang-class-forname/</guid>
+      <description>&lt;p&gt;JVM允许在运行时动态装载类，这为开发者提供了极大方便，使用&lt;code&gt;Class.forName(&amp;quot;com.xxx.Xxx&amp;quot;)&lt;/code&gt;，
+装载完成后可以通过调用其&lt;code&gt;newInstance()&lt;/code&gt;完成对象的创建，然后便可以正常操作该类。&lt;/p&gt;
+
+&lt;p&gt;接下来我们就细说说Class.forName()在JVM层面所做的事情。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>集群架构中的异步回调模型实现</title>
+      <link>https://hunterzhao.io/post/2018/05/06/async-callback-model-in-cluster-architecture/</link>
+      <pubDate>Sun, 06 May 2018 23:40:47 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2018/05/06/async-callback-model-in-cluster-architecture/</guid>
+      <description>&lt;p&gt;团队中前些天遇到这样一个问题，比较有意思也比较典型，我给出方案后团队成员实施出来，最终问题得以解决。
+&amp;gt; 一个智能终端连接到Netty服务保持会话，在异步完成某项操作后回调回来需要通过会话通知终端，终端再根据通知做相应业务处理，
+&amp;gt; 在部署单节点的情况下是OK的，但是系统整体由于要做HA，部署多节点后就会出现问题: &lt;strong&gt;并不能保证该回调请求一定负载到终端保持会话的节点&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;如何解决这个问题？这里跟大家分享一种类似场景的通用解决方案，以下是流程图：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-AsciiDoc&#34; data-lang=&#34;AsciiDoc&#34;&gt;                            &amp;lt; Async Callback Model in Cluster Architecture &amp;gt;
+
+                                              (D) Broadcast to all nodes
+                              +-----------------------------------------------------------------------+
+                              v                                                                       |
+                          + - - - - - - - - - +
+                          &amp;#39; Cluster:          &amp;#39;
+                          &amp;#39;                   &amp;#39;
++--------+  (A) Connect   &amp;#39; +---------------+ &amp;#39;  (B) Async call   +---------------+  (C) Callback   +----+
+|        | -------------&amp;gt; &amp;#39; | Server Node A | &amp;#39; ----------------&amp;gt; |               | --------------&amp;gt; |    |
+|        |                &amp;#39; +---------------+ &amp;#39;                   |               |                 |    |
+|        |                &amp;#39;                   &amp;#39;                   |               |                 |    |
+|        |                + - - - - - - - - - +                   |               |                 |    |
+|        |  (E) Notify        :                                   |               |                 |    |
+|        | &amp;lt;...................                                   |               |                 |    |
+|        |                                                        |               |                 |    |
+| Client |                + - - - - - - - - - +                   | Remote Server |                 | MQ |
+|        |                &amp;#39;                   &amp;#39;                   |               |                 |    |
+|        |                &amp;#39; +---------------+ &amp;#39;                   |               |                 |    |
+|        |                &amp;#39; | Server Node B | &amp;#39;                   |               |                 |    |
+|        |                &amp;#39; +---------------+ &amp;#39;                   |               |                 |    |
+|        |                &amp;#39; +---------------+ &amp;#39;                   |               |                 |    |
+|        |                &amp;#39; | Server Node C | &amp;#39;                   |               |                 |    |
+|        |                &amp;#39; +---------------+ &amp;#39;                   |               |                 |    |
+|        |                &amp;#39;                   &amp;#39;                   |               |                 |    |
++--------+                + - - - - - - - - - +                   +---------------+                 +----+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>使用Python十行代码打造简单爬虫</title>
+      <link>https://hunterzhao.io/post/2018/05/05/parse_web_content_and_download_files_using_python/</link>
+      <pubDate>Sat, 05 May 2018 21:12:00 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2018/05/05/parse_web_content_and_download_files_using_python/</guid>
+      <description>&lt;p&gt;今天从&lt;a href=&#34;http://docs.huihoo.com/javaone/2015/&#34;&gt;某网站&lt;/a&gt;上看到一些文档觉得还不错， 一共有300+篇，一个个手动下载？这简直是对一个程序员的侮辱。&lt;/p&gt;
+
+&lt;p&gt;怎么办呢，写个简单的爬虫吧。&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;BeautifulSoup&lt;/code&gt;是做爬虫的好手，&lt;code&gt;requests&lt;/code&gt;是HTTP访问的强者，这里的Demo场景比较简单略显大材小用，&lt;/p&gt;
+
+&lt;p&gt;有效代码不超十行，十分简洁优雅，人生苦短，我用Python。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>聊一聊使用多线程处理MQ消息的正确姿势</title>
+      <link>https://hunterzhao.io/post/2018/05/01/consume-mq-message-with-multithreading/</link>
+      <pubDate>Tue, 01 May 2018 03:27:18 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2018/05/01/consume-mq-message-with-multithreading/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;Q：有这样一个场景，MQ的生产者生产消息能力是消费者的数倍。
+如果不能尽快消费完会导致队列中的消息随着时间的推移会越积越多，而且业务也无任何时效性可言，
+那么问题来了，在不增加消费节点的前提下如何快速处理完消息以保证吞吐量？&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;面对以上问题，有人可能会信心满满地脱口而出：&lt;strong&gt;用多线程&lt;/strong&gt;。OK，我只能说思路没错，那么如何落地呢？&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>【JVM源码探秘】深入registerNatives()底层实现</title>
+      <link>https://hunterzhao.io/post/2018/04/06/hotspot-explore-register-natives/</link>
+      <pubDate>Fri, 06 Apr 2018 19:30:00 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2018/04/06/hotspot-explore-register-natives/</guid>
+      <description>&lt;p&gt;在Java的系统包下如：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;java.lang.System&lt;/li&gt;
+&lt;li&gt;java.lang.Object&lt;/li&gt;
+&lt;li&gt;java.lang.Class&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;等类中均有一个静态块用来执行一个叫做&lt;code&gt;registerNatives()&lt;/code&gt;的native方法，&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;    &lt;span class=&#34;kd&#34;&gt;private&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;static&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;native&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;registerNatives&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
+    &lt;span class=&#34;kd&#34;&gt;static&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;n&#34;&gt;registerNatives&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
+    &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;这个native方法里究竟都做了啥？我们进去瞧瞧。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>【JVM源码探秘】深入System.gc()底层实现</title>
+      <link>https://hunterzhao.io/post/2018/04/05/hotspot-explore-system-gc/</link>
+      <pubDate>Thu, 05 Apr 2018 19:30:00 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2018/04/05/hotspot-explore-system-gc/</guid>
+      <description>&lt;p&gt;对于Java语言来说是不用手动释放内存的，并且不需要手动干预JVM的GC行为，但在一些监控和agent工具里却是必要的。&lt;/p&gt;
+
+&lt;p&gt;Hotspot为我们开放了Java语言级别的GC手动触发入口&lt;code&gt;System.gc()&lt;/code&gt;，本文将深入介绍JVM底层实现。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>【JVM源码探秘】Java对象模型之对象头</title>
+      <link>https://hunterzhao.io/post/2018/02/25/hotspot-explore-java-object-header/</link>
+      <pubDate>Sun, 25 Feb 2018 21:10:00 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2018/02/25/hotspot-explore-java-object-header/</guid>
+      <description>&lt;p&gt;一个Java对象在JVM中是由一个对应角色的&lt;code&gt;oop&lt;/code&gt;对象来描述的，比如&lt;code&gt;instanceOopDesc&lt;/code&gt;用来描述普通实例对象，&lt;code&gt;arrayOopDesc&lt;/code&gt;用来描述数组对象，而这些类型的oop对象均是继承自&lt;code&gt;oopDesc&lt;/code&gt;。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>【JVM源码探秘】Java对象模型OOP-Klass</title>
+      <link>https://hunterzhao.io/post/2018/02/24/hotspot-explore-java-object-model-oop-klass/</link>
+      <pubDate>Sat, 24 Feb 2018 20:10:00 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2018/02/24/hotspot-explore-java-object-model-oop-klass/</guid>
+      <description>&lt;p&gt;一个Java类在JVM中是如何描述的？创建一个Java对象在JVM中数据又是如何存储的？&lt;/p&gt;
+
+&lt;p&gt;在Hotspot VM中，设计者设计了OOP-Klass模型用来描述class的属性和行为，这里的OOP并不是面向对象编程（Object-oriented programming），
+而是Ordinary Object Pointer（普通对象指针），之所以设计为OOP和Klass两部分是因为不希望每个对象都有一个C ++ vtbl指针，
+因此，普通的oops没有任何虚拟功能。 相反，他们将所有“虚拟”函数转发到它们的klass，它具有vtbl并根据对象的实际类型执行C ++调度。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>【JVM源码探秘】HotSpot启动流程分析-初始化</title>
+      <link>https://hunterzhao.io/post/2018/02/23/hotspot-explore-startup-process-initialization/</link>
+      <pubDate>Fri, 23 Feb 2018 17:10:35 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2018/02/23/hotspot-explore-startup-process-initialization/</guid>
+      <description>&lt;p&gt;接&lt;a href=&#34;https://hunterzhao.io/post/2018/02/23/hotspot-explore-startup-process-creation/&#34;&gt;上篇&lt;/a&gt;，HotSpot在启动流程完成了参数的解析、JNI入口的定位、环境变量的设置等一系列操作，&lt;/p&gt;
+
+&lt;p&gt;最终在&lt;code&gt;JavaMain()&lt;/code&gt;中调用了&lt;code&gt;InitializeJVM()&lt;/code&gt;方法，用于完成虚拟机所需的内存申请、挂载和初始化，本文我们就一起一探究竟。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>【JVM源码探秘】HotSpot启动流程分析-创建</title>
+      <link>https://hunterzhao.io/post/2018/02/23/hotspot-explore-startup-process-creation/</link>
+      <pubDate>Fri, 23 Feb 2018 15:53:30 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2018/02/23/hotspot-explore-startup-process-creation/</guid>
+      <description>&lt;p&gt;在之前的文章中已经介绍了如何在Mac上&lt;a href=&#34;https://hunterzhao.io/post/2018/01/29/compile-openjdk10-source-code-on-mac/&#34;&gt;编译&lt;/a&gt;及&lt;a href=&#34;https://hunterzhao.io/post/2018/01/30/debug-openjdk10-source-code-on-mac-with-clion-ide/&#34;&gt;调试&lt;/a&gt;OpenJDK10源码，&lt;/p&gt;
+
+&lt;p&gt;那么，一个Java实例从开始运行至结束经历了什么？本文将从JVM源码角度一探究竟，深入剖析HotSpot其创建流程。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>【JVM源码探秘】Java中的Class文件结构</title>
+      <link>https://hunterzhao.io/post/2018/02/12/hotspot-explore-java-class-file-structure/</link>
+      <pubDate>Mon, 12 Feb 2018 17:10:35 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2018/02/12/hotspot-explore-java-class-file-structure/</guid>
+      <description>&lt;p&gt;我们都知道JVM并不能直接运行Java源文件，而是程序猿通过JDK提供的&lt;code&gt;javac&lt;/code&gt;命令将Java源文件编译成&lt;code&gt;.class&lt;/code&gt;二进制文件，
+然后供JVM加载并使用，也就是说class文件其实是程序猿和JVM之间交互的媒介，相当于介于用户和Linux内核之间的shell。&lt;/p&gt;
+
+&lt;p&gt;一个class文件完整地描述了Java源文件的各种信息，Oracle JVM规范中的&lt;a href=&#34;https://docs.oracle.com/javase/specs/jvms/se10/html/jvms-4.html#jvms-4.1&#34;&gt;4.1 The ClassFile Structure&lt;/a&gt; 详细定义了一个标准class文件的结构&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>【JVM源码探秘】在Mac上搭建OpenJDK10源码调试环境</title>
+      <link>https://hunterzhao.io/post/2018/01/30/debug-openjdk10-source-code-on-mac-with-clion-ide/</link>
+      <pubDate>Tue, 30 Jan 2018 01:08:18 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2018/01/30/debug-openjdk10-source-code-on-mac-with-clion-ide/</guid>
+      <description>&lt;p&gt;前面文章已经介绍了如何&lt;a href=&#34;https://hunterzhao.io/post/2018/01/29/compile-openjdk10-source-code-on-mac/&#34;&gt;在Mac上编译OpenJDK10源码&lt;/a&gt;，拥有了自己的JDK版本，&lt;/p&gt;
+
+&lt;p&gt;为了深入了解Java实例的创建、初始化和执行流程以及内部实现原理，DEBUG是必不可少的必杀技。&lt;/p&gt;
+
+&lt;p&gt;所以，本篇文章继续介绍在Mac上搭建OpenJDK10源码调试环境，黑喂狗。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>【JVM源码探秘】在Mac上编译OpenJDK10源码</title>
+      <link>https://hunterzhao.io/post/2018/01/29/compile-openjdk10-source-code-on-mac/</link>
+      <pubDate>Mon, 29 Jan 2018 01:03:13 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2018/01/29/compile-openjdk10-source-code-on-mac/</guid>
+      <description>&lt;p&gt;博主在11年到12年的时候曾连续研究过十个月的JVM，读过的相关书籍包括：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://book.douban.com/subject/1138768/&#34;&gt;深入Java虚拟机&lt;/a&gt;
+这本书可以说是介绍JVM内部原理的鼻祖了，于2003年出版现已绝版，不过可以再某宝买到影印版。虽然当时JDK最高仅为1.4但JVM内部的构造已大体形成，所以博主强烈推荐此书。p.s 我肯定不会告诉你这书博主看了3遍：D&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://book.douban.com/subject/6522893/&#34;&gt;深入理解Java虚拟机&lt;/a&gt;
+国内周某人写的，鉴于博主对于国人写的书向来不怎么感兴趣还是不提了。&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://book.douban.com/subject/25847620/&#34;&gt;HotSpot实战&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://book.douban.com/subject/27086821/&#34;&gt;揭秘Java虚拟机 JVM设计原理与实现&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://book.douban.com/subject/26802084/&#34;&gt;自己动手写Java虚拟机&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;之前的研究基本上都是虚拟机规范和JVM参数调优层面的内容，但是总觉得有些意犹未尽所以决定深入研究一下Hotspot实现，
+由大部分C/C++和少量汇编代码构成，但清晰的结构和优雅的编码使其并不难读，不得不赞叹一句SUN的大师们的智慧。
+今天就从编译OpenJDK开始我们的《JVM源码探秘》系列文章之旅。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>SpringCloud自定义Feign解码器</title>
+      <link>https://hunterzhao.io/post/2017/12/02/customize-feign-decoder-in-spring-cloud/</link>
+      <pubDate>Sat, 02 Dec 2017 22:53:26 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2017/12/02/customize-feign-decoder-in-spring-cloud/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://hunterzhao.io/images/post/2017/11/10/spring-cloud-logo.jpg&#34; alt=&#34;spring-cloud&#34; /&gt;
+在SpringCloud微服务中，Feign组件帮我们把跨服务HTTP请求模板化，我们的FeignClient看上去可能是下面这样，&lt;/p&gt;
+
+&lt;p&gt;返回值都被封装在一个ApiResponse中，调用者获取真正内容时需要再次获取ApiResponse中的data内容，略显恶心。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>SpringCloud设置zuul网关跨域访问</title>
+      <link>https://hunterzhao.io/post/2017/11/22/cors-filter-settings-in-zuul-of-spring-cloud/</link>
+      <pubDate>Wed, 22 Nov 2017 21:53:26 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2017/11/22/cors-filter-settings-in-zuul-of-spring-cloud/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://hunterzhao.io/images/post/2017/11/10/spring-cloud-logo.jpg&#34; alt=&#34;spring-cloud&#34; /&gt;
+SpringCloud设置跨域访问只需在zuul网关服务中加入如下configuration即可。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>SpringCloud集成Redis哨兵</title>
+      <link>https://hunterzhao.io/post/2017/11/20/using-redis-in-spring-cloud/</link>
+      <pubDate>Mon, 20 Nov 2017 21:03:26 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2017/11/20/using-redis-in-spring-cloud/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://hunterzhao.io/images/post/2017/11/10/spring-cloud-logo.jpg&#34; alt=&#34;spring-cloud&#34; /&gt;
+在SpringCloud中我们可以很容易地集成并使用Redis缓存，在pom.xml中加入依赖，
+
+pom.xml&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>SpringCloud设置HttpMessageConverter为fastjson格式化输出</title>
+      <link>https://hunterzhao.io/post/2017/11/16/set-http-message-converter-as-fastjson-in-spring-cloud/</link>
+      <pubDate>Thu, 16 Nov 2017 23:03:26 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2017/11/16/set-http-message-converter-as-fastjson-in-spring-cloud/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://hunterzhao.io/images/post/2017/11/10/spring-cloud-logo.jpg&#34; alt=&#34;spring-cloud&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;我们的API响应的Media类型一般是&lt;code&gt;application/json;charset=UTF-8&lt;/code&gt;，在SpringCloud中可以通过如下方式设置，&lt;/p&gt;
+
+&lt;p&gt;并且将HttpMessageConverter设置为fastjson，使用fastjson提供的各种功能格式化输出内容。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>SpringCloud配置中心多级目录多文件匹配搜索</title>
+      <link>https://hunterzhao.io/post/2017/11/14/multiple-files-and-directories-search-in-config-center-of-spring-cloud/</link>
+      <pubDate>Tue, 14 Nov 2017 23:03:26 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2017/11/14/multiple-files-and-directories-search-in-config-center-of-spring-cloud/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://hunterzhao.io/images/post/2017/11/10/spring-cloud-logo.jpg&#34; alt=&#34;spring-cloud&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;SpringCloud将所有配置通过文件或Git模式集中化，微服务在启动时通过注册中心找到配置中心并拉取对应配置文件，
+让微服务动态更新配置成为可能。很多情况下，不同功能角色的配置文件分散在不同的配置文件中，比如&lt;code&gt;redis&lt;/code&gt;和&lt;code&gt;rabbitmq&lt;/code&gt;，
+多文件匹配SpringCloud也是支持的，如下：&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>SpringCloud中读取命令行参数或系统环境变量</title>
+      <link>https://hunterzhao.io/post/2017/11/10/use-environment-variable-or-command-line-parameter-in-spring-cloud/</link>
+      <pubDate>Fri, 10 Nov 2017 20:03:26 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2017/11/10/use-environment-variable-or-command-line-parameter-in-spring-cloud/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://hunterzhao.io/images/post/2017/11/10/spring-cloud-logo.jpg&#34; alt=&#34;spring-cloud&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;SpringCloud中帮我们很方便地提供了环境适配方案，通过命令行参数或export系统环境变量指定&lt;code&gt;REGISTRY_CENTER_URI&lt;/code&gt;值，&lt;/p&gt;
+
+&lt;p&gt;如果读取到，SpringCloud优先使用该值，如果该变量未指定则使用默认值&lt;code&gt;http://localhost:9000/eureka/&lt;/code&gt;
+&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>通过Nginx内嵌Lua脚本实现资源访问权限控制</title>
+      <link>https://hunterzhao.io/post/2017/10/15/resource-access-control-via-lua-script-in-nginx/</link>
+      <pubDate>Sun, 15 Oct 2017 02:19:27 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2017/10/15/resource-access-control-via-lua-script-in-nginx/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://hunterzhao.io/images/post/2017/10/15/access_control_by_lua.jpg&#34; alt=&#34;access-control-by-lua&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;有些敏感的静态资源（比如身份证照片，企业执照等）是不能裸奔在互联网上的，被爬虫抓取后果比较严重，所以要加入一定的访问权限，满足某种规则后才可以访问。&lt;/p&gt;
+
+&lt;p&gt;最常用的做法是访问者发起请求时首先对资源名使用私钥进行MD5作为signature，再将signature作为参数传入，服务端接到请求后按照同样规则进行验签，signature匹配则视为合法请求，否则deny返回403。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>一行Python命令开启简单的静态文件服务器</title>
+      <link>https://hunterzhao.io/post/2017/08/30/start-up-a-file-server-using-one-python-command/</link>
+      <pubDate>Wed, 30 Aug 2017 14:35:00 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2017/08/30/start-up-a-file-server-using-one-python-command/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://hunterzhao.io/images/post/2016/01/12/python_logo.jpg&#34; alt=&#34;Python Logo&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;在开发过程当中，常常会需要启动一个静态文件服务器用来访问静态资源或传输文件，安装Nginx？安装Tomcat？&lt;/p&gt;
+
+&lt;p&gt;No！都太重了。只需要执行一个Python命令即可马上拥有一个轻量级静态服务器。&lt;/p&gt;
+
+&lt;h1 id=&#34;如果你使用的是python2-x&#34;&gt;如果你使用的是Python2.x&lt;/h1&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ python -m SimpleHTTPServer
+Serving HTTP on &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;.0.0.0 port &lt;span class=&#34;m&#34;&gt;8000&lt;/span&gt; ...&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>关于MyBatis通用代码生成器CoffeeMaker的设计思路</title>
+      <link>https://hunterzhao.io/post/2017/07/21/design-of-universal-code-generator-coffee-maker/</link>
+      <pubDate>Fri, 21 Jul 2017 15:30:02 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2017/07/21/design-of-universal-code-generator-coffee-maker/</guid>
+      <description>&lt;p&gt;CoffeeMaker是一款经过良好设计的代码生成器，可快速生成通用CRUD代码模板，使用方便且易于扩展。于2017年7月开发完成，源代码托管于&lt;a href=&#34;https://github.com/hzio/CoffeeMaker&#34;&gt;GitHub&lt;/a&gt;仓库。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>关于IntelliJ IDEA插件Open Terminal Here的设计思路</title>
+      <link>https://hunterzhao.io/post/2015/12/03/design-of-intellij-plugin-open-terminal-here/</link>
+      <pubDate>Thu, 03 Dec 2015 10:31:00 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2015/12/03/design-of-intellij-plugin-open-terminal-here/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://hunterzhao.io/images/post/2015/12/03/intellij-plugin-banner.jpg&#34; alt=&#34;IntelliJ Plugin Repo&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Open Terminal Here是一款用于在终端中直接打开文件所在目录的IntelliJ插件，于2015年12月3日发布至&lt;a href=&#34;https://plugins.jetbrains.com/plugin/8081-open-terminal-here&#34;&gt;IntelliJ IDEA官方插件库&lt;/a&gt;，目前有3K+次下载，源代码托管于&lt;a href=&#34;https://github.com/MrHunterZhao/OpenTerminalHere&#34;&gt;GitHub&lt;/a&gt;。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>CentOS通过yum安装配置MySQL</title>
+      <link>https://hunterzhao.io/post/2014/01/20/install-and-configure-mysql-on-centos/</link>
+      <pubDate>Mon, 20 Jan 2014 12:06:34 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2014/01/20/install-and-configure-mysql-on-centos/</guid>
+      <description>&lt;h1 id=&#34;安装mysql&#34;&gt;安装MySQL&lt;/h1&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;root@HunterWorkStation local&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;# yum -y install mysql mysql-server&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h1 id=&#34;启动mysql服务&#34;&gt;启动MySQL服务&lt;/h1&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;root@HunterWorkStation local&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;# service mysqld start
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;
+Initializing MySQL database:  Installing MySQL system tables...    OK
+Filling &lt;span class=&#34;nb&#34;&gt;help&lt;/span&gt; tables...   OK
+
+To start mysqld at boot &lt;span class=&#34;nb&#34;&gt;time&lt;/span&gt; you have to copy
+support-files/mysql.server to the right place &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; your system
+
+PLEASE REMEMBER TO SET A PASSWORD FOR THE MySQL root USER !
+To &lt;span class=&#34;k&#34;&gt;do&lt;/span&gt; so, start the server, &lt;span class=&#34;k&#34;&gt;then&lt;/span&gt; issue the following commands:
+
+/usr/bin/mysqladmin -u root password &lt;span class=&#34;s1&#34;&gt;&amp;#39;new-password&amp;#39;&lt;/span&gt;
+/usr/bin/mysqladmin -u root -h localhost.localdomain password &lt;span class=&#34;s1&#34;&gt;&amp;#39;new-password&amp;#39;&lt;/span&gt;
+
+Alternatively you can run:
+/usr/bin/mysql_secure_installation
+
+which will also give you the option of removing the &lt;span class=&#34;nb&#34;&gt;test&lt;/span&gt;
+databases and anonymous user created by default.  This is
+strongly recommended &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; production servers.
+
+See the manual &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; more instructions.
+You can start the MySQL daemon with:
+
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; /usr &lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; /usr/bin/mysqld_safe &lt;span class=&#34;p&#34;&gt;&amp;amp;&lt;/span&gt;
+You can &lt;span class=&#34;nb&#34;&gt;test&lt;/span&gt; the MySQL daemon with mysql-test-run.pl
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; /usr/mysql-test &lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; perl mysql-test-run.pl
+
+Please report any problems with the /usr/bin/mysqlbug script!
+
+
+Starting mysqld:                                           &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;  OK  &lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Mac下vim开启语法高亮&amp;着色</title>
+      <link>https://hunterzhao.io/post/2014/01/20/configure-vim-syntax-highlight-on-mac/</link>
+      <pubDate>Mon, 20 Jan 2014 12:06:34 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2014/01/20/configure-vim-syntax-highlight-on-mac/</guid>
+      <description>&lt;p&gt;Mac OS并不像大多数Linux发行版vim默认自带语法着色高亮显示（通常Linux可通过编辑/etc/vimrc进行全局设置或~/vimrc进行单用户设置），使用vi/vim编辑文件时很不方便，如何解决 ?&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Hello World</title>
+      <link>https://hunterzhao.io/post/2011/01/10/hello-world/</link>
+      <pubDate>Mon, 10 Jan 2011 12:13:35 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2011/01/10/hello-world/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;http://zhaohe162.blog.163.com&#34;&gt;原博客&lt;/a&gt;从2007年7月24日注册已经有10+个年头了，估计也算是中国第一批博客用户了，也见证了网易博客从最初到后来发展成熟的过程。&lt;/p&gt;
+
+&lt;p&gt;记得当年比较流行装扮博客，网易官方推出了各式各样的皮肤，并且允许用户博客自定义和分享，后来推出首页自定义模块，具体方式是通过特定的代码来加入更丰富的功能，也就是那时候最初接触到了HTML/CSS。&lt;/p&gt;
+
+&lt;p&gt;装扮玩博客后还有更重要的一项就是：推广。当时为了提高博客访问量增加影响力也着实费了一番功夫，通过各种方式各种渠道宣传、互换人气，当时比较有名的是&lt;code&gt;博客群(http://www.bokequn.cn)&lt;/code&gt; &lt;code&gt;博搜(http://www.boosou.com)&lt;/code&gt;和&lt;code&gt;博无忧（http://www.bo56.com）&lt;/code&gt;。&lt;/p&gt;
+
+&lt;p&gt;2009年的时候，网易博客推出了圈子功能，类似QQ群，博友可以把自己的博文、相册推荐到圈子里，圈子里同时有论坛功能，于是大家开始各种灌水，我的圈子从2009年1月份开通，到后来网易博客没落共有3万7千多圈友，在当时也是个比较大的社群了。
+
+同年，网易博客每隔段时间就发系统公告，说要对系统存储空间进行扩容，后来技术团队应该是攻克了存储扩容问题，于是便再也没有发过类似公告。&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Python on WorkHoliday</title>
+    <link>https://hunterzhao.io/tags/python/</link>
+    <description>Recent content in Python on WorkHoliday</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <managingEditor>mailto:zhaohevip@gmail.com (HunterZhao)</managingEditor>
+    <webMaster>mailto:zhaohevip@gmail.com (HunterZhao)</webMaster>
+    <lastBuildDate>Sat, 05 May 2018 21:12:00 +0000</lastBuildDate>
+    
+	<atom:link href="https://hunterzhao.io/tags/python/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>使用Python十行代码打造简单爬虫</title>
+      <link>https://hunterzhao.io/post/2018/05/05/parse_web_content_and_download_files_using_python/</link>
+      <pubDate>Sat, 05 May 2018 21:12:00 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2018/05/05/parse_web_content_and_download_files_using_python/</guid>
+      <description>&lt;p&gt;今天从&lt;a href=&#34;http://docs.huihoo.com/javaone/2015/&#34;&gt;某网站&lt;/a&gt;上看到一些文档觉得还不错， 一共有300+篇，一个个手动下载？这简直是对一个程序员的侮辱。&lt;/p&gt;
+
+&lt;p&gt;怎么办呢，写个简单的爬虫吧。&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;BeautifulSoup&lt;/code&gt;是做爬虫的好手，&lt;code&gt;requests&lt;/code&gt;是HTTP访问的强者，这里的Demo场景比较简单略显大材小用，&lt;/p&gt;
+
+&lt;p&gt;有效代码不超十行，十分简洁优雅，人生苦短，我用Python。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>一行Python命令开启简单的静态文件服务器</title>
+      <link>https://hunterzhao.io/post/2017/08/30/start-up-a-file-server-using-one-python-command/</link>
+      <pubDate>Wed, 30 Aug 2017 14:35:00 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2017/08/30/start-up-a-file-server-using-one-python-command/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://hunterzhao.io/images/post/2016/01/12/python_logo.jpg&#34; alt=&#34;Python Logo&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;在开发过程当中，常常会需要启动一个静态文件服务器用来访问静态资源或传输文件，安装Nginx？安装Tomcat？&lt;/p&gt;
+
+&lt;p&gt;No！都太重了。只需要执行一个Python命令即可马上拥有一个轻量级静态服务器。&lt;/p&gt;
+
+&lt;h1 id=&#34;如果你使用的是python2-x&#34;&gt;如果你使用的是Python2.x&lt;/h1&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ python -m SimpleHTTPServer
+Serving HTTP on &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;.0.0.0 port &lt;span class=&#34;m&#34;&gt;8000&lt;/span&gt; ...&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>WorkHoliday</title>
+  <meta property="og:title" content="WorkHoliday" />
+  <meta name="twitter:title" content="WorkHoliday" />
+  <meta name="author" content="HunterZhao"/>
+  <link href='https://hunterzhao.io/img/favicon-rh-100x100.png' rel='icon' type='image/x-icon'/>
+  <meta property="og:image" content="https://hunterzhao.io/img/4090800.jpeg" />
+  <meta name="twitter:image" content="https://hunterzhao.io/img/4090800.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@mrhunterzhao" />
+  <meta name="twitter:creator" content="@mrhunterzhao" />
+  <meta property="og:url" content="https://hunterzhao.io/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="WorkHoliday" />
+
+  <meta name="generator" content="Hugo 0.44" />
+  <link rel="canonical" href="https://hunterzhao.io/" />
+  <link rel="alternate" href="https://hunterzhao.io/index.xml" type="application/rss+xml" title="WorkHoliday">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://hunterzhao.io/css/main.css" />
+  <link rel="stylesheet" href="https://hunterzhao.io/css/highlight.min.css" /><link rel="stylesheet" href="https://hunterzhao.io/css/highlight/styles/tomorrow-night-blue.css" /><link rel="stylesheet" href="https://hunterzhao.io/css/codeblock.css" />
+
+  <link rel="stylesheet" href="https://hunterzhao.io/css/animate.css">
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.css" integrity="sha384-h/L2W9KefUClHWaty3SLE5F/qvc4djlyR4qY3NUV5HGQBBW7stbcfff1+I/vmsHh" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/default-skin/default-skin.min.css" integrity="sha384-iD0dNku6PYSIQLyfTOpB06F2KCZJAKLOThS5HRe8b3ibhdEQ6eKsFf/EeFxdOt5R" crossorigin="anonymous">
+
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+</head>
+
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="https://hunterzhao.io">
+        <span class="logo">WorkHoliday</span>
+      </a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li>
+              <a class="dim link light-silver" title="首页" href="/">首页</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="文章" href="/post">文章</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="书单" href="/books">书单</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="作品" href="/works">作品</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="分类" href="/categories">分类</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="Tags" href="/tags">Tags</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="关于" href="/about">关于</a>
+            </li>
+          
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    <div class="avatar-container">
+      <div class="avatar-img-border">
+        
+          <a title="WorkHoliday" href="https://hunterzhao.io">
+            <img class="avatar-img" src="https://hunterzhao.io/img/4090800.jpeg" alt="WorkHoliday" />
+          </a>
+        
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+
+
+
+    
+  
+  
+  
+
+
+
+
+
+  
+    <div id="header-big-imgs" data-num-img=1 data-img-src-1="https://hunterzhao.io/img/banners/default_banner.jpg" ></div>
+  
+
+  <header class="header-section has-img">
+    
+      <div class="intro-header big-img">
+        
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+              <div class="page-heading">
+                <h1>WorkHoliday</h1>
+                  
+                    
+                      <hr class="small">
+                      <span class="page-subheading">Workday as holiday.</span>
+                    
+                  
+                  
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="img-desc" style="display: inline;"></span>
+      </div>
+    
+    <div class="intro-header no-img">
+      
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+            <div class="page-heading">
+              <h1>WorkHoliday</h1>
+                
+                  
+                    <hr class="small">
+                    <span class="page-subheading">Workday as holiday.</span>
+                  
+                
+                
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+  <div role="main" class="container">
+    <div class="row">
+      <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+        
+
+        <div class="posts-list animated fadeInUp">
+          
+          
+            <div class="post-block">
+              <article class="post-preview">
+                <div class="post-title">
+                  <a href="https://hunterzhao.io/post/2018/06/11/hotspot-explore-inside-java-thread-run/">
+                    <h2>【JVM源码探秘】深入理解Thread.run()底层实现</h2>
+                  </a>
+                </div>
+                  
+
+                  <hr>
+                <a href="https://hunterzhao.io/post/2018/06/11/hotspot-explore-inside-java-thread-run/">
+                  
+                  <img src="/images/post/2018/01/29/openjdk.jpg" class="img-title" />
+                  
+                </a>
+
+                <br>
+                <span class="post-meta">
+  
+  
+  <i class="fa fa-calendar-o"></i>&nbsp;Posted on June 11, 2018
+  
+  
+  &nbsp;|&nbsp;
+  <i class="fa fa-clock-o"></i> 4 minutes (793 words)
+  
+  
+</span>
+
+
+                <div class="post-entry">
+                  
+                  <div class="blog-post"><p>对于Java程序猿来说可以通过new java.lang.Thread.start()来启动一个线程，只需要将业务逻辑放在run()方法里即可，
+如此高效且易用的Java线程在JVM层面是怎样的呢？本文将从源码角度深入解读。</p>
+
+<p></p></div>
+                  <a href="https://hunterzhao.io/post/2018/06/11/hotspot-explore-inside-java-thread-run/" class="post-read-more">Read More>></a>
+                  
+                </div>
+
+                
+                <div class="blog-tags">
+                  
+                  <a href="https://hunterzhao.io/tags/openjdk/">OpenJDK</a>&nbsp;
+                  
+                  <a href="https://hunterzhao.io/tags/jvm/">JVM</a>&nbsp;
+                  
+                  <a href="https://hunterzhao.io/tags/hotspot/">HotSpot</a>&nbsp;
+                  
+                </div>
+                
+              </article>
+            </div>
+            <br>
+          
+            <div class="post-block">
+              <article class="post-preview">
+                <div class="post-title">
+                  <a href="https://hunterzhao.io/post/2018/05/20/hotspot-explore-thread-model/">
+                    <h2>【JVM源码探秘】JVM线程模型概览</h2>
+                  </a>
+                </div>
+                  
+
+                  <hr>
+                <a href="https://hunterzhao.io/post/2018/05/20/hotspot-explore-thread-model/">
+                  
+                  <img src="/images/post/2018/01/29/openjdk.jpg" class="img-title" />
+                  
+                </a>
+
+                <br>
+                <span class="post-meta">
+  
+  
+  <i class="fa fa-calendar-o"></i>&nbsp;Posted on May 20, 2018
+  
+  
+  &nbsp;|&nbsp;
+  <i class="fa fa-clock-o"></i> 3 minutes (588 words)
+  
+  
+</span>
+
+
+                <div class="post-entry">
+                  
+                  <div class="blog-post"><p>HotSpot中的线程模型是Java线程（java.lang.Thread）与本地操作系统线程一一映射，本地线程在Java线程启动（调用start()）时创建，
+并在终止时回收。操作系统负责调度本地线程给可用的CPU来执行。Java线程优先级和操作系统优先级之间的关系是相当复杂的，并且因操作系统而异。</p>
+
+<p></p></div>
+                  <a href="https://hunterzhao.io/post/2018/05/20/hotspot-explore-thread-model/" class="post-read-more">Read More>></a>
+                  
+                </div>
+
+                
+                <div class="blog-tags">
+                  
+                  <a href="https://hunterzhao.io/tags/openjdk/">OpenJDK</a>&nbsp;
+                  
+                  <a href="https://hunterzhao.io/tags/jvm/">JVM</a>&nbsp;
+                  
+                  <a href="https://hunterzhao.io/tags/hotspot/">HotSpot</a>&nbsp;
+                  
+                </div>
+                
+              </article>
+            </div>
+            <br>
+          
+            <div class="post-block">
+              <article class="post-preview">
+                <div class="post-title">
+                  <a href="https://hunterzhao.io/post/2018/05/17/hotspot-explore-class-loading-linking-and-initializing/">
+                    <h2>【JVM源码探秘】细说Class的装载、链接和初始化</h2>
+                  </a>
+                </div>
+                  
+
+                  <hr>
+                <a href="https://hunterzhao.io/post/2018/05/17/hotspot-explore-class-loading-linking-and-initializing/">
+                  
+                  <img src="/images/post/2018/01/29/openjdk.jpg" class="img-title" />
+                  
+                </a>
+
+                <br>
+                <span class="post-meta">
+  
+  
+  <i class="fa fa-calendar-o"></i>&nbsp;Posted on May 17, 2018
+  
+  
+  &nbsp;|&nbsp;
+  <i class="fa fa-clock-o"></i> 11 minutes (2252 words)
+  
+  
+</span>
+
+
+                <div class="post-entry">
+                  
+                  <div class="blog-post"><p>接上篇<a href="/post/2018/05/15/hotspot-explore-java-lang-class-forname/">《【JVM源码探秘】细说Class.forName()底层实现》</a>执行Class.forName(&ldquo;com.xxx.Xxx&rdquo;)通过<code>JavaCalls</code>组件调用了
+Java方法<code>ClassLoader.loadClass()</code>对该类进行加载</p>
+
+<p></p></div>
+                  <a href="https://hunterzhao.io/post/2018/05/17/hotspot-explore-class-loading-linking-and-initializing/" class="post-read-more">Read More>></a>
+                  
+                </div>
+
+                
+                <div class="blog-tags">
+                  
+                  <a href="https://hunterzhao.io/tags/openjdk/">OpenJDK</a>&nbsp;
+                  
+                  <a href="https://hunterzhao.io/tags/jvm/">JVM</a>&nbsp;
+                  
+                  <a href="https://hunterzhao.io/tags/hotspot/">HotSpot</a>&nbsp;
+                  
+                </div>
+                
+              </article>
+            </div>
+            <br>
+          
+            <div class="post-block">
+              <article class="post-preview">
+                <div class="post-title">
+                  <a href="https://hunterzhao.io/post/2018/05/15/hotspot-explore-java-lang-class-forname/">
+                    <h2>【JVM源码探秘】细说Class.forName()底层实现</h2>
+                  </a>
+                </div>
+                  
+
+                  <hr>
+                <a href="https://hunterzhao.io/post/2018/05/15/hotspot-explore-java-lang-class-forname/">
+                  
+                  <img src="/images/post/2018/01/29/openjdk.jpg" class="img-title" />
+                  
+                </a>
+
+                <br>
+                <span class="post-meta">
+  
+  
+  <i class="fa fa-calendar-o"></i>&nbsp;Posted on May 15, 2018
+  
+  
+  &nbsp;|&nbsp;
+  <i class="fa fa-clock-o"></i> 5 minutes (1048 words)
+  
+  
+</span>
+
+
+                <div class="post-entry">
+                  
+                  <div class="blog-post"><p>JVM允许在运行时动态装载类，这为开发者提供了极大方便，使用<code>Class.forName(&quot;com.xxx.Xxx&quot;)</code>，
+装载完成后可以通过调用其<code>newInstance()</code>完成对象的创建，然后便可以正常操作该类。</p>
+
+<p>接下来我们就细说说Class.forName()在JVM层面所做的事情。</p>
+
+<p></p></div>
+                  <a href="https://hunterzhao.io/post/2018/05/15/hotspot-explore-java-lang-class-forname/" class="post-read-more">Read More>></a>
+                  
+                </div>
+
+                
+                <div class="blog-tags">
+                  
+                  <a href="https://hunterzhao.io/tags/openjdk/">OpenJDK</a>&nbsp;
+                  
+                  <a href="https://hunterzhao.io/tags/jvm/">JVM</a>&nbsp;
+                  
+                  <a href="https://hunterzhao.io/tags/hotspot/">HotSpot</a>&nbsp;
+                  
+                </div>
+                
+              </article>
+            </div>
+            <br>
+          
+            <div class="post-block">
+              <article class="post-preview">
+                <div class="post-title">
+                  <a href="https://hunterzhao.io/post/2018/05/06/async-callback-model-in-cluster-architecture/">
+                    <h2>集群架构中的异步回调模型实现</h2>
+                  </a>
+                </div>
+                  
+
+                  <hr>
+                <a href="https://hunterzhao.io/post/2018/05/06/async-callback-model-in-cluster-architecture/">
+                  
+                </a>
+
+                <br>
+                <span class="post-meta">
+  
+  
+  <i class="fa fa-calendar-o"></i>&nbsp;Posted on May 6, 2018
+  
+  
+  &nbsp;|&nbsp;
+  <i class="fa fa-clock-o"></i> 2 minutes (252 words)
+  
+  
+</span>
+
+
+                <div class="post-entry">
+                  
+                  <div class="blog-post"><p>团队中前些天遇到这样一个问题，比较有意思也比较典型，我给出方案后团队成员实施出来，最终问题得以解决。
+&gt; 一个智能终端连接到Netty服务保持会话，在异步完成某项操作后回调回来需要通过会话通知终端，终端再根据通知做相应业务处理，
+&gt; 在部署单节点的情况下是OK的，但是系统整体由于要做HA，部署多节点后就会出现问题: <strong>并不能保证该回调请求一定负载到终端保持会话的节点</strong>。</p>
+
+<p>如何解决这个问题？这里跟大家分享一种类似场景的通用解决方案，以下是流程图：</p>
+<div class="highlight"><pre class="chroma"><code class="language-AsciiDoc" data-lang="AsciiDoc">                            &lt; Async Callback Model in Cluster Architecture &gt;
+
+                                              (D) Broadcast to all nodes
+                              +-----------------------------------------------------------------------+
+                              v                                                                       |
+                          + - - - - - - - - - +
+                          &#39; Cluster:          &#39;
+                          &#39;                   &#39;
++--------+  (A) Connect   &#39; +---------------+ &#39;  (B) Async call   +---------------+  (C) Callback   +----+
+|        | -------------&gt; &#39; | Server Node A | &#39; ----------------&gt; |               | --------------&gt; |    |
+|        |                &#39; +---------------+ &#39;                   |               |                 |    |
+|        |                &#39;                   &#39;                   |               |                 |    |
+|        |                + - - - - - - - - - +                   |               |                 |    |
+|        |  (E) Notify        :                                   |               |                 |    |
+|        | &lt;...................                                   |               |                 |    |
+|        |                                                        |               |                 |    |
+| Client |                + - - - - - - - - - +                   | Remote Server |                 | MQ |
+|        |                &#39;                   &#39;                   |               |                 |    |
+|        |                &#39; +---------------+ &#39;                   |               |                 |    |
+|        |                &#39; | Server Node B | &#39;                   |               |                 |    |
+|        |                &#39; +---------------+ &#39;                   |               |                 |    |
+|        |                &#39; +---------------+ &#39;                   |               |                 |    |
+|        |                &#39; | Server Node C | &#39;                   |               |                 |    |
+|        |                &#39; +---------------+ &#39;                   |               |                 |    |
+|        |                &#39;                   &#39;                   |               |                 |    |
++--------+                + - - - - - - - - - +                   +---------------+                 +----+</code></pre></div>
+<p></p></div>
+                  <a href="https://hunterzhao.io/post/2018/05/06/async-callback-model-in-cluster-architecture/" class="post-read-more">Read More>></a>
+                  
+                </div>
+
+                
+                <div class="blog-tags">
+                  
+                  <a href="https://hunterzhao.io/tags/%E6%9E%B6%E6%9E%84/">架构</a>&nbsp;
+                  
+                  <a href="https://hunterzhao.io/tags/%E9%9B%86%E7%BE%A4/">集群</a>&nbsp;
+                  
+                  <a href="https://hunterzhao.io/tags/%E5%BC%82%E6%AD%A5/">异步</a>&nbsp;
+                  
+                  <a href="https://hunterzhao.io/tags/%E5%9B%9E%E8%B0%83/">回调</a>&nbsp;
+                  
+                  <a href="https://hunterzhao.io/tags/netty/">Netty</a>&nbsp;
+                  
+                </div>
+                
+              </article>
+            </div>
+            <br>
+          
+            <div class="post-block">
+              <article class="post-preview">
+                <div class="post-title">
+                  <a href="https://hunterzhao.io/post/2018/05/05/parse_web_content_and_download_files_using_python/">
+                    <h2>使用Python十行代码打造简单爬虫</h2>
+                  </a>
+                </div>
+                  
+
+                  <hr>
+                <a href="https://hunterzhao.io/post/2018/05/05/parse_web_content_and_download_files_using_python/">
+                  
+                  <img src="/images/post/2018/05/05/python_logo.jpg" class="img-title" />
+                  
+                </a>
+
+                <br>
+                <span class="post-meta">
+  
+  
+  <i class="fa fa-calendar-o"></i>&nbsp;Posted on May 5, 2018
+  
+  
+  &nbsp;|&nbsp;
+  <i class="fa fa-clock-o"></i> 1 minutes (90 words)
+  
+  
+</span>
+
+
+                <div class="post-entry">
+                  
+                  <div class="blog-post"><p>今天从<a href="http://docs.huihoo.com/javaone/2015/">某网站</a>上看到一些文档觉得还不错， 一共有300+篇，一个个手动下载？这简直是对一个程序员的侮辱。</p>
+
+<p>怎么办呢，写个简单的爬虫吧。</p>
+
+<p><code>BeautifulSoup</code>是做爬虫的好手，<code>requests</code>是HTTP访问的强者，这里的Demo场景比较简单略显大材小用，</p>
+
+<p>有效代码不超十行，十分简洁优雅，人生苦短，我用Python。</p>
+
+<p></p></div>
+                  <a href="https://hunterzhao.io/post/2018/05/05/parse_web_content_and_download_files_using_python/" class="post-read-more">Read More>></a>
+                  
+                </div>
+
+                
+                <div class="blog-tags">
+                  
+                  <a href="https://hunterzhao.io/tags/%E7%88%AC%E8%99%AB/">爬虫</a>&nbsp;
+                  
+                  <a href="https://hunterzhao.io/tags/python/">Python</a>&nbsp;
+                  
+                </div>
+                
+              </article>
+            </div>
+            <br>
+          
+            <div class="post-block">
+              <article class="post-preview">
+                <div class="post-title">
+                  <a href="https://hunterzhao.io/post/2018/05/01/consume-mq-message-with-multithreading/">
+                    <h2>聊一聊使用多线程处理MQ消息的正确姿势</h2>
+                  </a>
+                </div>
+                  
+
+                  <hr>
+                <a href="https://hunterzhao.io/post/2018/05/01/consume-mq-message-with-multithreading/">
+                  
+                  <img src="/images/post/2018/05/01/rabbitmq-logo.png" class="img-title" />
+                  
+                </a>
+
+                <br>
+                <span class="post-meta">
+  
+  
+  <i class="fa fa-calendar-o"></i>&nbsp;Posted on May 1, 2018
+  
+  
+  &nbsp;|&nbsp;
+  <i class="fa fa-clock-o"></i> 2 minutes (329 words)
+  
+  
+</span>
+
+
+                <div class="post-entry">
+                  
+                  <div class="blog-post"><blockquote>
+<p>Q：有这样一个场景，MQ的生产者生产消息能力是消费者的数倍。
+如果不能尽快消费完会导致队列中的消息随着时间的推移会越积越多，而且业务也无任何时效性可言，
+那么问题来了，在不增加消费节点的前提下如何快速处理完消息以保证吞吐量？</p>
+</blockquote>
+
+<p>面对以上问题，有人可能会信心满满地脱口而出：<strong>用多线程</strong>。OK，我只能说思路没错，那么如何落地呢？</p></div>
+                  <a href="https://hunterzhao.io/post/2018/05/01/consume-mq-message-with-multithreading/" class="post-read-more">Read More>></a>
+                  
+                </div>
+
+                
+                <div class="blog-tags">
+                  
+                  <a href="https://hunterzhao.io/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">多线程</a>&nbsp;
+                  
+                  <a href="https://hunterzhao.io/tags/mq/">MQ</a>&nbsp;
+                  
+                </div>
+                
+              </article>
+            </div>
+            <br>
+          
+            <div class="post-block">
+              <article class="post-preview">
+                <div class="post-title">
+                  <a href="https://hunterzhao.io/post/2018/04/06/hotspot-explore-register-natives/">
+                    <h2>【JVM源码探秘】深入registerNatives()底层实现</h2>
+                  </a>
+                </div>
+                  
+
+                  <hr>
+                <a href="https://hunterzhao.io/post/2018/04/06/hotspot-explore-register-natives/">
+                  
+                  <img src="/images/post/2018/01/29/openjdk.jpg" class="img-title" />
+                  
+                </a>
+
+                <br>
+                <span class="post-meta">
+  
+  
+  <i class="fa fa-calendar-o"></i>&nbsp;Posted on April 6, 2018
+  
+  
+  &nbsp;|&nbsp;
+  <i class="fa fa-clock-o"></i> 3 minutes (530 words)
+  
+  
+</span>
+
+
+                <div class="post-entry">
+                  
+                  <div class="blog-post"><p>在Java的系统包下如：</p>
+
+<ul>
+<li>java.lang.System</li>
+<li>java.lang.Object</li>
+<li>java.lang.Class</li>
+</ul>
+
+<p>等类中均有一个静态块用来执行一个叫做<code>registerNatives()</code>的native方法，</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java">    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">native</span> <span class="kt">void</span> <span class="nf">registerNatives</span><span class="o">();</span>
+    <span class="kd">static</span> <span class="o">{</span>
+        <span class="n">registerNatives</span><span class="o">();</span>
+    <span class="o">}</span></code></pre></div>
+<p>这个native方法里究竟都做了啥？我们进去瞧瞧。</p>
+
+<p></p></div>
+                  <a href="https://hunterzhao.io/post/2018/04/06/hotspot-explore-register-natives/" class="post-read-more">Read More>></a>
+                  
+                </div>
+
+                
+                <div class="blog-tags">
+                  
+                  <a href="https://hunterzhao.io/tags/openjdk/">OpenJDK</a>&nbsp;
+                  
+                  <a href="https://hunterzhao.io/tags/jvm/">JVM</a>&nbsp;
+                  
+                  <a href="https://hunterzhao.io/tags/hotspot/">HotSpot</a>&nbsp;
+                  
+                </div>
+                
+              </article>
+            </div>
+            <br>
+          
+            <div class="post-block">
+              <article class="post-preview">
+                <div class="post-title">
+                  <a href="https://hunterzhao.io/post/2018/04/05/hotspot-explore-system-gc/">
+                    <h2>【JVM源码探秘】深入System.gc()底层实现</h2>
+                  </a>
+                </div>
+                  
+
+                  <hr>
+                <a href="https://hunterzhao.io/post/2018/04/05/hotspot-explore-system-gc/">
+                  
+                  <img src="/images/post/2018/01/29/openjdk.jpg" class="img-title" />
+                  
+                </a>
+
+                <br>
+                <span class="post-meta">
+  
+  
+  <i class="fa fa-calendar-o"></i>&nbsp;Posted on April 5, 2018
+  
+  
+  &nbsp;|&nbsp;
+  <i class="fa fa-clock-o"></i> 6 minutes (1157 words)
+  
+  
+</span>
+
+
+                <div class="post-entry">
+                  
+                  <div class="blog-post"><p>对于Java语言来说是不用手动释放内存的，并且不需要手动干预JVM的GC行为，但在一些监控和agent工具里却是必要的。</p>
+
+<p>Hotspot为我们开放了Java语言级别的GC手动触发入口<code>System.gc()</code>，本文将深入介绍JVM底层实现。</p>
+
+<p></p></div>
+                  <a href="https://hunterzhao.io/post/2018/04/05/hotspot-explore-system-gc/" class="post-read-more">Read More>></a>
+                  
+                </div>
+
+                
+                <div class="blog-tags">
+                  
+                  <a href="https://hunterzhao.io/tags/openjdk/">OpenJDK</a>&nbsp;
+                  
+                  <a href="https://hunterzhao.io/tags/jvm/">JVM</a>&nbsp;
+                  
+                  <a href="https://hunterzhao.io/tags/hotspot/">HotSpot</a>&nbsp;
+                  
+                </div>
+                
+              </article>
+            </div>
+            <br>
+          
+            <div class="post-block">
+              <article class="post-preview">
+                <div class="post-title">
+                  <a href="https://hunterzhao.io/post/2018/02/25/hotspot-explore-java-object-header/">
+                    <h2>【JVM源码探秘】Java对象模型之对象头</h2>
+                  </a>
+                </div>
+                  
+
+                  <hr>
+                <a href="https://hunterzhao.io/post/2018/02/25/hotspot-explore-java-object-header/">
+                  
+                  <img src="/images/post/2018/01/29/openjdk.jpg" class="img-title" />
+                  
+                </a>
+
+                <br>
+                <span class="post-meta">
+  
+  
+  <i class="fa fa-calendar-o"></i>&nbsp;Posted on February 25, 2018
+  
+  
+  &nbsp;|&nbsp;
+  <i class="fa fa-clock-o"></i> 1 minutes (157 words)
+  
+  
+</span>
+
+
+                <div class="post-entry">
+                  
+                  <div class="blog-post"><p>一个Java对象在JVM中是由一个对应角色的<code>oop</code>对象来描述的，比如<code>instanceOopDesc</code>用来描述普通实例对象，<code>arrayOopDesc</code>用来描述数组对象，而这些类型的oop对象均是继承自<code>oopDesc</code>。</p>
+
+<p></p></div>
+                  <a href="https://hunterzhao.io/post/2018/02/25/hotspot-explore-java-object-header/" class="post-read-more">Read More>></a>
+                  
+                </div>
+
+                
+                <div class="blog-tags">
+                  
+                  <a href="https://hunterzhao.io/tags/openjdk/">OpenJDK</a>&nbsp;
+                  
+                  <a href="https://hunterzhao.io/tags/jvm/">JVM</a>&nbsp;
+                  
+                  <a href="https://hunterzhao.io/tags/hotspot/">HotSpot</a>&nbsp;
+                  
+                </div>
+                
+              </article>
+            </div>
+            <br>
+          
+        </div>
+
+        
+          <ul class="pager main-pager">
+            
+            
+              <li class="next">
+                <a href="https://hunterzhao.io/page/2/">Older Posts &rarr;</a>
+              </li>
+            
+          </ul>
+        
+      </div>
+    </div>
+  </div>
+
+    <footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="mailto:mailto:zhaohevip@gmail.com" title="Email me" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-envelope fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.facebook.com/MrHunterZhao" title="Facebook" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/hzio" title="GitHub" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/mrhunterzhao" title="Twitter" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://stackoverflow.com/users/1858561/hunter-zhao" title="StackOverflow" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-stack-overflow fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://weibo.com/mrbobzhao" title="微博" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+          <li>
+            
+            <a href="https://hunterzhao.io/index.xml" title="RSS">
+            
+              <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          
+            
+              <a href="https://hunterzhao.io">HunterZhao</a>
+            
+          
+
+          &nbsp;&bull;&nbsp;
+          2018
+
+          
+            &nbsp;&bull;&nbsp;
+            <a href="https://hunterzhao.io">WorkHoliday</a>
+          
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          <a href="http://gohugo.io">Hugo v0.44</a> powered &nbsp;&bull;&nbsp; Theme by <a href="http://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a> adapted to <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/contrib/auto-render.min.js" integrity="sha384-dq1/gEHSxPZQ7DdrM82ID4YVol9BYyU7GbWlIwnwyPzotpoc57wDw/guX8EaYGPx" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://hunterzhao.io/js/main.js"></script>
+<script src="https://hunterzhao.io/js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> $(document).ready(function() {$("pre.chroma").css("padding","0");}); </script><script> renderMathInElement(document.body); </script>
+
+
+
+
+
+
+
+
+
+  </body>
+</html>
+

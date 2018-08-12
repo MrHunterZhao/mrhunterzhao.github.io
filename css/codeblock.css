@@ -1,0 +1,47 @@
+/* --- Code blocks --- */
+
+pre {
+  position: relative;
+  margin-bottom: 24px;
+  border-radius: 5px 5px 5px 5px;
+  border: 1px solid #C3CCD0;
+  background: #002451;
+  overflow: hidden;
+  font-size: 14px;
+  padding: 12px 12px 12px 12px;
+  /*font-family: Menlo, monospace;*/
+  color: #ffffff;
+}
+
+.has-numbering {
+  margin-left: 43px;
+}
+
+.pre-numbering {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 43px;
+  padding: 12px 12px 12px 12px;
+  border-right: 1px solid #000e20;
+  border-radius: 5px 0 0 5px;
+  text-align: right;
+  font-size: 14px;
+  color: #7285b7;
+  background-color: #000e20;
+  /*overflow-x: visible;*/
+  /*overflow-y: hidden;*/
+}
+
+.pre-numbering li {
+  list-style: none;
+}
+
+.chroma .ln {
+  /*margin-right: 0.8em;*/
+  /*padding: 0 0.4em 0 0.4em;*/
+}
+pre code.hljs {
+  padding: 12px 12px 12px 12px;
+  white-space: pre;
+}

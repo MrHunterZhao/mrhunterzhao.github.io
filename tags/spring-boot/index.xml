@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Spring Boot on WorkHoliday</title>
+    <link>https://hunterzhao.io/tags/spring-boot/</link>
+    <description>Recent content in Spring Boot on WorkHoliday</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <managingEditor>mailto:zhaohevip@gmail.com (HunterZhao)</managingEditor>
+    <webMaster>mailto:zhaohevip@gmail.com (HunterZhao)</webMaster>
+    <lastBuildDate>Sat, 02 Dec 2017 22:53:26 +0000</lastBuildDate>
+    
+	<atom:link href="https://hunterzhao.io/tags/spring-boot/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>SpringCloud自定义Feign解码器</title>
+      <link>https://hunterzhao.io/post/2017/12/02/customize-feign-decoder-in-spring-cloud/</link>
+      <pubDate>Sat, 02 Dec 2017 22:53:26 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2017/12/02/customize-feign-decoder-in-spring-cloud/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://hunterzhao.io/images/post/2017/11/10/spring-cloud-logo.jpg&#34; alt=&#34;spring-cloud&#34; /&gt;
+在SpringCloud微服务中，Feign组件帮我们把跨服务HTTP请求模板化，我们的FeignClient看上去可能是下面这样，&lt;/p&gt;
+
+&lt;p&gt;返回值都被封装在一个ApiResponse中，调用者获取真正内容时需要再次获取ApiResponse中的data内容，略显恶心。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>SpringCloud设置zuul网关跨域访问</title>
+      <link>https://hunterzhao.io/post/2017/11/22/cors-filter-settings-in-zuul-of-spring-cloud/</link>
+      <pubDate>Wed, 22 Nov 2017 21:53:26 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2017/11/22/cors-filter-settings-in-zuul-of-spring-cloud/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://hunterzhao.io/images/post/2017/11/10/spring-cloud-logo.jpg&#34; alt=&#34;spring-cloud&#34; /&gt;
+SpringCloud设置跨域访问只需在zuul网关服务中加入如下configuration即可。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>SpringCloud集成Redis哨兵</title>
+      <link>https://hunterzhao.io/post/2017/11/20/using-redis-in-spring-cloud/</link>
+      <pubDate>Mon, 20 Nov 2017 21:03:26 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2017/11/20/using-redis-in-spring-cloud/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://hunterzhao.io/images/post/2017/11/10/spring-cloud-logo.jpg&#34; alt=&#34;spring-cloud&#34; /&gt;
+在SpringCloud中我们可以很容易地集成并使用Redis缓存，在pom.xml中加入依赖，
+
+pom.xml&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>SpringCloud设置HttpMessageConverter为fastjson格式化输出</title>
+      <link>https://hunterzhao.io/post/2017/11/16/set-http-message-converter-as-fastjson-in-spring-cloud/</link>
+      <pubDate>Thu, 16 Nov 2017 23:03:26 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2017/11/16/set-http-message-converter-as-fastjson-in-spring-cloud/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://hunterzhao.io/images/post/2017/11/10/spring-cloud-logo.jpg&#34; alt=&#34;spring-cloud&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;我们的API响应的Media类型一般是&lt;code&gt;application/json;charset=UTF-8&lt;/code&gt;，在SpringCloud中可以通过如下方式设置，&lt;/p&gt;
+
+&lt;p&gt;并且将HttpMessageConverter设置为fastjson，使用fastjson提供的各种功能格式化输出内容。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>SpringCloud配置中心多级目录多文件匹配搜索</title>
+      <link>https://hunterzhao.io/post/2017/11/14/multiple-files-and-directories-search-in-config-center-of-spring-cloud/</link>
+      <pubDate>Tue, 14 Nov 2017 23:03:26 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2017/11/14/multiple-files-and-directories-search-in-config-center-of-spring-cloud/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://hunterzhao.io/images/post/2017/11/10/spring-cloud-logo.jpg&#34; alt=&#34;spring-cloud&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;SpringCloud将所有配置通过文件或Git模式集中化，微服务在启动时通过注册中心找到配置中心并拉取对应配置文件，
+让微服务动态更新配置成为可能。很多情况下，不同功能角色的配置文件分散在不同的配置文件中，比如&lt;code&gt;redis&lt;/code&gt;和&lt;code&gt;rabbitmq&lt;/code&gt;，
+多文件匹配SpringCloud也是支持的，如下：&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>SpringCloud中读取命令行参数或系统环境变量</title>
+      <link>https://hunterzhao.io/post/2017/11/10/use-environment-variable-or-command-line-parameter-in-spring-cloud/</link>
+      <pubDate>Fri, 10 Nov 2017 20:03:26 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2017/11/10/use-environment-variable-or-command-line-parameter-in-spring-cloud/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://hunterzhao.io/images/post/2017/11/10/spring-cloud-logo.jpg&#34; alt=&#34;spring-cloud&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;SpringCloud中帮我们很方便地提供了环境适配方案，通过命令行参数或export系统环境变量指定&lt;code&gt;REGISTRY_CENTER_URI&lt;/code&gt;值，&lt;/p&gt;
+
+&lt;p&gt;如果读取到，SpringCloud优先使用该值，如果该变量未指定则使用默认值&lt;code&gt;http://localhost:9000/eureka/&lt;/code&gt;
+&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

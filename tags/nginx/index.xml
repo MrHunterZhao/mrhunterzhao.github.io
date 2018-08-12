@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Nginx on WorkHoliday</title>
+    <link>https://hunterzhao.io/tags/nginx/</link>
+    <description>Recent content in Nginx on WorkHoliday</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <managingEditor>mailto:zhaohevip@gmail.com (HunterZhao)</managingEditor>
+    <webMaster>mailto:zhaohevip@gmail.com (HunterZhao)</webMaster>
+    <lastBuildDate>Sun, 15 Oct 2017 02:19:27 +0000</lastBuildDate>
+    
+	<atom:link href="https://hunterzhao.io/tags/nginx/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>通过Nginx内嵌Lua脚本实现资源访问权限控制</title>
+      <link>https://hunterzhao.io/post/2017/10/15/resource-access-control-via-lua-script-in-nginx/</link>
+      <pubDate>Sun, 15 Oct 2017 02:19:27 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2017/10/15/resource-access-control-via-lua-script-in-nginx/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://hunterzhao.io/images/post/2017/10/15/access_control_by_lua.jpg&#34; alt=&#34;access-control-by-lua&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;有些敏感的静态资源（比如身份证照片，企业执照等）是不能裸奔在互联网上的，被爬虫抓取后果比较严重，所以要加入一定的访问权限，满足某种规则后才可以访问。&lt;/p&gt;
+
+&lt;p&gt;最常用的做法是访问者发起请求时首先对资源名使用私钥进行MD5作为signature，再将signature作为参数传入，服务端接到请求后按照同样规则进行验签，signature匹配则视为合法请求，否则deny返回403。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

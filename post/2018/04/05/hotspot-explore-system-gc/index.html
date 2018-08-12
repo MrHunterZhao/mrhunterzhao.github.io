@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>【JVM源码探秘】深入System.gc()底层实现</title>
+  <meta property="og:title" content="【JVM源码探秘】深入System.gc()底层实现" />
+  <meta name="twitter:title" content="【JVM源码探秘】深入System.gc()底层实现" />
+  <meta name="description" content="对于Java语言来说是不用手动释放内存的，并且不需要手动干预JVM的GC行为，但在一些监控和agent工具里却是必要的。
+
+Hotspot为我们开放了Java语言级别的GC手动触发入口System.gc()，本文将深入介绍JVM底层实现。
+
+">
+  <meta property="og:description" content="对于Java语言来说是不用手动释放内存的，并且不需要手动干预JVM的GC行为，但在一些监控和agent工具里却是必要的。
+
+Hotspot为我们开放了Java语言级别的GC手动触发入口System.gc()，本文将深入介绍JVM底层实现。
+
+">
+  <meta name="twitter:description" content="对于Java语言来说是不用手动释放内存的，并且不需要手动干预JVM的GC行为，但在一些监控和agent工具里却是必要的。
+
+Hotspot为我们开放了Java语言级别的GC手动触发入口System.gc()，本文将深入介绍JVM底层实现。
+
+">
+  <meta name="author" content="HunterZhao"/>
+  <link href='https://hunterzhao.io/img/favicon-rh-100x100.png' rel='icon' type='image/x-icon'/>
+  <meta property="og:image" content="https://hunterzhao.io/images/post/2018/01/29/openjdk.jpg" />
+  <meta name="twitter:image" content="https://hunterzhao.io/images/post/2018/01/29/openjdk.jpg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@mrhunterzhao" />
+  <meta name="twitter:creator" content="@mrhunterzhao" />
+  <meta property="og:url" content="https://hunterzhao.io/post/2018/04/05/hotspot-explore-system-gc/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="WorkHoliday" />
+
+  <meta name="generator" content="Hugo 0.44" />
+  <link rel="canonical" href="https://hunterzhao.io/post/2018/04/05/hotspot-explore-system-gc/" />
+  <link rel="alternate" href="https://hunterzhao.io/index.xml" type="application/rss+xml" title="WorkHoliday">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://hunterzhao.io/css/main.css" />
+  <link rel="stylesheet" href="https://hunterzhao.io/css/highlight.min.css" /><link rel="stylesheet" href="https://hunterzhao.io/css/highlight/styles/tomorrow-night-blue.css" /><link rel="stylesheet" href="https://hunterzhao.io/css/codeblock.css" />
+
+  <link rel="stylesheet" href="https://hunterzhao.io/css/animate.css">
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.css" integrity="sha384-h/L2W9KefUClHWaty3SLE5F/qvc4djlyR4qY3NUV5HGQBBW7stbcfff1+I/vmsHh" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/default-skin/default-skin.min.css" integrity="sha384-iD0dNku6PYSIQLyfTOpB06F2KCZJAKLOThS5HRe8b3ibhdEQ6eKsFf/EeFxdOt5R" crossorigin="anonymous">
+
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+</head>
+
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="https://hunterzhao.io">
+        <span class="logo">WorkHoliday</span>
+      </a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li>
+              <a class="dim link light-silver" title="首页" href="/">首页</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="文章" href="/post">文章</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="书单" href="/books">书单</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="作品" href="/works">作品</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="分类" href="/categories">分类</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="Tags" href="/tags">Tags</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="关于" href="/about">关于</a>
+            </li>
+          
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    <div class="avatar-container">
+      <div class="avatar-img-border">
+        
+          <a title="WorkHoliday" href="https://hunterzhao.io">
+            <img class="avatar-img" src="https://hunterzhao.io/img/4090800.jpeg" alt="WorkHoliday" />
+          </a>
+        
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+
+
+
+    
+  
+  
+  
+
+
+
+
+
+  
+    <div id="header-big-imgs" data-num-img=1 data-img-src-1="https://hunterzhao.io/img/banners/default_banner.jpg" ></div>
+  
+
+  <header class="header-section has-img">
+    
+      <div class="intro-header big-img">
+        
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+              <div class="post-heading">
+                <h1>【JVM源码探秘】深入System.gc()底层实现</h1>
+                  
+                  
+                    <span class="post-meta">
+  
+  
+  <i class="fa fa-calendar-o"></i>&nbsp;Posted on April 5, 2018
+  
+  
+  &nbsp;|&nbsp;
+  <i class="fa fa-clock-o"></i> 6 minutes (1157 words)
+  
+  
+</span>
+
+
+                  
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="img-desc" style="display: inline;"></span>
+      </div>
+    
+    <div class="intro-header no-img">
+      
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              <h1>【JVM源码探秘】深入System.gc()底层实现</h1>
+                
+                
+                  <span class="post-meta">
+  
+  
+  <i class="fa fa-calendar-o"></i>&nbsp;Posted on April 5, 2018
+  
+  
+  &nbsp;|&nbsp;
+  <i class="fa fa-clock-o"></i> 6 minutes (1157 words)
+  
+  
+</span>
+
+
+                
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+
+      <div class="post-block animated fadeInUp" style="opacity: 1; display: block;">
+
+        <article role="main" class="blog-post">
+          <hr>
+          <div class="blog-body">
+          <p>对于Java语言来说是不用手动释放内存的，并且不需要手动干预JVM的GC行为，但在一些监控和agent工具里却是必要的。</p>
+
+<p>Hotspot为我们开放了Java语言级别的GC手动触发入口<code>System.gc()</code>，本文将深入介绍JVM底层实现。</p>
+
+<p></p>
+
+<h1 id="java-lang-system-gc">java.lang.System#gc()</h1>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java">    <span class="cm">/**
+</span><span class="cm">     * Runs the garbage collector.
+</span><span class="cm">     * &lt;p&gt;
+</span><span class="cm">     * Calling the &lt;code&gt;gc&lt;/code&gt; method suggests that the Java Virtual
+</span><span class="cm">     * Machine expend effort toward recycling unused objects in order to
+</span><span class="cm">     * make the memory they currently occupy available for quick reuse.
+</span><span class="cm">     * When control returns from the method call, the Java Virtual
+</span><span class="cm">     * Machine has made a best effort to reclaim space from all discarded
+</span><span class="cm">     * objects.
+</span><span class="cm">     * &lt;p&gt;
+</span><span class="cm">     * The call &lt;code&gt;System.gc()&lt;/code&gt; is effectively equivalent to the
+</span><span class="cm">     * call:
+</span><span class="cm">     * &lt;blockquote&gt;&lt;pre&gt;
+</span><span class="cm">     * Runtime.getRuntime().gc()
+</span><span class="cm">     * &lt;/pre&gt;&lt;/blockquote&gt;
+</span><span class="cm">     *
+</span><span class="cm">     * @see     java.lang.Runtime#gc()
+</span><span class="cm">     */</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">gc</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">Runtime</span><span class="o">.</span><span class="na">getRuntime</span><span class="o">().</span><span class="na">gc</span><span class="o">();</span>
+    <span class="o">}</span></code></pre></div>
+<h1 id="java-lang-runtime-gc">java.lang.Runtime#gc()</h1>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java">    <span class="cm">/**
+</span><span class="cm">     * Runs the garbage collector.
+</span><span class="cm">     * Calling this method suggests that the Java virtual machine expend
+</span><span class="cm">     * effort toward recycling unused objects in order to make the memory
+</span><span class="cm">     * they currently occupy available for quick reuse. When control
+</span><span class="cm">     * returns from the method call, the virtual machine has made
+</span><span class="cm">     * its best effort to recycle all discarded objects.
+</span><span class="cm">     * &lt;p&gt;
+</span><span class="cm">     * The name &lt;code&gt;gc&lt;/code&gt; stands for &#34;garbage
+</span><span class="cm">     * collector&#34;. The virtual machine performs this recycling
+</span><span class="cm">     * process automatically as needed, in a separate thread, even if the
+</span><span class="cm">     * &lt;code&gt;gc&lt;/code&gt; method is not invoked explicitly.
+</span><span class="cm">     * &lt;p&gt;
+</span><span class="cm">     * The method {@link System#gc()} is the conventional and convenient
+</span><span class="cm">     * means of invoking this method.
+</span><span class="cm">     */</span>
+    <span class="kd">public</span> <span class="kd">native</span> <span class="kt">void</span> <span class="nf">gc</span><span class="o">();</span></code></pre></div>
+<h1 id="runtime-c-java-java-lang-runtime-gc">Runtime.c #  Java_java_lang_Runtime_gc()</h1>
+
+<p>这里调用了native方法<code>gc()</code>，对应的方法在Hotspot源码<code>src/java.base/share/native/libjava/Runtime.c</code></p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">JNIEXPORT</span> <span class="kt">void</span> <span class="n">JNICALL</span>
+<span class="nf">Java_java_lang_Runtime_gc</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">this</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">JVM_GC</span><span class="p">();</span>
+<span class="p">}</span></code></pre></div>
+<h1 id="jvm-cpp">jvm.cpp</h1>
+
+<p>方法实现在<code>src/hotspot/share/prims/jvm.cpp</code></p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">JVM_ENTRY_NO_ENV</span><span class="p">(</span><span class="kt">void</span><span class="p">,</span> <span class="n">JVM_GC</span><span class="p">(</span><span class="kt">void</span><span class="p">))</span>
+  <span class="n">JVMWrapper</span><span class="p">(</span><span class="s">&#34;JVM_GC&#34;</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">DisableExplicitGC</span><span class="p">)</span> <span class="p">{</span>
+     <span class="c1">// 调用具体堆实现的collect方法
+</span><span class="c1"></span>    <span class="n">Universe</span><span class="o">::</span><span class="n">heap</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">collect</span><span class="p">(</span><span class="n">GCCause</span><span class="o">::</span><span class="n">_java_lang_system_gc</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="n">JVM_END</span></code></pre></div>
+<p>通过Universe调用具体堆实现的collect方法，取决于使用当前实例使用的GC模式，在JVM中目前堆实现主要有：
+- 串行回收堆实现
+    - src/hotspot/share/gc/serial/defNewGeneration.cpp（年轻代）
+    - src/hotspot/share/gc/serial/tenuredGeneration.cpp（年老代）
+- 并行回收堆实现
+    - src/hotspot/share/gc/parallel/parallelScavengeHeap.cpp
+- CMS并发回收堆实现
+    - src/hotspot/share/gc/shared/genCollectedHeap.cpp
+- G1并发回收堆实现
+    - src/hotspot/share/gc/g1/g1CollectedHeap.cpp</p>
+
+<h1 id="串行回收堆-年轻代">串行回收堆（年轻代）</h1>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="n">DefNewGeneration</span><span class="o">::</span><span class="n">collect</span><span class="p">(</span><span class="kt">bool</span>   <span class="n">full</span><span class="p">,</span>
+                               <span class="kt">bool</span>   <span class="n">clear_all_soft_refs</span><span class="p">,</span>
+                               <span class="n">size_t</span> <span class="n">size</span><span class="p">,</span>
+                               <span class="kt">bool</span>   <span class="n">is_tlab</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">assert</span><span class="p">(</span><span class="n">full</span> <span class="o">||</span> <span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#34;otherwise we don&#39;t want to collect&#34;</span><span class="p">);</span>
+
+  <span class="n">GenCollectedHeap</span><span class="o">*</span> <span class="n">gch</span> <span class="o">=</span> <span class="n">GenCollectedHeap</span><span class="o">::</span><span class="n">heap</span><span class="p">();</span>
+
+  <span class="n">_gc_timer</span><span class="o">-&gt;</span><span class="n">register_gc_start</span><span class="p">();</span>
+  <span class="n">DefNewTracer</span> <span class="n">gc_tracer</span><span class="p">;</span>
+  <span class="n">gc_tracer</span><span class="p">.</span><span class="n">report_gc_start</span><span class="p">(</span><span class="n">gch</span><span class="o">-&gt;</span><span class="n">gc_cause</span><span class="p">(),</span> <span class="n">_gc_timer</span><span class="o">-&gt;</span><span class="n">gc_start</span><span class="p">());</span>
+
+  <span class="n">_old_gen</span> <span class="o">=</span> <span class="n">gch</span><span class="o">-&gt;</span><span class="n">old_gen</span><span class="p">();</span>
+
+  <span class="c1">// 如果下个代空间不足以容纳当前代空间中即将晋升的对象，则标记让下个代空间先进行回收
+</span><span class="c1"></span>  <span class="c1">// If the next generation is too full to accommodate promotion
+</span><span class="c1"></span>  <span class="c1">// from this generation, pass on collection; let the next generation
+</span><span class="c1"></span>  <span class="c1">// do it.
+</span><span class="c1"></span>  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">collection_attempt_is_safe</span><span class="p">())</span> <span class="p">{</span>
+    <span class="n">log_trace</span><span class="p">(</span><span class="n">gc</span><span class="p">)(</span><span class="s">&#34;:: Collection attempt not safe ::&#34;</span><span class="p">);</span>
+    <span class="n">gch</span><span class="o">-&gt;</span><span class="n">set_incremental_collection_failed</span><span class="p">();</span> <span class="c1">// Slight lie: we did not even attempt one
+</span><span class="c1"></span>    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="n">assert</span><span class="p">(</span><span class="n">to</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">is_empty</span><span class="p">(),</span> <span class="s">&#34;Else not collection_attempt_is_safe&#34;</span><span class="p">);</span>
+
+  <span class="n">init_assuming_no_promotion_failure</span><span class="p">();</span>
+
+  <span class="n">GCTraceTime</span><span class="p">(</span><span class="n">Trace</span><span class="p">,</span> <span class="n">gc</span><span class="p">,</span> <span class="n">phases</span><span class="p">)</span> <span class="n">tm</span><span class="p">(</span><span class="s">&#34;DefNew&#34;</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">gch</span><span class="o">-&gt;</span><span class="n">gc_cause</span><span class="p">());</span>
+
+  <span class="n">gch</span><span class="o">-&gt;</span><span class="n">trace_heap_before_gc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">gc_tracer</span><span class="p">);</span>
+
+  <span class="c1">// These can be shared for all code paths
+</span><span class="c1"></span>  <span class="n">IsAliveClosure</span> <span class="nf">is_alive</span><span class="p">(</span><span class="n">this</span><span class="p">);</span>
+  <span class="n">ScanWeakRefClosure</span> <span class="nf">scan_weak_ref</span><span class="p">(</span><span class="n">this</span><span class="p">);</span>
+
+  <span class="n">age_table</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">clear</span><span class="p">();</span>
+  <span class="n">to</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">clear</span><span class="p">(</span><span class="n">SpaceDecorator</span><span class="o">::</span><span class="n">Mangle</span><span class="p">);</span>
+  <span class="c1">// The preserved marks should be empty at the start of the GC.
+</span><span class="c1"></span>  <span class="n">_preserved_marks_set</span><span class="p">.</span><span class="n">init</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+
+  <span class="n">gch</span><span class="o">-&gt;</span><span class="n">rem_set</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">prepare_for_younger_refs_iterate</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+
+  <span class="n">assert</span><span class="p">(</span><span class="n">gch</span><span class="o">-&gt;</span><span class="n">no_allocs_since_save_marks</span><span class="p">(),</span>
+         <span class="s">&#34;save marks have not been newly set.&#34;</span><span class="p">);</span>
+
+  <span class="c1">// Not very pretty.
+</span><span class="c1"></span>  <span class="n">CollectorPolicy</span><span class="o">*</span> <span class="n">cp</span> <span class="o">=</span> <span class="n">gch</span><span class="o">-&gt;</span><span class="n">collector_policy</span><span class="p">();</span>
+
+  <span class="n">FastScanClosure</span> <span class="nf">fsc_with_no_gc_barrier</span><span class="p">(</span><span class="n">this</span><span class="p">,</span> <span class="nb">false</span><span class="p">);</span>
+  <span class="n">FastScanClosure</span> <span class="nf">fsc_with_gc_barrier</span><span class="p">(</span><span class="n">this</span><span class="p">,</span> <span class="nb">true</span><span class="p">);</span>
+
+  <span class="n">KlassScanClosure</span> <span class="nf">klass_scan_closure</span><span class="p">(</span><span class="o">&amp;</span><span class="n">fsc_with_no_gc_barrier</span><span class="p">,</span>
+                                      <span class="n">gch</span><span class="o">-&gt;</span><span class="n">rem_set</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">klass_rem_set</span><span class="p">());</span>
+  <span class="n">CLDToKlassAndOopClosure</span> <span class="nf">cld_scan_closure</span><span class="p">(</span><span class="o">&amp;</span><span class="n">klass_scan_closure</span><span class="p">,</span>
+                                           <span class="o">&amp;</span><span class="n">fsc_with_no_gc_barrier</span><span class="p">,</span>
+                                           <span class="nb">false</span><span class="p">);</span>
+
+  <span class="n">set_promo_failure_scan_stack_closure</span><span class="p">(</span><span class="o">&amp;</span><span class="n">fsc_with_no_gc_barrier</span><span class="p">);</span>
+  <span class="n">FastEvacuateFollowersClosure</span> <span class="nf">evacuate_followers</span><span class="p">(</span><span class="n">gch</span><span class="p">,</span>
+                                                  <span class="o">&amp;</span><span class="n">fsc_with_no_gc_barrier</span><span class="p">,</span>
+                                                  <span class="o">&amp;</span><span class="n">fsc_with_gc_barrier</span><span class="p">);</span>
+
+  <span class="n">assert</span><span class="p">(</span><span class="n">gch</span><span class="o">-&gt;</span><span class="n">no_allocs_since_save_marks</span><span class="p">(),</span>
+         <span class="s">&#34;save marks have not been newly set.&#34;</span><span class="p">);</span>
+
+  <span class="p">{</span>
+    <span class="c1">// DefNew needs to run with n_threads == 0, to make sure the serial
+</span><span class="c1"></span>    <span class="c1">// version of the card table scanning code is used.
+</span><span class="c1"></span>    <span class="c1">// See: CardTableModRefBSForCTRS::non_clean_card_iterate_possibly_parallel.
+</span><span class="c1"></span>    <span class="n">StrongRootsScope</span> <span class="n">srs</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+
+    <span class="n">gch</span><span class="o">-&gt;</span><span class="n">young_process_roots</span><span class="p">(</span><span class="o">&amp;</span><span class="n">srs</span><span class="p">,</span>
+                             <span class="o">&amp;</span><span class="n">fsc_with_no_gc_barrier</span><span class="p">,</span>
+                             <span class="o">&amp;</span><span class="n">fsc_with_gc_barrier</span><span class="p">,</span>
+                             <span class="o">&amp;</span><span class="n">cld_scan_closure</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="c1">// &#34;evacuate followers&#34;.
+</span><span class="c1"></span>  <span class="n">evacuate_followers</span><span class="p">.</span><span class="n">do_void</span><span class="p">();</span>
+
+  <span class="n">FastKeepAliveClosure</span> <span class="nf">keep_alive</span><span class="p">(</span><span class="n">this</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">scan_weak_ref</span><span class="p">);</span>
+  <span class="n">ReferenceProcessor</span><span class="o">*</span> <span class="n">rp</span> <span class="o">=</span> <span class="n">ref_processor</span><span class="p">();</span>
+  <span class="n">rp</span><span class="o">-&gt;</span><span class="n">setup_policy</span><span class="p">(</span><span class="n">clear_all_soft_refs</span><span class="p">);</span>
+  <span class="n">ReferenceProcessorPhaseTimes</span> <span class="nf">pt</span><span class="p">(</span><span class="n">_gc_timer</span><span class="p">,</span> <span class="n">rp</span><span class="o">-&gt;</span><span class="n">num_q</span><span class="p">());</span>
+  <span class="k">const</span> <span class="n">ReferenceProcessorStats</span><span class="o">&amp;</span> <span class="n">stats</span> <span class="o">=</span>
+  <span class="n">rp</span><span class="o">-&gt;</span><span class="n">process_discovered_references</span><span class="p">(</span><span class="o">&amp;</span><span class="n">is_alive</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">keep_alive</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">evacuate_followers</span><span class="p">,</span>
+                                    <span class="nb">NULL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">pt</span><span class="p">);</span>
+  <span class="n">gc_tracer</span><span class="p">.</span><span class="n">report_gc_reference_stats</span><span class="p">(</span><span class="n">stats</span><span class="p">);</span>
+  <span class="n">gc_tracer</span><span class="p">.</span><span class="n">report_tenuring_threshold</span><span class="p">(</span><span class="n">tenuring_threshold</span><span class="p">());</span>
+  <span class="n">pt</span><span class="p">.</span><span class="n">print_all_references</span><span class="p">();</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">_promotion_failed</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// Swap the survivor spaces.
+</span><span class="c1"></span>    <span class="n">eden</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">clear</span><span class="p">(</span><span class="n">SpaceDecorator</span><span class="o">::</span><span class="n">Mangle</span><span class="p">);</span>
+    <span class="n">from</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">clear</span><span class="p">(</span><span class="n">SpaceDecorator</span><span class="o">::</span><span class="n">Mangle</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">ZapUnusedHeapArea</span><span class="p">)</span> <span class="p">{</span>
+      <span class="c1">// This is now done here because of the piece-meal mangling which
+</span><span class="c1"></span>      <span class="c1">// can check for valid mangling at intermediate points in the
+</span><span class="c1"></span>      <span class="c1">// collection(s).  When a young collection fails to collect
+</span><span class="c1"></span>      <span class="c1">// sufficient space resizing of the young generation can occur
+</span><span class="c1"></span>      <span class="c1">// an redistribute the spaces in the young generation.  Mangle
+</span><span class="c1"></span>      <span class="c1">// here so that unzapped regions don&#39;t get distributed to
+</span><span class="c1"></span>      <span class="c1">// other spaces.
+</span><span class="c1"></span>      <span class="n">to</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">mangle_unused_area</span><span class="p">();</span>
+    <span class="p">}</span>
+    <span class="n">swap_spaces</span><span class="p">();</span>
+
+    <span class="n">assert</span><span class="p">(</span><span class="n">to</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">is_empty</span><span class="p">(),</span> <span class="s">&#34;to space should be empty now&#34;</span><span class="p">);</span>
+
+    <span class="n">adjust_desired_tenuring_threshold</span><span class="p">();</span>
+
+    <span class="c1">// A successful scavenge should restart the GC time limit count which is
+</span><span class="c1"></span>    <span class="c1">// for full GC&#39;s.
+</span><span class="c1"></span>    <span class="n">AdaptiveSizePolicy</span><span class="o">*</span> <span class="n">size_policy</span> <span class="o">=</span> <span class="n">gch</span><span class="o">-&gt;</span><span class="n">gen_policy</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">size_policy</span><span class="p">();</span>
+    <span class="n">size_policy</span><span class="o">-&gt;</span><span class="n">reset_gc_overhead_limit_count</span><span class="p">();</span>
+    <span class="n">assert</span><span class="p">(</span><span class="o">!</span><span class="n">gch</span><span class="o">-&gt;</span><span class="n">incremental_collection_failed</span><span class="p">(),</span> <span class="s">&#34;Should be clear&#34;</span><span class="p">);</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="n">assert</span><span class="p">(</span><span class="n">_promo_failure_scan_stack</span><span class="p">.</span><span class="n">is_empty</span><span class="p">(),</span> <span class="s">&#34;post condition&#34;</span><span class="p">);</span>
+    <span class="n">_promo_failure_scan_stack</span><span class="p">.</span><span class="n">clear</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span> <span class="c1">// Clear cached segments.
+</span><span class="c1"></span>
+    <span class="n">remove_forwarding_pointers</span><span class="p">();</span>
+    <span class="n">log_info</span><span class="p">(</span><span class="n">gc</span><span class="p">,</span> <span class="n">promotion</span><span class="p">)(</span><span class="s">&#34;Promotion failed&#34;</span><span class="p">);</span>
+    <span class="c1">// Add to-space to the list of space to compact
+</span><span class="c1"></span>    <span class="c1">// when a promotion failure has occurred.  In that
+</span><span class="c1"></span>    <span class="c1">// case there can be live objects in to-space
+</span><span class="c1"></span>    <span class="c1">// as a result of a partial evacuation of eden
+</span><span class="c1"></span>    <span class="c1">// and from-space.
+</span><span class="c1"></span>    <span class="n">swap_spaces</span><span class="p">();</span>   <span class="c1">// For uniformity wrt ParNewGeneration.
+</span><span class="c1"></span>    <span class="n">from</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">set_next_compaction_space</span><span class="p">(</span><span class="n">to</span><span class="p">());</span>
+    <span class="n">gch</span><span class="o">-&gt;</span><span class="n">set_incremental_collection_failed</span><span class="p">();</span>
+
+    <span class="c1">// Inform the next generation that a promotion failure occurred.
+</span><span class="c1"></span>    <span class="n">_old_gen</span><span class="o">-&gt;</span><span class="n">promotion_failure_occurred</span><span class="p">();</span>
+    <span class="n">gc_tracer</span><span class="p">.</span><span class="n">report_promotion_failed</span><span class="p">(</span><span class="n">_promotion_failed_info</span><span class="p">);</span>
+
+    <span class="c1">// Reset the PromotionFailureALot counters.
+</span><span class="c1"></span>    <span class="n">NOT_PRODUCT</span><span class="p">(</span><span class="n">gch</span><span class="o">-&gt;</span><span class="n">reset_promotion_should_fail</span><span class="p">();)</span>
+  <span class="p">}</span>
+  <span class="c1">// We should have processed and cleared all the preserved marks.
+</span><span class="c1"></span>  <span class="n">_preserved_marks_set</span><span class="p">.</span><span class="n">reclaim</span><span class="p">();</span>
+  <span class="c1">// set new iteration safe limit for the survivor spaces
+</span><span class="c1"></span>  <span class="n">from</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">set_concurrent_iteration_safe_limit</span><span class="p">(</span><span class="n">from</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">top</span><span class="p">());</span>
+  <span class="n">to</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">set_concurrent_iteration_safe_limit</span><span class="p">(</span><span class="n">to</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">top</span><span class="p">());</span>
+
+  <span class="c1">// We need to use a monotonically non-decreasing time in ms
+</span><span class="c1"></span>  <span class="c1">// or we will see time-warp warnings and os::javaTimeMillis()
+</span><span class="c1"></span>  <span class="c1">// does not guarantee monotonicity.
+</span><span class="c1"></span>  <span class="n">jlong</span> <span class="n">now</span> <span class="o">=</span> <span class="n">os</span><span class="o">::</span><span class="n">javaTimeNanos</span><span class="p">()</span> <span class="o">/</span> <span class="n">NANOSECS_PER_MILLISEC</span><span class="p">;</span>
+  <span class="n">update_time_of_last_gc</span><span class="p">(</span><span class="n">now</span><span class="p">);</span>
+
+  <span class="n">gch</span><span class="o">-&gt;</span><span class="n">trace_heap_after_gc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">gc_tracer</span><span class="p">);</span>
+
+  <span class="n">_gc_timer</span><span class="o">-&gt;</span><span class="n">register_gc_end</span><span class="p">();</span>
+
+  <span class="n">gc_tracer</span><span class="p">.</span><span class="n">report_gc_end</span><span class="p">(</span><span class="n">_gc_timer</span><span class="o">-&gt;</span><span class="n">gc_end</span><span class="p">(),</span> <span class="n">_gc_timer</span><span class="o">-&gt;</span><span class="n">time_partitions</span><span class="p">());</span>
+<span class="p">}</span></code></pre></div>
+<h1 id="串行回收堆-年老代">串行回收堆（年老代）</h1>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="n">TenuredGeneration</span><span class="o">::</span><span class="n">collect</span><span class="p">(</span><span class="kt">bool</span>   <span class="n">full</span><span class="p">,</span>
+                                <span class="kt">bool</span>   <span class="n">clear_all_soft_refs</span><span class="p">,</span>
+                                <span class="n">size_t</span> <span class="n">size</span><span class="p">,</span>
+                                <span class="kt">bool</span>   <span class="n">is_tlab</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">GenCollectedHeap</span><span class="o">*</span> <span class="n">gch</span> <span class="o">=</span> <span class="n">GenCollectedHeap</span><span class="o">::</span><span class="n">heap</span><span class="p">();</span>
+
+  <span class="c1">// Temporarily expand the span of our ref processor, so
+</span><span class="c1"></span>  <span class="c1">// refs discovery is over the entire heap, not just this generation
+</span><span class="c1"></span>  <span class="n">ReferenceProcessorSpanMutator</span>
+    <span class="nf">x</span><span class="p">(</span><span class="n">ref_processor</span><span class="p">(),</span> <span class="n">gch</span><span class="o">-&gt;</span><span class="n">reserved_region</span><span class="p">());</span>
+
+  <span class="n">STWGCTimer</span><span class="o">*</span> <span class="n">gc_timer</span> <span class="o">=</span> <span class="n">GenMarkSweep</span><span class="o">::</span><span class="n">gc_timer</span><span class="p">();</span>
+  <span class="n">gc_timer</span><span class="o">-&gt;</span><span class="n">register_gc_start</span><span class="p">();</span>
+
+  <span class="n">SerialOldTracer</span><span class="o">*</span> <span class="n">gc_tracer</span> <span class="o">=</span> <span class="n">GenMarkSweep</span><span class="o">::</span><span class="n">gc_tracer</span><span class="p">();</span>
+  <span class="n">gc_tracer</span><span class="o">-&gt;</span><span class="n">report_gc_start</span><span class="p">(</span><span class="n">gch</span><span class="o">-&gt;</span><span class="n">gc_cause</span><span class="p">(),</span> <span class="n">gc_timer</span><span class="o">-&gt;</span><span class="n">gc_start</span><span class="p">());</span>
+
+  <span class="n">gch</span><span class="o">-&gt;</span><span class="n">pre_full_gc_dump</span><span class="p">(</span><span class="n">gc_timer</span><span class="p">);</span>
+
+  <span class="n">GenMarkSweep</span><span class="o">::</span><span class="n">invoke_at_safepoint</span><span class="p">(</span><span class="n">ref_processor</span><span class="p">(),</span> <span class="n">clear_all_soft_refs</span><span class="p">);</span>
+
+  <span class="n">gch</span><span class="o">-&gt;</span><span class="n">post_full_gc_dump</span><span class="p">(</span><span class="n">gc_timer</span><span class="p">);</span>
+
+  <span class="n">gc_timer</span><span class="o">-&gt;</span><span class="n">register_gc_end</span><span class="p">();</span>
+
+  <span class="n">gc_tracer</span><span class="o">-&gt;</span><span class="n">report_gc_end</span><span class="p">(</span><span class="n">gc_timer</span><span class="o">-&gt;</span><span class="n">gc_end</span><span class="p">(),</span> <span class="n">gc_timer</span><span class="o">-&gt;</span><span class="n">time_partitions</span><span class="p">());</span>
+<span class="p">}</span></code></pre></div>
+<h1 id="串行回收堆">串行回收堆</h1>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// This method is used by System.gc() and JVMTI.
+</span><span class="c1"></span><span class="kt">void</span> <span class="n">ParallelScavengeHeap</span><span class="o">::</span><span class="n">collect</span><span class="p">(</span><span class="n">GCCause</span><span class="o">::</span><span class="n">Cause</span> <span class="n">cause</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">assert</span><span class="p">(</span><span class="o">!</span><span class="n">Heap_lock</span><span class="o">-&gt;</span><span class="n">owned_by_self</span><span class="p">(),</span>
+    <span class="s">&#34;this thread should not own the Heap_lock&#34;</span><span class="p">);</span>
+
+  <span class="n">uint</span> <span class="n">gc_count</span>      <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="n">uint</span> <span class="n">full_gc_count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="p">{</span>
+    <span class="n">MutexLocker</span> <span class="n">ml</span><span class="p">(</span><span class="n">Heap_lock</span><span class="p">);</span>
+    <span class="c1">// This value is guarded by the Heap_lock
+</span><span class="c1"></span>    <span class="n">gc_count</span>      <span class="o">=</span> <span class="n">total_collections</span><span class="p">();</span>
+    <span class="n">full_gc_count</span> <span class="o">=</span> <span class="n">total_full_collections</span><span class="p">();</span>
+  <span class="p">}</span>
+
+  <span class="n">VM_ParallelGCSystemGC</span> <span class="n">op</span><span class="p">(</span><span class="n">gc_count</span><span class="p">,</span> <span class="n">full_gc_count</span><span class="p">,</span> <span class="n">cause</span><span class="p">);</span>
+  <span class="n">VMThread</span><span class="o">::</span><span class="n">execute</span><span class="p">(</span><span class="o">&amp;</span><span class="n">op</span><span class="p">);</span>
+<span class="p">}</span></code></pre></div>
+<h1 id="cms分代并发回收堆">CMS分代并发回收堆</h1>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// public collection interfaces
+</span><span class="c1"></span>
+<span class="kt">void</span> <span class="n">GenCollectedHeap</span><span class="o">::</span><span class="n">collect</span><span class="p">(</span><span class="n">GCCause</span><span class="o">::</span><span class="n">Cause</span> <span class="n">cause</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">should_do_concurrent_full_gc</span><span class="p">(</span><span class="n">cause</span><span class="p">))</span> <span class="p">{</span>
+<span class="cp">#if INCLUDE_ALL_GCS
+</span><span class="cp"></span>    <span class="c1">// Mostly concurrent full collection.
+</span><span class="c1"></span>    <span class="n">collect_mostly_concurrent</span><span class="p">(</span><span class="n">cause</span><span class="p">);</span>
+<span class="cp">#else  </span><span class="c1">// INCLUDE_ALL_GCS
+</span><span class="c1"></span>    <span class="n">ShouldNotReachHere</span><span class="p">();</span>
+<span class="cp">#endif </span><span class="c1">// INCLUDE_ALL_GCS
+</span><span class="c1"></span>  <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">cause</span> <span class="o">==</span> <span class="n">GCCause</span><span class="o">::</span><span class="n">_wb_young_gc</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// Young collection for the WhiteBox API.
+</span><span class="c1"></span>    <span class="n">collect</span><span class="p">(</span><span class="n">cause</span><span class="p">,</span> <span class="n">YoungGen</span><span class="p">);</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+<span class="cp">#ifdef ASSERT
+</span><span class="cp"></span>  <span class="k">if</span> <span class="p">(</span><span class="n">cause</span> <span class="o">==</span> <span class="n">GCCause</span><span class="o">::</span><span class="n">_scavenge_alot</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// Young collection only.
+</span><span class="c1"></span>    <span class="n">collect</span><span class="p">(</span><span class="n">cause</span><span class="p">,</span> <span class="n">YoungGen</span><span class="p">);</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="c1">// Stop-the-world full collection.
+</span><span class="c1"></span>    <span class="n">collect</span><span class="p">(</span><span class="n">cause</span><span class="p">,</span> <span class="n">OldGen</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="cp">#else
+</span><span class="cp"></span>    <span class="c1">// Stop-the-world full collection.
+</span><span class="c1"></span>    <span class="n">collect</span><span class="p">(</span><span class="n">cause</span><span class="p">,</span> <span class="n">OldGen</span><span class="p">);</span>
+<span class="cp">#endif
+</span><span class="cp"></span>  <span class="p">}</span>
+<span class="p">}</span></code></pre></div>
+<h1 id="g1并发回收堆">G1并发回收堆</h1>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="n">G1CollectedHeap</span><span class="o">::</span><span class="n">collect</span><span class="p">(</span><span class="n">GCCause</span><span class="o">::</span><span class="n">Cause</span> <span class="n">cause</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">assert_heap_not_locked</span><span class="p">();</span>
+
+  <span class="n">uint</span> <span class="n">gc_count_before</span><span class="p">;</span>
+  <span class="n">uint</span> <span class="n">old_marking_count_before</span><span class="p">;</span>
+  <span class="n">uint</span> <span class="n">full_gc_count_before</span><span class="p">;</span>
+  <span class="kt">bool</span> <span class="n">retry_gc</span><span class="p">;</span>
+
+  <span class="k">do</span> <span class="p">{</span>
+    <span class="n">retry_gc</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+
+    <span class="p">{</span>
+      <span class="n">MutexLocker</span> <span class="n">ml</span><span class="p">(</span><span class="n">Heap_lock</span><span class="p">);</span>
+
+      <span class="c1">// Read the GC count while holding the Heap_lock
+</span><span class="c1"></span>      <span class="n">gc_count_before</span> <span class="o">=</span> <span class="n">total_collections</span><span class="p">();</span>
+      <span class="n">full_gc_count_before</span> <span class="o">=</span> <span class="n">total_full_collections</span><span class="p">();</span>
+      <span class="n">old_marking_count_before</span> <span class="o">=</span> <span class="n">_old_marking_cycles_started</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">should_do_concurrent_full_gc</span><span class="p">(</span><span class="n">cause</span><span class="p">))</span> <span class="p">{</span>
+      <span class="c1">// Schedule an initial-mark evacuation pause that will start a
+</span><span class="c1"></span>      <span class="c1">// concurrent cycle. We&#39;re setting word_size to 0 which means that
+</span><span class="c1"></span>      <span class="c1">// we are not requesting a post-GC allocation.
+</span><span class="c1"></span>      <span class="n">VM_G1IncCollectionPause</span> <span class="n">op</span><span class="p">(</span><span class="n">gc_count_before</span><span class="p">,</span>
+                                 <span class="mi">0</span><span class="p">,</span>     <span class="cm">/* word_size */</span>
+                                 <span class="nb">true</span><span class="p">,</span>  <span class="cm">/* should_initiate_conc_mark */</span>
+                                 <span class="n">g1_policy</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">max_pause_time_ms</span><span class="p">(),</span>
+                                 <span class="n">cause</span><span class="p">);</span>
+      <span class="n">op</span><span class="p">.</span><span class="n">set_allocation_context</span><span class="p">(</span><span class="n">AllocationContext</span><span class="o">::</span><span class="n">current</span><span class="p">());</span>
+
+      <span class="n">VMThread</span><span class="o">::</span><span class="n">execute</span><span class="p">(</span><span class="o">&amp;</span><span class="n">op</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">op</span><span class="p">.</span><span class="n">pause_succeeded</span><span class="p">())</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">old_marking_count_before</span> <span class="o">==</span> <span class="n">_old_marking_cycles_started</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">retry_gc</span> <span class="o">=</span> <span class="n">op</span><span class="p">.</span><span class="n">should_retry_gc</span><span class="p">();</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+          <span class="c1">// A Full GC happened while we were trying to schedule the
+</span><span class="c1"></span>          <span class="c1">// initial-mark GC. No point in starting a new cycle given
+</span><span class="c1"></span>          <span class="c1">// that the whole heap was collected anyway.
+</span><span class="c1"></span>        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">retry_gc</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">GCLocker</span><span class="o">::</span><span class="n">is_active_and_needs_gc</span><span class="p">())</span> <span class="p">{</span>
+            <span class="n">GCLocker</span><span class="o">::</span><span class="n">stall_until_clear</span><span class="p">();</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">cause</span> <span class="o">==</span> <span class="n">GCCause</span><span class="o">::</span><span class="n">_gc_locker</span> <span class="o">||</span> <span class="n">cause</span> <span class="o">==</span> <span class="n">GCCause</span><span class="o">::</span><span class="n">_wb_young_gc</span>
+          <span class="n">DEBUG_ONLY</span><span class="p">(</span><span class="o">||</span> <span class="n">cause</span> <span class="o">==</span> <span class="n">GCCause</span><span class="o">::</span><span class="n">_scavenge_alot</span><span class="p">))</span> <span class="p">{</span>
+
+        <span class="c1">// Schedule a standard evacuation pause. We&#39;re setting word_size
+</span><span class="c1"></span>        <span class="c1">// to 0 which means that we are not requesting a post-GC allocation.
+</span><span class="c1"></span>        <span class="n">VM_G1IncCollectionPause</span> <span class="n">op</span><span class="p">(</span><span class="n">gc_count_before</span><span class="p">,</span>
+                                   <span class="mi">0</span><span class="p">,</span>     <span class="cm">/* word_size */</span>
+                                   <span class="nb">false</span><span class="p">,</span> <span class="cm">/* should_initiate_conc_mark */</span>
+                                   <span class="n">g1_policy</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">max_pause_time_ms</span><span class="p">(),</span>
+                                   <span class="n">cause</span><span class="p">);</span>
+        <span class="n">VMThread</span><span class="o">::</span><span class="n">execute</span><span class="p">(</span><span class="o">&amp;</span><span class="n">op</span><span class="p">);</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="c1">// Schedule a Full GC.
+</span><span class="c1"></span>        <span class="n">VM_G1CollectFull</span> <span class="n">op</span><span class="p">(</span><span class="n">gc_count_before</span><span class="p">,</span> <span class="n">full_gc_count_before</span><span class="p">,</span> <span class="n">cause</span><span class="p">);</span>
+        <span class="n">VMThread</span><span class="o">::</span><span class="n">execute</span><span class="p">(</span><span class="o">&amp;</span><span class="n">op</span><span class="p">);</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">retry_gc</span><span class="p">);</span>
+<span class="p">}</span></code></pre></div>
+          </div>
+          <br>
+          <div style="text-align:center;color: #ccc;font-size:14px;">- EOF -</div>
+          <br>
+          
+            <div class="blog-tags">
+              
+                <a href="https://hunterzhao.io/tags/openjdk/">OpenJDK</a>&nbsp;
+              
+                <a href="https://hunterzhao.io/tags/jvm/">JVM</a>&nbsp;
+              
+                <a href="https://hunterzhao.io/tags/hotspot/">HotSpot</a>&nbsp;
+              
+            </div>
+          
+
+
+
+
+          
+        </article>
+
+        
+          <ul class="pager blog-pager">
+            
+              <li class="previous">
+                <a href="https://hunterzhao.io/post/2018/02/25/hotspot-explore-java-object-header/" data-toggle="tooltip" data-placement="top" title="【JVM源码探秘】Java对象模型之对象头">&larr; Previous Post</a>
+              </li>
+            
+            
+              <li class="next">
+                <a href="https://hunterzhao.io/post/2018/04/06/hotspot-explore-register-natives/" data-toggle="tooltip" data-placement="top" title="【JVM源码探秘】深入registerNatives()底层实现">Next Post &rarr;</a>
+              </li>
+            
+          </ul>
+        
+      </div>
+
+        
+          
+            <div class="disqus-comments">
+              <div id="disqus_thread"></div>
+<script>
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "workholiday" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+            </div>
+          
+          
+        
+      </div>
+  </div>
+</div>
+
+    <footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="mailto:mailto:zhaohevip@gmail.com" title="Email me" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-envelope fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.facebook.com/MrHunterZhao" title="Facebook" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/hzio" title="GitHub" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/mrhunterzhao" title="Twitter" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://stackoverflow.com/users/1858561/hunter-zhao" title="StackOverflow" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-stack-overflow fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://weibo.com/mrbobzhao" title="微博" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+          <li>
+            
+            <a href="https://hunterzhao.io/index.xml" title="RSS" target="_blank">
+            
+              <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          
+            
+              <a href="https://hunterzhao.io">HunterZhao</a>
+            
+          
+
+          &nbsp;&bull;&nbsp;
+          2018
+
+          
+            &nbsp;&bull;&nbsp;
+            <a href="https://hunterzhao.io">WorkHoliday</a>
+          
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          <a href="http://gohugo.io">Hugo v0.44</a> powered &nbsp;&bull;&nbsp; Theme by <a href="http://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a> adapted to <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/contrib/auto-render.min.js" integrity="sha384-dq1/gEHSxPZQ7DdrM82ID4YVol9BYyU7GbWlIwnwyPzotpoc57wDw/guX8EaYGPx" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://hunterzhao.io/js/main.js"></script>
+<script src="https://hunterzhao.io/js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> $(document).ready(function() {$("pre.chroma").css("padding","0");}); </script><script> renderMathInElement(document.body); </script>
+
+
+
+
+
+
+
+
+
+  </body>
+</html>
+

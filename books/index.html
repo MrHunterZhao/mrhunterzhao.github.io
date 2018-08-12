@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>我的书单</title>
+  <meta property="og:title" content="我的书单" />
+  <meta name="twitter:title" content="我的书单" />
+  <meta name="description" content="  孔子曰：天若有情天亦老，人丑就得多读书。 孟子曰：老乡，你说得对！
+ Java基础  《Java编程思想》 《Effective Java》 《Java并发编程实战》 《Head First Java》 《Java7并发编程手册》 《分布式Java应用基础与实战》 《重构 改善既有代码的设计》 《Java性能优化权威指南》 《Java多线编程核心技术》 《Java并发编程的艺术》 《Java多线程编程实战指南》 《实战Java高并发程序设计》 《代码大全》 《编写高质量代码 改善Java程序的151个建议》 《Java程序性能优化&ndash;让你的Java程序更快更稳定》  框架  《Struts 2 技术详解》 《精通Spring 2.x：企业应用开发详解》 《Lucene实战（第二版）》 《Spring技术内幕》 《Spring Boot实战》  JVM  《深入Java虚拟机（第二版）》 《深入理解Java虚拟机，JVM高级特性与最佳实践》 《HotSpot实战》 《自己动手写Java虚拟机》 《揭秘Java虚拟机：JVM设计原理与实现》 《大规模Java平台虚拟化与调优》  操作系统  《Linux从入门到精通》 《鸟哥的Linux私房菜》 《UNIX网络编程》 《Unix环境高级编程（第三版）》 《Linux/UNIX系统编程手册（上册）》 《Linux/UNIX系统编程手册（下册）》  通信协议  《HTTP权威指南》 《图解HTTP》 《图解TCP/IP》 《TCP/IP详解卷1 协议》 《TCP/IP详解卷2 实现》 《TCP/IP详解卷3 TCP事物协议》  服务器  《深入剖析Tomcat》 《JBoss实战：服务器配置指南》 《实战Nginx：取代Apache的高性能Web服务器》  数据库  《MySQL5权威指南》  中间件  《Redis实战》 《Redis设计与实现》  网络编程  《Netty实战》 《Netty权威指南》  架构  《架构之美》 《大型网站技术架构 核心原理与案例分析》 《大型网站系统与Java中间件实践》 《架构探险：从零开始写Java Web框架》 《高可用架构（第1卷）》 《分布式服务框架原理与实践》 《架构解密：从分布式到微服务》 《决战618：探秘京东技术取胜之道》 《人人都是架构师：分布式系统架构落地与瓶颈突破》 《DevOps：软件架构师行动指南》 《实用软件架构：从系统环境到软件部署》 《企业IT架构转型之道 阿里巴巴中台战略思想与架构实战》 《亿级流量网站架构核心技术 跟开涛学搭建高可用高并发系统》 《架构即未来：现代企业可扩展的Web架构、流程和组织（原书第2版）》 《架构真经：互联网技术架构的设计原则（原书第2版）》  设计模式  《Java与模式》 《研磨设计模式》  容器/云  《Docker实战》 《Docker进阶与实战》 《Kubernetes权威指南》 《每天5分钟玩转Kubernetes》 《Spring Cloud与Docker微服务架构实战》  大数据  《Hadoop权威指南》 《实战Hadoop&ndash;开启通向云计算的捷径》  算法/数据结构  《算法导论》 《数据结构与算法分析 Java语言描述》  编译原理  《编译原理》 《编程语言实现模式》 《两周自制脚本语言》  互联网  《大数据时代》 《人人时代》 《认知盈余》 《参与感》 《黑天鹅》 《思考 快与慢》 《从0到1 开启商业与未来的秘密》 《O2O 移动互联网时代的商业革命》 《变革中国：市场经济的中国之路》 《平台战略：正在席卷全球的商业模式革命》 《翻转世界 互联网思维与新技术如何改变未来》  软件开发  《人月神话》 《Scrum敏捷软件开发》 《Scrum精髓 敏捷转型指南》 《持续交付：发布可靠软件的系统方法》  团队管理  《狼性团队》 《狼性管理》 《狼性执行》 《团队制胜》 《胜在团队，赢在执行》  心理学  《行为心理学》 《欲望心理学》 《乌合之众：群体心理研究》  经济学  《经济学原理》  其他  《摸着石头过河》 《解密无印良品》 《断舍离》 《极简力》 《浮生六记》 《随遇而安》 《TED演讲的8个秘诀：学习18分钟高效表达》 《极简主义：风靡欧美的工作与生活理念》  ">
+  <meta property="og:description" content="  孔子曰：天若有情天亦老，人丑就得多读书。 孟子曰：老乡，你说得对！
+ Java基础  《Java编程思想》 《Effective Java》 《Java并发编程实战》 《Head First Java》 《Java7并发编程手册》 《分布式Java应用基础与实战》 《重构 改善既有代码的设计》 《Java性能优化权威指南》 《Java多线编程核心技术》 《Java并发编程的艺术》 《Java多线程编程实战指南》 《实战Java高并发程序设计》 《代码大全》 《编写高质量代码 改善Java程序的151个建议》 《Java程序性能优化&ndash;让你的Java程序更快更稳定》  框架  《Struts 2 技术详解》 《精通Spring 2.x：企业应用开发详解》 《Lucene实战（第二版）》 《Spring技术内幕》 《Spring Boot实战》  JVM  《深入Java虚拟机（第二版）》 《深入理解Java虚拟机，JVM高级特性与最佳实践》 《HotSpot实战》 《自己动手写Java虚拟机》 《揭秘Java虚拟机：JVM设计原理与实现》 《大规模Java平台虚拟化与调优》  操作系统  《Linux从入门到精通》 《鸟哥的Linux私房菜》 《UNIX网络编程》 《Unix环境高级编程（第三版）》 《Linux/UNIX系统编程手册（上册）》 《Linux/UNIX系统编程手册（下册）》  通信协议  《HTTP权威指南》 《图解HTTP》 《图解TCP/IP》 《TCP/IP详解卷1 协议》 《TCP/IP详解卷2 实现》 《TCP/IP详解卷3 TCP事物协议》  服务器  《深入剖析Tomcat》 《JBoss实战：服务器配置指南》 《实战Nginx：取代Apache的高性能Web服务器》  数据库  《MySQL5权威指南》  中间件  《Redis实战》 《Redis设计与实现》  网络编程  《Netty实战》 《Netty权威指南》  架构  《架构之美》 《大型网站技术架构 核心原理与案例分析》 《大型网站系统与Java中间件实践》 《架构探险：从零开始写Java Web框架》 《高可用架构（第1卷）》 《分布式服务框架原理与实践》 《架构解密：从分布式到微服务》 《决战618：探秘京东技术取胜之道》 《人人都是架构师：分布式系统架构落地与瓶颈突破》 《DevOps：软件架构师行动指南》 《实用软件架构：从系统环境到软件部署》 《企业IT架构转型之道 阿里巴巴中台战略思想与架构实战》 《亿级流量网站架构核心技术 跟开涛学搭建高可用高并发系统》 《架构即未来：现代企业可扩展的Web架构、流程和组织（原书第2版）》 《架构真经：互联网技术架构的设计原则（原书第2版）》  设计模式  《Java与模式》 《研磨设计模式》  容器/云  《Docker实战》 《Docker进阶与实战》 《Kubernetes权威指南》 《每天5分钟玩转Kubernetes》 《Spring Cloud与Docker微服务架构实战》  大数据  《Hadoop权威指南》 《实战Hadoop&ndash;开启通向云计算的捷径》  算法/数据结构  《算法导论》 《数据结构与算法分析 Java语言描述》  编译原理  《编译原理》 《编程语言实现模式》 《两周自制脚本语言》  互联网  《大数据时代》 《人人时代》 《认知盈余》 《参与感》 《黑天鹅》 《思考 快与慢》 《从0到1 开启商业与未来的秘密》 《O2O 移动互联网时代的商业革命》 《变革中国：市场经济的中国之路》 《平台战略：正在席卷全球的商业模式革命》 《翻转世界 互联网思维与新技术如何改变未来》  软件开发  《人月神话》 《Scrum敏捷软件开发》 《Scrum精髓 敏捷转型指南》 《持续交付：发布可靠软件的系统方法》  团队管理  《狼性团队》 《狼性管理》 《狼性执行》 《团队制胜》 《胜在团队，赢在执行》  心理学  《行为心理学》 《欲望心理学》 《乌合之众：群体心理研究》  经济学  《经济学原理》  其他  《摸着石头过河》 《解密无印良品》 《断舍离》 《极简力》 《浮生六记》 《随遇而安》 《TED演讲的8个秘诀：学习18分钟高效表达》 《极简主义：风靡欧美的工作与生活理念》  ">
+  <meta name="twitter:description" content="  孔子曰：天若有情天亦老，人丑就得多读书。 孟子曰：老乡，你说得对！
+ Java基础  《Java编程思想》 《Effective Java》 《Java并发编程实战》 《Head First Java》 《Java7并发编程手册》 《分布式Java应用基础与实战》 《重构 改善既有代码的设计》 《Java性能优化权威指南》 《Java多线编程核心技术》 《Java并发编程的艺术》 《Java多 …">
+  <meta name="author" content="HunterZhao"/>
+  <link href='https://hunterzhao.io/img/favicon-rh-100x100.png' rel='icon' type='image/x-icon'/>
+  <meta property="og:image" content="https://hunterzhao.io/img/4090800.jpeg" />
+  <meta name="twitter:image" content="https://hunterzhao.io/img/4090800.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@mrhunterzhao" />
+  <meta name="twitter:creator" content="@mrhunterzhao" />
+  <meta property="og:url" content="https://hunterzhao.io/books/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="WorkHoliday" />
+
+  <meta name="generator" content="Hugo 0.44" />
+  <link rel="canonical" href="https://hunterzhao.io/books/" />
+  <link rel="alternate" href="https://hunterzhao.io/index.xml" type="application/rss+xml" title="WorkHoliday">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://hunterzhao.io/css/main.css" />
+  <link rel="stylesheet" href="https://hunterzhao.io/css/highlight.min.css" /><link rel="stylesheet" href="https://hunterzhao.io/css/highlight/styles/tomorrow-night-blue.css" /><link rel="stylesheet" href="https://hunterzhao.io/css/codeblock.css" />
+
+  <link rel="stylesheet" href="https://hunterzhao.io/css/animate.css">
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.css" integrity="sha384-h/L2W9KefUClHWaty3SLE5F/qvc4djlyR4qY3NUV5HGQBBW7stbcfff1+I/vmsHh" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/default-skin/default-skin.min.css" integrity="sha384-iD0dNku6PYSIQLyfTOpB06F2KCZJAKLOThS5HRe8b3ibhdEQ6eKsFf/EeFxdOt5R" crossorigin="anonymous">
+
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+</head>
+
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="https://hunterzhao.io">
+        <span class="logo">WorkHoliday</span>
+      </a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li>
+              <a class="dim link light-silver" title="首页" href="/">首页</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="文章" href="/post">文章</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="书单" href="/books">书单</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="作品" href="/works">作品</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="分类" href="/categories">分类</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="Tags" href="/tags">Tags</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="关于" href="/about">关于</a>
+            </li>
+          
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    <div class="avatar-container">
+      <div class="avatar-img-border">
+        
+          <a title="WorkHoliday" href="https://hunterzhao.io">
+            <img class="avatar-img" src="https://hunterzhao.io/img/4090800.jpeg" alt="WorkHoliday" />
+          </a>
+        
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+
+
+
+    
+  
+  
+  
+
+
+
+
+
+  
+    <div id="header-big-imgs" data-num-img=1 data-img-src-1="https://hunterzhao.io/img/banners/default_banner.jpg" ></div>
+  
+
+  <header class="header-section has-img">
+    
+      <div class="intro-header big-img">
+        
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+              <div class="books-heading">
+                <h1>我的书单</h1>
+                  
+                  
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="img-desc" style="display: inline;"></span>
+      </div>
+    
+    <div class="intro-header no-img">
+      
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+            <div class="books-heading">
+              <h1>我的书单</h1>
+                
+                
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+
+      <div class="post-block animated fadeInUp" style="opacity: 1; display: block;">
+
+        <article role="main" class="blog-post">
+          <hr>
+          <div class="blog-body">
+          
+
+<blockquote>
+<p>孔子曰：天若有情天亦老，人丑就得多读书。
+孟子曰：老乡，你说得对！</p>
+</blockquote>
+
+<h1 id="java基础">Java基础</h1>
+
+<ul>
+<li>《Java编程思想》</li>
+<li>《Effective Java》</li>
+<li>《Java并发编程实战》</li>
+<li>《Head First Java》</li>
+<li>《Java7并发编程手册》</li>
+<li>《分布式Java应用基础与实战》</li>
+<li>《重构 改善既有代码的设计》</li>
+<li>《Java性能优化权威指南》</li>
+<li>《Java多线编程核心技术》</li>
+<li>《Java并发编程的艺术》</li>
+<li>《Java多线程编程实战指南》</li>
+<li>《实战Java高并发程序设计》</li>
+<li>《代码大全》</li>
+<li>《编写高质量代码 改善Java程序的151个建议》</li>
+<li>《Java程序性能优化&ndash;让你的Java程序更快更稳定》</li>
+</ul>
+
+<h1 id="框架">框架</h1>
+
+<ul>
+<li>《Struts 2 技术详解》</li>
+<li>《精通Spring 2.x：企业应用开发详解》</li>
+<li>《Lucene实战（第二版）》</li>
+<li>《Spring技术内幕》</li>
+<li>《Spring Boot实战》</li>
+</ul>
+
+<h1 id="jvm">JVM</h1>
+
+<ul>
+<li>《深入Java虚拟机（第二版）》</li>
+<li>《深入理解Java虚拟机，JVM高级特性与最佳实践》</li>
+<li>《HotSpot实战》</li>
+<li>《自己动手写Java虚拟机》</li>
+<li>《揭秘Java虚拟机：JVM设计原理与实现》</li>
+<li>《大规模Java平台虚拟化与调优》</li>
+</ul>
+
+<h1 id="操作系统">操作系统</h1>
+
+<ul>
+<li>《Linux从入门到精通》</li>
+<li>《鸟哥的Linux私房菜》</li>
+<li>《UNIX网络编程》</li>
+<li>《Unix环境高级编程（第三版）》</li>
+<li>《Linux/UNIX系统编程手册（上册）》</li>
+<li>《Linux/UNIX系统编程手册（下册）》</li>
+</ul>
+
+<h1 id="通信协议">通信协议</h1>
+
+<ul>
+<li>《HTTP权威指南》</li>
+<li>《图解HTTP》</li>
+<li>《图解TCP/IP》</li>
+<li>《TCP/IP详解卷1 协议》</li>
+<li>《TCP/IP详解卷2 实现》</li>
+<li>《TCP/IP详解卷3 TCP事物协议》</li>
+</ul>
+
+<h1 id="服务器">服务器</h1>
+
+<ul>
+<li>《深入剖析Tomcat》</li>
+<li>《JBoss实战：服务器配置指南》</li>
+<li>《实战Nginx：取代Apache的高性能Web服务器》</li>
+</ul>
+
+<h1 id="数据库">数据库</h1>
+
+<ul>
+<li>《MySQL5权威指南》</li>
+</ul>
+
+<h1 id="中间件">中间件</h1>
+
+<ul>
+<li>《Redis实战》</li>
+<li>《Redis设计与实现》</li>
+</ul>
+
+<h1 id="网络编程">网络编程</h1>
+
+<ul>
+<li>《Netty实战》</li>
+<li>《Netty权威指南》</li>
+</ul>
+
+<h1 id="架构">架构</h1>
+
+<ul>
+<li>《架构之美》</li>
+<li>《大型网站技术架构  核心原理与案例分析》</li>
+<li>《大型网站系统与Java中间件实践》</li>
+<li>《架构探险：从零开始写Java Web框架》</li>
+<li>《高可用架构（第1卷）》</li>
+<li>《分布式服务框架原理与实践》</li>
+<li>《架构解密：从分布式到微服务》</li>
+<li>《决战618：探秘京东技术取胜之道》</li>
+<li>《人人都是架构师：分布式系统架构落地与瓶颈突破》</li>
+<li>《DevOps：软件架构师行动指南》</li>
+<li>《实用软件架构：从系统环境到软件部署》</li>
+<li>《企业IT架构转型之道 阿里巴巴中台战略思想与架构实战》</li>
+<li>《亿级流量网站架构核心技术 跟开涛学搭建高可用高并发系统》</li>
+<li>《架构即未来：现代企业可扩展的Web架构、流程和组织（原书第2版）》</li>
+<li>《架构真经：互联网技术架构的设计原则（原书第2版）》</li>
+</ul>
+
+<h1 id="设计模式">设计模式</h1>
+
+<ul>
+<li>《Java与模式》</li>
+<li>《研磨设计模式》</li>
+</ul>
+
+<h1 id="容器-云">容器/云</h1>
+
+<ul>
+<li>《Docker实战》</li>
+<li>《Docker进阶与实战》</li>
+<li>《Kubernetes权威指南》</li>
+<li>《每天5分钟玩转Kubernetes》</li>
+<li>《Spring Cloud与Docker微服务架构实战》</li>
+</ul>
+
+<h1 id="大数据">大数据</h1>
+
+<ul>
+<li>《Hadoop权威指南》</li>
+<li>《实战Hadoop&ndash;开启通向云计算的捷径》</li>
+</ul>
+
+<h1 id="算法-数据结构">算法/数据结构</h1>
+
+<ul>
+<li>《算法导论》</li>
+<li>《数据结构与算法分析 Java语言描述》</li>
+</ul>
+
+<h1 id="编译原理">编译原理</h1>
+
+<ul>
+<li>《编译原理》</li>
+<li>《编程语言实现模式》</li>
+<li>《两周自制脚本语言》</li>
+</ul>
+
+<h1 id="互联网">互联网</h1>
+
+<ul>
+<li>《大数据时代》</li>
+<li>《人人时代》</li>
+<li>《认知盈余》</li>
+<li>《参与感》</li>
+<li>《黑天鹅》</li>
+<li>《思考 快与慢》</li>
+<li>《从0到1 开启商业与未来的秘密》</li>
+<li>《O2O 移动互联网时代的商业革命》</li>
+<li>《变革中国：市场经济的中国之路》</li>
+<li>《平台战略：正在席卷全球的商业模式革命》</li>
+<li>《翻转世界 互联网思维与新技术如何改变未来》</li>
+</ul>
+
+<h1 id="软件开发">软件开发</h1>
+
+<ul>
+<li>《人月神话》</li>
+<li>《Scrum敏捷软件开发》</li>
+<li>《Scrum精髓 敏捷转型指南》</li>
+<li>《持续交付：发布可靠软件的系统方法》</li>
+</ul>
+
+<h1 id="团队管理">团队管理</h1>
+
+<ul>
+<li>《狼性团队》</li>
+<li>《狼性管理》</li>
+<li>《狼性执行》</li>
+<li>《团队制胜》</li>
+<li>《胜在团队，赢在执行》</li>
+</ul>
+
+<h1 id="心理学">心理学</h1>
+
+<ul>
+<li>《行为心理学》</li>
+<li>《欲望心理学》</li>
+<li>《乌合之众：群体心理研究》</li>
+</ul>
+
+<h1 id="经济学">经济学</h1>
+
+<ul>
+<li>《经济学原理》</li>
+</ul>
+
+<h1 id="其他">其他</h1>
+
+<ul>
+<li>《摸着石头过河》</li>
+<li>《解密无印良品》</li>
+<li>《断舍离》</li>
+<li>《极简力》</li>
+<li>《浮生六记》</li>
+<li>《随遇而安》</li>
+<li>《TED演讲的8个秘诀：学习18分钟高效表达》</li>
+<li>《极简主义：风靡欧美的工作与生活理念》</li>
+</ul>
+
+          </div>
+          <br>
+          <div style="text-align:center;color: #ccc;font-size:14px;">- EOF -</div>
+          <br>
+          
+
+
+
+
+          
+        </article>
+
+        
+          <ul class="pager blog-pager">
+            
+            
+          </ul>
+        
+      </div>
+
+        
+      </div>
+  </div>
+</div>
+
+    <footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="mailto:mailto:zhaohevip@gmail.com" title="Email me" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-envelope fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.facebook.com/MrHunterZhao" title="Facebook" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/hzio" title="GitHub" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/mrhunterzhao" title="Twitter" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://stackoverflow.com/users/1858561/hunter-zhao" title="StackOverflow" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-stack-overflow fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://weibo.com/mrbobzhao" title="微博" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+          <li>
+            
+            <a href="https://hunterzhao.io/index.xml" title="RSS" target="_blank">
+            
+              <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          
+            
+              <a href="https://hunterzhao.io">HunterZhao</a>
+            
+          
+
+          &nbsp;&bull;&nbsp;
+          2018
+
+          
+            &nbsp;&bull;&nbsp;
+            <a href="https://hunterzhao.io">WorkHoliday</a>
+          
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          <a href="http://gohugo.io">Hugo v0.44</a> powered &nbsp;&bull;&nbsp; Theme by <a href="http://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a> adapted to <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/contrib/auto-render.min.js" integrity="sha384-dq1/gEHSxPZQ7DdrM82ID4YVol9BYyU7GbWlIwnwyPzotpoc57wDw/guX8EaYGPx" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://hunterzhao.io/js/main.js"></script>
+<script src="https://hunterzhao.io/js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> $(document).ready(function() {$("pre.chroma").css("padding","0");}); </script><script> renderMathInElement(document.body); </script>
+
+
+
+
+
+
+
+
+
+  </body>
+</html>
+

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Mysql on WorkHoliday</title>
+    <link>https://hunterzhao.io/categories/mysql/</link>
+    <description>Recent content in Mysql on WorkHoliday</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <managingEditor>mailto:zhaohevip@gmail.com (HunterZhao)</managingEditor>
+    <webMaster>mailto:zhaohevip@gmail.com (HunterZhao)</webMaster>
+    <lastBuildDate>Mon, 20 Jan 2014 12:06:34 +0000</lastBuildDate>
+    
+	<atom:link href="https://hunterzhao.io/categories/mysql/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>CentOS通过yum安装配置MySQL</title>
+      <link>https://hunterzhao.io/post/2014/01/20/install-and-configure-mysql-on-centos/</link>
+      <pubDate>Mon, 20 Jan 2014 12:06:34 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2014/01/20/install-and-configure-mysql-on-centos/</guid>
+      <description>&lt;h1 id=&#34;安装mysql&#34;&gt;安装MySQL&lt;/h1&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;root@HunterWorkStation local&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;# yum -y install mysql mysql-server&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h1 id=&#34;启动mysql服务&#34;&gt;启动MySQL服务&lt;/h1&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;root@HunterWorkStation local&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;# service mysqld start
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;
+Initializing MySQL database:  Installing MySQL system tables...    OK
+Filling &lt;span class=&#34;nb&#34;&gt;help&lt;/span&gt; tables...   OK
+
+To start mysqld at boot &lt;span class=&#34;nb&#34;&gt;time&lt;/span&gt; you have to copy
+support-files/mysql.server to the right place &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; your system
+
+PLEASE REMEMBER TO SET A PASSWORD FOR THE MySQL root USER !
+To &lt;span class=&#34;k&#34;&gt;do&lt;/span&gt; so, start the server, &lt;span class=&#34;k&#34;&gt;then&lt;/span&gt; issue the following commands:
+
+/usr/bin/mysqladmin -u root password &lt;span class=&#34;s1&#34;&gt;&amp;#39;new-password&amp;#39;&lt;/span&gt;
+/usr/bin/mysqladmin -u root -h localhost.localdomain password &lt;span class=&#34;s1&#34;&gt;&amp;#39;new-password&amp;#39;&lt;/span&gt;
+
+Alternatively you can run:
+/usr/bin/mysql_secure_installation
+
+which will also give you the option of removing the &lt;span class=&#34;nb&#34;&gt;test&lt;/span&gt;
+databases and anonymous user created by default.  This is
+strongly recommended &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; production servers.
+
+See the manual &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; more instructions.
+You can start the MySQL daemon with:
+
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; /usr &lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; /usr/bin/mysqld_safe &lt;span class=&#34;p&#34;&gt;&amp;amp;&lt;/span&gt;
+You can &lt;span class=&#34;nb&#34;&gt;test&lt;/span&gt; the MySQL daemon with mysql-test-run.pl
+&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; /usr/mysql-test &lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; perl mysql-test-run.pl
+
+Please report any problems with the /usr/bin/mysqlbug script!
+
+
+Starting mysqld:                                           &lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;  OK  &lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

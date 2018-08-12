@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>【JVM源码探秘】细说Class的装载、链接和初始化</title>
+  <meta property="og:title" content="【JVM源码探秘】细说Class的装载、链接和初始化" />
+  <meta name="twitter:title" content="【JVM源码探秘】细说Class的装载、链接和初始化" />
+  <meta name="description" content="接上篇《【JVM源码探秘】细说Class.forName()底层实现》执行Class.forName(&ldquo;com.xxx.Xxx&rdquo;)通过JavaCalls组件调用了
+Java方法ClassLoader.loadClass()对该类进行加载
+
+">
+  <meta property="og:description" content="接上篇《【JVM源码探秘】细说Class.forName()底层实现》执行Class.forName(&ldquo;com.xxx.Xxx&rdquo;)通过JavaCalls组件调用了
+Java方法ClassLoader.loadClass()对该类进行加载
+
+">
+  <meta name="twitter:description" content="接上篇《【JVM源码探秘】细说Class.forName()底层实现》执行Class.forName(&ldquo;com.xxx.Xxx&rdquo;)通过JavaCalls组件调用了
+Java方法ClassLoader.loadClass()对该类进行加载
+
+">
+  <meta name="author" content="HunterZhao"/>
+  <link href='https://hunterzhao.io/img/favicon-rh-100x100.png' rel='icon' type='image/x-icon'/>
+  <meta property="og:image" content="https://hunterzhao.io/images/post/2018/01/29/openjdk.jpg" />
+  <meta name="twitter:image" content="https://hunterzhao.io/images/post/2018/01/29/openjdk.jpg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@mrhunterzhao" />
+  <meta name="twitter:creator" content="@mrhunterzhao" />
+  <meta property="og:url" content="https://hunterzhao.io/post/2018/05/17/hotspot-explore-class-loading-linking-and-initializing/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="WorkHoliday" />
+
+  <meta name="generator" content="Hugo 0.44" />
+  <link rel="canonical" href="https://hunterzhao.io/post/2018/05/17/hotspot-explore-class-loading-linking-and-initializing/" />
+  <link rel="alternate" href="https://hunterzhao.io/index.xml" type="application/rss+xml" title="WorkHoliday">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://hunterzhao.io/css/main.css" />
+  <link rel="stylesheet" href="https://hunterzhao.io/css/highlight.min.css" /><link rel="stylesheet" href="https://hunterzhao.io/css/highlight/styles/tomorrow-night-blue.css" /><link rel="stylesheet" href="https://hunterzhao.io/css/codeblock.css" />
+
+  <link rel="stylesheet" href="https://hunterzhao.io/css/animate.css">
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.css" integrity="sha384-h/L2W9KefUClHWaty3SLE5F/qvc4djlyR4qY3NUV5HGQBBW7stbcfff1+I/vmsHh" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/default-skin/default-skin.min.css" integrity="sha384-iD0dNku6PYSIQLyfTOpB06F2KCZJAKLOThS5HRe8b3ibhdEQ6eKsFf/EeFxdOt5R" crossorigin="anonymous">
+
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+</head>
+
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="https://hunterzhao.io">
+        <span class="logo">WorkHoliday</span>
+      </a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li>
+              <a class="dim link light-silver" title="首页" href="/">首页</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="文章" href="/post">文章</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="书单" href="/books">书单</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="作品" href="/works">作品</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="分类" href="/categories">分类</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="Tags" href="/tags">Tags</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="关于" href="/about">关于</a>
+            </li>
+          
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    <div class="avatar-container">
+      <div class="avatar-img-border">
+        
+          <a title="WorkHoliday" href="https://hunterzhao.io">
+            <img class="avatar-img" src="https://hunterzhao.io/img/4090800.jpeg" alt="WorkHoliday" />
+          </a>
+        
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+
+
+
+    
+  
+  
+  
+
+
+
+
+
+  
+    <div id="header-big-imgs" data-num-img=1 data-img-src-1="https://hunterzhao.io/img/banners/default_banner.jpg" ></div>
+  
+
+  <header class="header-section has-img">
+    
+      <div class="intro-header big-img">
+        
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+              <div class="post-heading">
+                <h1>【JVM源码探秘】细说Class的装载、链接和初始化</h1>
+                  
+                  
+                    <span class="post-meta">
+  
+  
+  <i class="fa fa-calendar-o"></i>&nbsp;Posted on May 17, 2018
+  
+  
+  &nbsp;|&nbsp;
+  <i class="fa fa-clock-o"></i> 11 minutes (2252 words)
+  
+  
+</span>
+
+
+                  
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="img-desc" style="display: inline;"></span>
+      </div>
+    
+    <div class="intro-header no-img">
+      
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              <h1>【JVM源码探秘】细说Class的装载、链接和初始化</h1>
+                
+                
+                  <span class="post-meta">
+  
+  
+  <i class="fa fa-calendar-o"></i>&nbsp;Posted on May 17, 2018
+  
+  
+  &nbsp;|&nbsp;
+  <i class="fa fa-clock-o"></i> 11 minutes (2252 words)
+  
+  
+</span>
+
+
+                
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+
+      <div class="post-block animated fadeInUp" style="opacity: 1; display: block;">
+
+        <article role="main" class="blog-post">
+          <hr>
+          <div class="blog-body">
+          <p>接上篇<a href="/post/2018/05/15/hotspot-explore-java-lang-class-forname/">《【JVM源码探秘】细说Class.forName()底层实现》</a>执行Class.forName(&ldquo;com.xxx.Xxx&rdquo;)通过<code>JavaCalls</code>组件调用了
+Java方法<code>ClassLoader.loadClass()</code>对该类进行加载</p>
+
+<p></p>
+
+<p>而最终会调用ClassLoader的native方法<code>defineClass1()</code>，其实现位于<code>src/java.base/share/native/libjava/ClassLoader.c</code>。</p>
+
+<h1 id="classloader-c-java-java-lang-classloader-defineclass1">ClassLoader.c # Java_java_lang_ClassLoader_defineClass1()</h1>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// 加载指定类
+</span><span class="c1"></span><span class="n">JNIEXPORT</span> <span class="n">jclass</span> <span class="n">JNICALL</span>
+<span class="nf">Java_java_lang_ClassLoader_defineClass1</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span>
+                                        <span class="n">jclass</span> <span class="n">cls</span><span class="p">,</span>
+                                        <span class="n">jobject</span> <span class="n">loader</span><span class="p">,</span>
+                                        <span class="n">jstring</span> <span class="n">name</span><span class="p">,</span>
+                                        <span class="n">jbyteArray</span> <span class="n">data</span><span class="p">,</span>
+                                        <span class="n">jint</span> <span class="n">offset</span><span class="p">,</span>
+                                        <span class="n">jint</span> <span class="n">length</span><span class="p">,</span>
+                                        <span class="n">jobject</span> <span class="n">pd</span><span class="p">,</span>
+                                        <span class="n">jstring</span> <span class="n">source</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">jbyte</span> <span class="o">*</span><span class="n">body</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">utfName</span><span class="p">;</span>
+    <span class="n">jclass</span> <span class="n">result</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">buf</span><span class="p">[</span><span class="mi">128</span><span class="p">];</span>
+    <span class="kt">char</span><span class="o">*</span> <span class="n">utfSource</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">sourceBuf</span><span class="p">[</span><span class="mi">1024</span><span class="p">];</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">data</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">JNU_ThrowNullPointerException</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="p">}</span>
+
+ 
+    <span class="p">....</span>
+    
+
+    <span class="c1">// ==========================================
+</span><span class="c1"></span>    <span class="c1">// 查找并加载class
+</span><span class="c1"></span>    <span class="c1">// ==========================================
+</span><span class="c1"></span>    <span class="n">result</span> <span class="o">=</span> <span class="n">JVM_DefineClassWithSource</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">utfName</span><span class="p">,</span> <span class="n">loader</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">pd</span><span class="p">,</span> <span class="n">utfSource</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">utfSource</span> <span class="o">&amp;&amp;</span> <span class="n">utfSource</span> <span class="o">!=</span> <span class="n">sourceBuf</span><span class="p">)</span>
+        <span class="n">free</span><span class="p">(</span><span class="n">utfSource</span><span class="p">);</span>
+
+ <span class="nl">free_utfName</span><span class="p">:</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">utfName</span> <span class="o">&amp;&amp;</span> <span class="n">utfName</span> <span class="o">!=</span> <span class="n">buf</span><span class="p">)</span>
+        <span class="n">free</span><span class="p">(</span><span class="n">utfName</span><span class="p">);</span>
+
+ <span class="nl">free_body</span><span class="p">:</span>
+    <span class="n">free</span><span class="p">(</span><span class="n">body</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+<span class="p">}</span></code></pre></div>
+<h1 id="jvm-cpp-jvm-defineclasswithsource">jvm.cpp # JVM_DefineClassWithSource()</h1>
+
+<p>方法跳转到<code>src/hotspot/share/prims/jvm.cpp</code></p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">JVM_ENTRY</span><span class="p">(</span><span class="n">jclass</span><span class="p">,</span> <span class="n">JVM_DefineClassWithSource</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">loader</span><span class="p">,</span> <span class="k">const</span> <span class="n">jbyte</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span> <span class="n">jsize</span> <span class="n">len</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">pd</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">source</span><span class="p">))</span>
+  <span class="n">JVMWrapper</span><span class="p">(</span><span class="s">&#34;JVM_DefineClassWithSource&#34;</span><span class="p">);</span>
+
+  <span class="k">return</span> <span class="nf">jvm_define_class_common</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">loader</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">len</span><span class="p">,</span> <span class="n">pd</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">THREAD</span><span class="p">);</span>
+<span class="n">JVM_END</span></code></pre></div>
+<h1 id="jvm-cpp-jvm-define-class-common">jvm.cpp # jvm_define_class_common()</h1>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// common code for JVM_DefineClass() and JVM_DefineClassWithSource()
+</span><span class="c1"></span><span class="k">static</span> <span class="n">jclass</span> <span class="nf">jvm_define_class_common</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span>
+                                      <span class="n">jobject</span> <span class="n">loader</span><span class="p">,</span> <span class="k">const</span> <span class="n">jbyte</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span>
+                                      <span class="n">jsize</span> <span class="n">len</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">pd</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">source</span><span class="p">,</span>
+                                      <span class="n">TRAPS</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">source</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>  <span class="n">source</span> <span class="o">=</span> <span class="s">&#34;__JVM_DefineClass__&#34;</span><span class="p">;</span>
+
+  <span class="c1">// 如果设置了-XX:+UsePerfData
+</span><span class="c1"></span>  <span class="k">if</span> <span class="p">(</span><span class="n">UsePerfData</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">ClassLoader</span><span class="o">::</span><span class="n">perf_app_classfile_bytes_read</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">inc</span><span class="p">(</span><span class="n">len</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="c1">// Since exceptions can be thrown, class initialization can take place
+</span><span class="c1"></span>  <span class="c1">// if name is NULL no check for class name in .class stream has to be made.
+</span><span class="c1"></span>  <span class="n">TempNewSymbol</span> <span class="n">class_name</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">name</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">const</span> <span class="kt">int</span> <span class="n">str_len</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">strlen</span><span class="p">(</span><span class="n">name</span><span class="p">);</span>
+
+    <span class="c1">// 如果全限定名超过了最大限制则抛出java_lang_NoClassDefFoundError()
+</span><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="n">str_len</span> <span class="o">&gt;</span> <span class="n">Symbol</span><span class="o">::</span><span class="n">max_length</span><span class="p">())</span> <span class="p">{</span>
+      <span class="c1">// It&#39;s impossible to create this class;  the name cannot fit
+</span><span class="c1"></span>      <span class="c1">// into the constant pool.
+</span><span class="c1"></span>      <span class="n">Exceptions</span><span class="o">::</span><span class="n">fthrow</span><span class="p">(</span><span class="n">THREAD_AND_LOCATION</span><span class="p">,</span>
+                         <span class="n">vmSymbols</span><span class="o">::</span><span class="n">java_lang_NoClassDefFoundError</span><span class="p">(),</span>
+                         <span class="s">&#34;Class name exceeds maximum length of %d: %s&#34;</span><span class="p">,</span>
+                         <span class="n">Symbol</span><span class="o">::</span><span class="n">max_length</span><span class="p">(),</span>
+                         <span class="n">name</span><span class="p">);</span>
+      <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="c1">// 将该类写入符号表
+</span><span class="c1"></span>    <span class="n">class_name</span> <span class="o">=</span> <span class="n">SymbolTable</span><span class="o">::</span><span class="n">new_symbol</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">str_len</span><span class="p">,</span> <span class="n">CHECK_NULL</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="n">ResourceMark</span> <span class="n">rm</span><span class="p">(</span><span class="n">THREAD</span><span class="p">);</span>
+  <span class="c1">// 创建文件流
+</span><span class="c1"></span>  <span class="n">ClassFileStream</span> <span class="n">st</span><span class="p">((</span><span class="n">u1</span><span class="o">*</span><span class="p">)</span><span class="n">buf</span><span class="p">,</span> <span class="n">len</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">ClassFileStream</span><span class="o">::</span><span class="n">verify</span><span class="p">);</span>
+  <span class="n">Handle</span> <span class="n">class_loader</span> <span class="p">(</span><span class="n">THREAD</span><span class="p">,</span> <span class="n">JNIHandles</span><span class="o">::</span><span class="n">resolve</span><span class="p">(</span><span class="n">loader</span><span class="p">));</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">UsePerfData</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">is_lock_held_by_thread</span><span class="p">(</span><span class="n">class_loader</span><span class="p">,</span>
+                           <span class="n">ClassLoader</span><span class="o">::</span><span class="n">sync_JVMDefineClassLockFreeCounter</span><span class="p">(),</span>
+                           <span class="n">THREAD</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="n">Handle</span> <span class="n">protection_domain</span> <span class="p">(</span><span class="n">THREAD</span><span class="p">,</span> <span class="n">JNIHandles</span><span class="o">::</span><span class="n">resolve</span><span class="p">(</span><span class="n">pd</span><span class="p">));</span>
+  <span class="c1">// =============================================================================
+</span><span class="c1"></span>  <span class="c1">//
+</span><span class="c1"></span>  <span class="c1">// 解析class文件流并返回对应的Klass
+</span><span class="c1"></span>  <span class="c1">//
+</span><span class="c1"></span>  <span class="c1">// =============================================================================
+</span><span class="c1"></span>  <span class="n">Klass</span><span class="o">*</span> <span class="n">k</span> <span class="o">=</span> <span class="n">SystemDictionary</span><span class="o">::</span><span class="n">resolve_from_stream</span><span class="p">(</span><span class="n">class_name</span><span class="p">,</span>
+                                                   <span class="n">class_loader</span><span class="p">,</span>
+                                                   <span class="n">protection_domain</span><span class="p">,</span>
+                                                   <span class="o">&amp;</span><span class="n">st</span><span class="p">,</span>
+                                                   <span class="n">CHECK_NULL</span><span class="p">);</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">log_is_enabled</span><span class="p">(</span><span class="n">Debug</span><span class="p">,</span> <span class="n">class</span><span class="p">,</span> <span class="n">resolve</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">k</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">trace_class_resolution</span><span class="p">(</span><span class="n">k</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="p">(</span><span class="n">jclass</span><span class="p">)</span> <span class="n">JNIHandles</span><span class="o">::</span><span class="n">make_local</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">k</span><span class="o">-&gt;</span><span class="n">java_mirror</span><span class="p">());</span>
+<span class="p">}</span></code></pre></div>
+<h1 id="systemdictionary-cpp-resolve-from-stream">systemDictionary.cpp # resolve_from_stream()</h1>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// 把一个klass加入系统（systemDictionary）
+</span><span class="c1"></span><span class="n">InstanceKlass</span><span class="o">*</span> <span class="n">SystemDictionary</span><span class="o">::</span><span class="n">resolve_from_stream</span><span class="p">(</span><span class="n">Symbol</span><span class="o">*</span> <span class="n">class_name</span><span class="p">,</span>
+                                                     <span class="n">Handle</span> <span class="n">class_loader</span><span class="p">,</span>
+                                                     <span class="n">Handle</span> <span class="n">protection_domain</span><span class="p">,</span>
+                                                     <span class="n">ClassFileStream</span><span class="o">*</span> <span class="n">st</span><span class="p">,</span>
+                                                     <span class="n">TRAPS</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">HandleMark</span> <span class="n">hm</span><span class="p">(</span><span class="n">THREAD</span><span class="p">);</span>
+
+  <span class="n">ClassLoaderData</span><span class="o">*</span> <span class="n">loader_data</span> <span class="o">=</span> <span class="n">register_loader</span><span class="p">(</span><span class="n">class_loader</span><span class="p">,</span> <span class="n">CHECK_NULL</span><span class="p">);</span>
+
+  <span class="c1">// 确认同步操作
+</span><span class="c1"></span>  <span class="n">Handle</span> <span class="n">lockObject</span> <span class="o">=</span> <span class="n">compute_loader_lock_object</span><span class="p">(</span><span class="n">class_loader</span><span class="p">,</span> <span class="n">THREAD</span><span class="p">);</span>
+  <span class="n">check_loader_lock_contention</span><span class="p">(</span><span class="n">lockObject</span><span class="p">,</span> <span class="n">THREAD</span><span class="p">);</span>
+  <span class="n">ObjectLocker</span> <span class="nf">ol</span><span class="p">(</span><span class="n">lockObject</span><span class="p">,</span> <span class="n">THREAD</span><span class="p">,</span> <span class="n">DoObjectLock</span><span class="p">);</span>
+
+ <span class="n">InstanceKlass</span><span class="o">*</span> <span class="n">k</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">k</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">st</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="p">()</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="c1">// ===============================================
+</span><span class="c1"></span>    <span class="c1">//
+</span><span class="c1"></span>    <span class="c1">// 解析class文件流并创建Klass
+</span><span class="c1"></span>    <span class="c1">//
+</span><span class="c1"></span>    <span class="c1">// ===============================================
+</span><span class="c1"></span>    <span class="n">k</span> <span class="o">=</span> <span class="n">KlassFactory</span><span class="o">::</span><span class="n">create_from_stream</span><span class="p">(</span><span class="n">st</span><span class="p">,</span>
+                                         <span class="n">class_name</span><span class="p">,</span>
+                                         <span class="n">loader_data</span><span class="p">,</span>
+                                         <span class="n">protection_domain</span><span class="p">,</span>
+                                         <span class="nb">NULL</span><span class="p">,</span> <span class="c1">// host_klass
+</span><span class="c1"></span>                                         <span class="nb">NULL</span><span class="p">,</span> <span class="c1">// cp_patches
+</span><span class="c1"></span>                                         <span class="n">CHECK_NULL</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="c1">// 如果支持并行加载
+</span><span class="c1"></span>  <span class="k">if</span> <span class="p">(</span><span class="n">is_parallelCapable</span><span class="p">(</span><span class="n">class_loader</span><span class="p">))</span> <span class="p">{</span>
+    <span class="n">InstanceKlass</span><span class="o">*</span> <span class="n">defined_k</span> <span class="o">=</span> <span class="n">find_or_define_instance_class</span><span class="p">(</span><span class="n">h_name</span><span class="p">,</span> <span class="n">class_loader</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">THREAD</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">HAS_PENDING_EXCEPTION</span> <span class="o">&amp;&amp;</span> <span class="n">defined_k</span> <span class="o">!=</span> <span class="n">k</span><span class="p">)</span> <span class="p">{</span>
+      
+      <span class="n">loader_data</span><span class="o">-&gt;</span><span class="n">add_to_deallocate_list</span><span class="p">(</span><span class="n">k</span><span class="p">);</span>
+      <span class="n">k</span> <span class="o">=</span> <span class="n">defined_k</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+  
+    <span class="c1">// ================================================================
+</span><span class="c1"></span>    <span class="c1">//
+</span><span class="c1"></span>    <span class="c1">// 如果不支持并行加载则直接更新systemDictionary，这里主要做两件事：
+</span><span class="c1"></span>    <span class="c1">// 
+</span><span class="c1"></span>    <span class="c1">// 1、把新的class加入到systemDictionary
+</span><span class="c1"></span>    <span class="c1">// 2、链接并初始化klass
+</span><span class="c1"></span>    <span class="c1">//
+</span><span class="c1"></span>    <span class="c1">// ================================================================
+</span><span class="c1"></span>    <span class="n">define_instance_class</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">THREAD</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="n">k</span><span class="p">;</span>
+<span class="p">}</span></code></pre></div>
+<h1 id="klassfactory-cpp-create-from-stream">klassFactory.cpp # create_from_stream()</h1>
+
+<p>这里是整个类加载流程中最为关键的两个步骤，实现逻辑较为复杂，先看<code>KlassFactory::create_from_stream()</code>，位于<code>src/hotspot/share/classfile/klassFactory.cpp</code></p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// =====================================================================================================================
+</span><span class="c1">//                            解析class文件流并创建InstanceKlass
+</span><span class="c1">// =====================================================================================================================
+</span><span class="c1">// 入口1：| classLoader.cpp      # ClassLoader::load_class()               |
+</span><span class="c1">// 入口2：| systemDictionary.cpp # SystemDictionary::parse_stream()        |  与resolve_from_stream()方法类似，但不会把解析的klass添加至systemDictionary
+</span><span class="c1">// 入口3：| systemDictionary.cpp # SystemDictionary::resolve_from_stream() |  called by jni_DefineClass and JVM_DefineClass).
+</span><span class="c1">// =====================================================================================================================
+</span><span class="c1"></span><span class="n">InstanceKlass</span><span class="o">*</span> <span class="n">KlassFactory</span><span class="o">::</span><span class="n">create_from_stream</span><span class="p">(</span><span class="n">ClassFileStream</span><span class="o">*</span> <span class="n">stream</span><span class="p">,</span>
+                                                <span class="n">Symbol</span><span class="o">*</span> <span class="n">name</span><span class="p">,</span>
+                                                <span class="n">ClassLoaderData</span><span class="o">*</span> <span class="n">loader_data</span><span class="p">,</span>
+                                                <span class="n">Handle</span> <span class="n">protection_domain</span><span class="p">,</span>
+                                                <span class="k">const</span> <span class="n">InstanceKlass</span><span class="o">*</span> <span class="n">host_klass</span><span class="p">,</span>
+                                                <span class="n">GrowableArray</span><span class="o">&lt;</span><span class="n">Handle</span><span class="o">&gt;*</span> <span class="n">cp_patches</span><span class="p">,</span>
+                                                <span class="n">TRAPS</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="n">ClassFileStream</span><span class="o">*</span> <span class="n">old_stream</span> <span class="o">=</span> <span class="n">stream</span><span class="p">;</span>
+
+  <span class="c1">// ============================================================================
+</span><span class="c1"></span>  <span class="c1">// 
+</span><span class="c1"></span>  <span class="c1">// 实例化class文件解析器并执行解析操作，包含：
+</span><span class="c1"></span>  <span class="c1">//
+</span><span class="c1"></span>  <span class="c1">// ============================================================================
+</span><span class="c1"></span>  <span class="c1">// 1. 魔数
+</span><span class="c1"></span>  <span class="c1">// 2. 版本号
+</span><span class="c1"></span>  <span class="c1">// 3. 常量池
+</span><span class="c1"></span>  <span class="c1">// 4. 访问标识
+</span><span class="c1"></span>  <span class="c1">// 5. 类的修饰符合法性验证
+</span><span class="c1"></span>  <span class="c1">// 6. 父类
+</span><span class="c1"></span>  <span class="c1">// 7. 接口列表
+</span><span class="c1"></span>  <span class="c1">// 8. 域列表
+</span><span class="c1"></span>  <span class="c1">// 9. 方法列表
+</span><span class="c1"></span>  <span class="c1">// 10. 属性和注解列表
+</span><span class="c1"></span>  <span class="c1">//
+</span><span class="c1"></span>  <span class="c1">// ============================================================================
+</span><span class="c1"></span>  <span class="n">ClassFileParser</span> <span class="nf">parser</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span>
+                         <span class="n">name</span><span class="p">,</span>
+                         <span class="n">loader_data</span><span class="p">,</span>
+                         <span class="n">protection_domain</span><span class="p">,</span>
+                         <span class="n">host_klass</span><span class="p">,</span>
+                         <span class="n">cp_patches</span><span class="p">,</span>
+                         <span class="n">ClassFileParser</span><span class="o">::</span><span class="n">BROADCAST</span><span class="p">,</span> <span class="c1">// publicity level
+</span><span class="c1"></span>                         <span class="n">CHECK_NULL</span><span class="p">);</span>
+
+  <span class="c1">// ============================================================================
+</span><span class="c1"></span>  <span class="c1">//
+</span><span class="c1"></span>  <span class="c1">// 创建InstanceKlass，并把classFileParser解析的文件流内容填充至InstanceKlass返回
+</span><span class="c1"></span>  <span class="c1">//
+</span><span class="c1"></span>  <span class="c1">// ============================================================================
+</span><span class="c1"></span>  <span class="n">InstanceKlass</span><span class="o">*</span> <span class="n">result</span> <span class="o">=</span> <span class="n">parser</span><span class="p">.</span><span class="n">create_instance_klass</span><span class="p">(</span><span class="n">old_stream</span> <span class="o">!=</span> <span class="n">stream</span><span class="p">,</span> <span class="n">CHECK_NULL</span><span class="p">);</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">result</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+<span class="p">}</span></code></pre></div>
+<p>先实例化class文件解析器并执行解析操作</p>
+
+<h1 id="classfileparser-cpp-classfileparser-classfileparser">classFileParser.cpp # ClassFileParser::ClassFileParser()</h1>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">ClassFileParser</span><span class="o">::</span><span class="n">ClassFileParser</span><span class="p">(</span><span class="n">ClassFileStream</span><span class="o">*</span> <span class="n">stream</span><span class="p">,</span>
+                                 <span class="n">Symbol</span><span class="o">*</span> <span class="n">name</span><span class="p">,</span>
+                                 <span class="n">ClassLoaderData</span><span class="o">*</span> <span class="n">loader_data</span><span class="p">,</span>
+                                 <span class="n">Handle</span> <span class="n">protection_domain</span><span class="p">,</span>
+                                 <span class="k">const</span> <span class="n">InstanceKlass</span><span class="o">*</span> <span class="n">host_klass</span><span class="p">,</span>
+                                 <span class="n">GrowableArray</span><span class="o">&lt;</span><span class="n">Handle</span><span class="o">&gt;*</span> <span class="n">cp_patches</span><span class="p">,</span>
+                                 <span class="n">Publicity</span> <span class="n">pub_level</span><span class="p">,</span>
+                                 <span class="n">TRAPS</span><span class="p">)</span> <span class="o">:</span>
+  <span class="n">_stream</span><span class="p">(</span><span class="n">stream</span><span class="p">),</span>
+  <span class="n">_requested_name</span><span class="p">(</span><span class="n">name</span><span class="p">),</span>
+  <span class="n">_loader_data</span><span class="p">(</span><span class="n">loader_data</span><span class="p">),</span>
+  <span class="n">_host_klass</span><span class="p">(</span><span class="n">host_klass</span><span class="p">),</span>
+  <span class="n">_cp_patches</span><span class="p">(</span><span class="n">cp_patches</span><span class="p">),</span>
+  <span class="n">_num_patched_klasses</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+  <span class="n">_max_num_patched_klasses</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+  <span class="n">_orig_cp_size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+  <span class="n">_first_patched_klass_resolved_index</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+  <span class="n">_super_klass</span><span class="p">(),</span>
+  <span class="n">_cp</span><span class="p">(</span><span class="nb">NULL</span><span class="p">),</span>
+  <span class="n">_fields</span><span class="p">(</span><span class="nb">NULL</span><span class="p">),</span>
+  <span class="n">_methods</span><span class="p">(</span><span class="nb">NULL</span><span class="p">),</span>
+  <span class="n">_inner_classes</span><span class="p">(</span><span class="nb">NULL</span><span class="p">),</span>
+  <span class="n">_local_interfaces</span><span class="p">(</span><span class="nb">NULL</span><span class="p">),</span>
+  <span class="n">_transitive_interfaces</span><span class="p">(</span><span class="nb">NULL</span><span class="p">),</span>
+  <span class="n">_combined_annotations</span><span class="p">(</span><span class="nb">NULL</span><span class="p">),</span>
+  <span class="n">_annotations</span><span class="p">(</span><span class="nb">NULL</span><span class="p">),</span>
+  <span class="n">_type_annotations</span><span class="p">(</span><span class="nb">NULL</span><span class="p">),</span>
+  <span class="n">_fields_annotations</span><span class="p">(</span><span class="nb">NULL</span><span class="p">),</span>
+  <span class="n">_fields_type_annotations</span><span class="p">(</span><span class="nb">NULL</span><span class="p">),</span>
+  <span class="n">_klass</span><span class="p">(</span><span class="nb">NULL</span><span class="p">),</span>
+  <span class="n">_klass_to_deallocate</span><span class="p">(</span><span class="nb">NULL</span><span class="p">),</span>
+  <span class="n">_parsed_annotations</span><span class="p">(</span><span class="nb">NULL</span><span class="p">),</span>
+  <span class="n">_fac</span><span class="p">(</span><span class="nb">NULL</span><span class="p">),</span>
+  <span class="n">_field_info</span><span class="p">(</span><span class="nb">NULL</span><span class="p">),</span>
+  <span class="n">_method_ordering</span><span class="p">(</span><span class="nb">NULL</span><span class="p">),</span>
+  <span class="n">_all_mirandas</span><span class="p">(</span><span class="nb">NULL</span><span class="p">),</span>
+  <span class="n">_vtable_size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+  <span class="n">_itable_size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+  <span class="n">_num_miranda_methods</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+  <span class="n">_rt</span><span class="p">(</span><span class="n">REF_NONE</span><span class="p">),</span>
+  <span class="n">_protection_domain</span><span class="p">(</span><span class="n">protection_domain</span><span class="p">),</span>
+  <span class="n">_access_flags</span><span class="p">(),</span>
+  <span class="n">_pub_level</span><span class="p">(</span><span class="n">pub_level</span><span class="p">),</span>
+  <span class="n">_bad_constant_seen</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+  <span class="n">_synthetic_flag</span><span class="p">(</span><span class="nb">false</span><span class="p">),</span>
+  <span class="n">_sde_length</span><span class="p">(</span><span class="nb">false</span><span class="p">),</span>
+  <span class="n">_sde_buffer</span><span class="p">(</span><span class="nb">NULL</span><span class="p">),</span>
+  <span class="n">_sourcefile_index</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+  <span class="n">_generic_signature_index</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+  <span class="n">_major_version</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+  <span class="n">_minor_version</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+  <span class="n">_this_class_index</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+  <span class="n">_super_class_index</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+  <span class="n">_itfs_len</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+  <span class="n">_java_fields_count</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+  <span class="n">_need_verify</span><span class="p">(</span><span class="nb">false</span><span class="p">),</span>
+  <span class="n">_relax_verify</span><span class="p">(</span><span class="nb">false</span><span class="p">),</span>
+  <span class="n">_has_nonstatic_concrete_methods</span><span class="p">(</span><span class="nb">false</span><span class="p">),</span>
+  <span class="n">_declares_nonstatic_concrete_methods</span><span class="p">(</span><span class="nb">false</span><span class="p">),</span>
+  <span class="n">_has_final_method</span><span class="p">(</span><span class="nb">false</span><span class="p">),</span>
+  <span class="n">_has_finalizer</span><span class="p">(</span><span class="nb">false</span><span class="p">),</span>
+  <span class="n">_has_empty_finalizer</span><span class="p">(</span><span class="nb">false</span><span class="p">),</span>
+  <span class="n">_has_vanilla_constructor</span><span class="p">(</span><span class="nb">false</span><span class="p">),</span>
+  <span class="n">_max_bootstrap_specifier_index</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="n">_class_name</span> <span class="o">=</span> <span class="n">name</span> <span class="o">!=</span> <span class="nb">NULL</span> <span class="o">?</span> <span class="nl">name</span> <span class="p">:</span> <span class="n">vmSymbols</span><span class="o">::</span><span class="n">unknown_class_name</span><span class="p">();</span>
+
+  <span class="c1">// synch back verification state to stream
+</span><span class="c1"></span>  <span class="n">stream</span><span class="o">-&gt;</span><span class="n">set_verify</span><span class="p">(</span><span class="n">_need_verify</span><span class="p">);</span>
+
+  <span class="c1">// ================================================================
+</span><span class="c1"></span>  <span class="c1">// 执行解析操作
+</span><span class="c1"></span>  <span class="c1">// ================================================================
+</span><span class="c1"></span>  <span class="n">parse_stream</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">CHECK</span><span class="p">);</span>
+
+  <span class="c1">// 执行一些解析的后续操作（计算该类实现的接口列表、对方法列表进行排序等）
+</span><span class="c1"></span>  <span class="n">post_process_parsed_stream</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">_cp</span><span class="p">,</span> <span class="n">CHECK</span><span class="p">);</span>
+
+<span class="p">}</span></code></pre></div>
+<h1 id="classfileparser-cpp-parse-stream">classFileParser.cpp # parse_stream()</h1>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// 解析文件流
+</span><span class="c1"></span><span class="kt">void</span> <span class="n">ClassFileParser</span><span class="o">::</span><span class="n">parse_stream</span><span class="p">(</span><span class="k">const</span> <span class="n">ClassFileStream</span><span class="o">*</span> <span class="k">const</span> <span class="n">stream</span><span class="p">,</span>
+                                   <span class="n">TRAPS</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="c1">// BEGIN STREAM PARSING
+</span><span class="c1"></span>  <span class="n">stream</span><span class="o">-&gt;</span><span class="n">guarantee_more</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="n">CHECK</span><span class="p">);</span>  <span class="c1">// magic, major, minor
+</span><span class="c1"></span>  
+  <span class="c1">// 魔数
+</span><span class="c1"></span>  <span class="k">const</span> <span class="n">u4</span> <span class="n">magic</span> <span class="o">=</span> <span class="n">stream</span><span class="o">-&gt;</span><span class="n">get_u4_fast</span><span class="p">();</span>
+  <span class="n">guarantee_property</span><span class="p">(</span><span class="n">magic</span> <span class="o">==</span> <span class="n">JAVA_CLASSFILE_MAGIC</span><span class="p">,</span>
+                     <span class="s">&#34;Incompatible magic value %u in class file %s&#34;</span><span class="p">,</span>
+                     <span class="n">magic</span><span class="p">,</span> <span class="n">CHECK</span><span class="p">);</span>
+
+  <span class="c1">// 版本号
+</span><span class="c1"></span>  <span class="n">_minor_version</span> <span class="o">=</span> <span class="n">stream</span><span class="o">-&gt;</span><span class="n">get_u2_fast</span><span class="p">();</span>
+  <span class="n">_major_version</span> <span class="o">=</span> <span class="n">stream</span><span class="o">-&gt;</span><span class="n">get_u2_fast</span><span class="p">();</span>
+  
+
+  <span class="c1">// 检查版本号是否支持，如果不支持抛出java_lang_UnsupportedClassVersionError()
+</span><span class="c1"></span>  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">is_supported_version</span><span class="p">(</span><span class="n">_major_version</span><span class="p">,</span> <span class="n">_minor_version</span><span class="p">))</span> <span class="p">{</span>
+    <span class="n">ResourceMark</span> <span class="n">rm</span><span class="p">(</span><span class="n">THREAD</span><span class="p">);</span>
+    <span class="n">Exceptions</span><span class="o">::</span><span class="n">fthrow</span><span class="p">(</span>
+      <span class="n">THREAD_AND_LOCATION</span><span class="p">,</span>
+      <span class="n">vmSymbols</span><span class="o">::</span><span class="n">java_lang_UnsupportedClassVersionError</span><span class="p">(),</span>
+      <span class="s">&#34;%s has been compiled by a more recent version of the Java Runtime (class file version %u.%u), &#34;</span>
+      <span class="s">&#34;this version of the Java Runtime only recognizes class file versions up to %u.%u&#34;</span><span class="p">,</span>
+      <span class="n">_class_name</span><span class="o">-&gt;</span><span class="n">as_C_string</span><span class="p">(),</span>
+      <span class="n">_major_version</span><span class="p">,</span>
+      <span class="n">_minor_version</span><span class="p">,</span>
+      <span class="n">JAVA_MAX_SUPPORTED_VERSION</span><span class="p">,</span>
+      <span class="n">JAVA_MAX_SUPPORTED_MINOR_VERSION</span><span class="p">);</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="n">stream</span><span class="o">-&gt;</span><span class="n">guarantee_more</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">CHECK</span><span class="p">);</span> <span class="c1">// length, first cp tag
+</span><span class="c1"></span>  <span class="n">u2</span> <span class="n">cp_size</span> <span class="o">=</span> <span class="n">stream</span><span class="o">-&gt;</span><span class="n">get_u2_fast</span><span class="p">();</span>
+
+  <span class="n">guarantee_property</span><span class="p">(</span>
+    <span class="n">cp_size</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="s">&#34;Illegal constant pool size %u in class file %s&#34;</span><span class="p">,</span>
+    <span class="n">cp_size</span><span class="p">,</span> <span class="n">CHECK</span><span class="p">);</span>
+
+  <span class="n">_orig_cp_size</span> <span class="o">=</span> <span class="n">cp_size</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="kt">int</span><span class="p">(</span><span class="n">cp_size</span><span class="p">)</span> <span class="o">+</span> <span class="n">_max_num_patched_klasses</span> <span class="o">&gt;</span> <span class="mh">0xffff</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">THROW_MSG</span><span class="p">(</span><span class="n">vmSymbols</span><span class="o">::</span><span class="n">java_lang_InternalError</span><span class="p">(),</span> <span class="s">&#34;not enough space for patched classes&#34;</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="n">cp_size</span> <span class="o">+=</span> <span class="n">_max_num_patched_klasses</span><span class="p">;</span>
+
+  <span class="c1">// 分配常量池空间
+</span><span class="c1"></span>  <span class="n">_cp</span> <span class="o">=</span> <span class="n">ConstantPool</span><span class="o">::</span><span class="n">allocate</span><span class="p">(</span><span class="n">_loader_data</span><span class="p">,</span>
+                               <span class="n">cp_size</span><span class="p">,</span>
+                               <span class="n">CHECK</span><span class="p">);</span>
+
+  <span class="n">ConstantPool</span><span class="o">*</span> <span class="k">const</span> <span class="n">cp</span> <span class="o">=</span> <span class="n">_cp</span><span class="p">;</span>
+
+  <span class="c1">// 解析常量池
+</span><span class="c1"></span>  <span class="n">parse_constant_pool</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">cp</span><span class="p">,</span> <span class="n">_orig_cp_size</span><span class="p">,</span> <span class="n">CHECK</span><span class="p">);</span>
+
+  <span class="c1">// ACCESS FLAGS
+</span><span class="c1"></span>  <span class="n">stream</span><span class="o">-&gt;</span><span class="n">guarantee_more</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="n">CHECK</span><span class="p">);</span>  <span class="c1">// flags, this_class, super_class, infs_len
+</span><span class="c1"></span>
+  <span class="c1">// 访问标识
+</span><span class="c1"></span>  <span class="n">jint</span> <span class="n">flags</span><span class="p">;</span>
+  <span class="c1">// 定义了JVM_ACC_MODULE in JDK-9 and later.
+</span><span class="c1"></span>  <span class="k">if</span> <span class="p">(</span><span class="n">_major_version</span> <span class="o">&gt;=</span> <span class="n">JAVA_9_VERSION</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">flags</span> <span class="o">=</span> <span class="n">stream</span><span class="o">-&gt;</span><span class="n">get_u2_fast</span><span class="p">()</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">JVM_RECOGNIZED_CLASS_MODIFIERS</span> <span class="o">|</span> <span class="n">JVM_ACC_MODULE</span><span class="p">);</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="n">flags</span> <span class="o">=</span> <span class="n">stream</span><span class="o">-&gt;</span><span class="n">get_u2_fast</span><span class="p">()</span> <span class="o">&amp;</span> <span class="n">JVM_RECOGNIZED_CLASS_MODIFIERS</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="c1">// 验证类的修饰符合法性
+</span><span class="c1"></span>  <span class="n">verify_legal_class_modifiers</span><span class="p">(</span><span class="n">flags</span><span class="p">,</span> <span class="n">CHECK</span><span class="p">);</span>
+
+  <span class="kt">short</span> <span class="n">bad_constant</span> <span class="o">=</span> <span class="n">class_bad_constant_seen</span><span class="p">();</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">bad_constant</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// Do not throw CFE until after the access_flags are checked because if
+</span><span class="c1"></span>    <span class="c1">// ACC_MODULE is set in the access flags, then NCDFE must be thrown, not CFE.
+</span><span class="c1"></span>    <span class="n">classfile_parse_error</span><span class="p">(</span><span class="s">&#34;Unknown constant tag %u in class file %s&#34;</span><span class="p">,</span> <span class="n">bad_constant</span><span class="p">,</span> <span class="n">CHECK</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="n">_access_flags</span><span class="p">.</span><span class="n">set_flags</span><span class="p">(</span><span class="n">flags</span><span class="p">);</span>
+
+  
+  <span class="c1">// 修复匿名类名
+</span><span class="c1"></span>  <span class="c1">// if this is an anonymous class fix up its name if it&#39;s in the unnamed
+</span><span class="c1"></span>  <span class="c1">// package.  Otherwise, throw IAE if it is in a different package than
+</span><span class="c1"></span>  <span class="c1">// its host class.
+</span><span class="c1"></span>  <span class="k">if</span> <span class="p">(</span><span class="n">_host_klass</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">fix_anonymous_class_name</span><span class="p">(</span><span class="n">CHECK</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="c1">// 解析父类
+</span><span class="c1"></span>  <span class="n">_super_class_index</span> <span class="o">=</span> <span class="n">stream</span><span class="o">-&gt;</span><span class="n">get_u2_fast</span><span class="p">();</span>
+  <span class="n">_super_klass</span> <span class="o">=</span> <span class="n">parse_super_class</span><span class="p">(</span><span class="n">cp</span><span class="p">,</span>
+                                   <span class="n">_super_class_index</span><span class="p">,</span>
+                                   <span class="n">_need_verify</span><span class="p">,</span>
+                                   <span class="n">CHECK</span><span class="p">);</span>
+
+  <span class="c1">// 解析接口
+</span><span class="c1"></span>  <span class="n">_itfs_len</span> <span class="o">=</span> <span class="n">stream</span><span class="o">-&gt;</span><span class="n">get_u2_fast</span><span class="p">();</span>
+  <span class="n">parse_interfaces</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span>
+                   <span class="n">_itfs_len</span><span class="p">,</span>
+                   <span class="n">cp</span><span class="p">,</span>
+                   <span class="o">&amp;</span><span class="n">_has_nonstatic_concrete_methods</span><span class="p">,</span>
+                   <span class="n">CHECK</span><span class="p">);</span>
+
+  <span class="c1">// 解析Field
+</span><span class="c1"></span>  <span class="c1">// Fields (offsets are filled in later)
+</span><span class="c1"></span>  <span class="n">_fac</span> <span class="o">=</span> <span class="n">new</span> <span class="n">FieldAllocationCount</span><span class="p">();</span>
+  <span class="n">parse_fields</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span>
+               <span class="n">_access_flags</span><span class="p">.</span><span class="n">is_interface</span><span class="p">(),</span>
+               <span class="n">_fac</span><span class="p">,</span>
+               <span class="n">cp</span><span class="p">,</span>
+               <span class="n">cp_size</span><span class="p">,</span>
+               <span class="o">&amp;</span><span class="n">_java_fields_count</span><span class="p">,</span>
+               <span class="n">CHECK</span><span class="p">);</span>
+
+  <span class="c1">// ======================================================
+</span><span class="c1"></span>  <span class="c1">//
+</span><span class="c1"></span>  <span class="c1">// 解析方法列表
+</span><span class="c1"></span>  <span class="c1">// 包含栈、字节码表、异常表、局部变量表、运行指针等
+</span><span class="c1"></span>  <span class="c1">//
+</span><span class="c1"></span>  <span class="c1">// ======================================================
+</span><span class="c1"></span>  <span class="n">AccessFlags</span> <span class="n">promoted_flags</span><span class="p">;</span>
+  <span class="n">parse_methods</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span>
+                <span class="n">_access_flags</span><span class="p">.</span><span class="n">is_interface</span><span class="p">(),</span>
+                <span class="o">&amp;</span><span class="n">promoted_flags</span><span class="p">,</span>
+                <span class="o">&amp;</span><span class="n">_has_final_method</span><span class="p">,</span>
+                <span class="o">&amp;</span><span class="n">_declares_nonstatic_concrete_methods</span><span class="p">,</span>
+                <span class="n">CHECK</span><span class="p">);</span>
+
+  <span class="c1">// promote flags from parse_methods() to the klass&#39; flags
+</span><span class="c1"></span>  <span class="n">_access_flags</span><span class="p">.</span><span class="n">add_promoted_flags</span><span class="p">(</span><span class="n">promoted_flags</span><span class="p">.</span><span class="n">as_int</span><span class="p">());</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">_declares_nonstatic_concrete_methods</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">_has_nonstatic_concrete_methods</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="c1">// 解析attributes/annotations
+</span><span class="c1"></span>  <span class="n">_parsed_annotations</span> <span class="o">=</span> <span class="n">new</span> <span class="n">ClassAnnotationCollector</span><span class="p">();</span>
+  <span class="n">parse_classfile_attributes</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">cp</span><span class="p">,</span> <span class="n">_parsed_annotations</span><span class="p">,</span> <span class="n">CHECK</span><span class="p">);</span>
+
+  <span class="c1">// Finalize the Annotations metadata object,
+</span><span class="c1"></span>  <span class="c1">// now that all annotation arrays have been created.
+</span><span class="c1"></span>  <span class="n">create_combined_annotations</span><span class="p">(</span><span class="n">CHECK</span><span class="p">);</span>
+
+  <span class="c1">// all bytes in stream read and parsed
+</span><span class="c1"></span><span class="p">}</span></code></pre></div>
+<h1 id="classfileparser-cpp-parse-methods">classFileParser.cpp # parse_methods()</h1>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="n">ClassFileParser</span><span class="o">::</span><span class="n">parse_methods</span><span class="p">(</span><span class="k">const</span> <span class="n">ClassFileStream</span><span class="o">*</span> <span class="k">const</span> <span class="n">cfs</span><span class="p">,</span>
+                                    <span class="kt">bool</span> <span class="n">is_interface</span><span class="p">,</span>
+                                    <span class="n">AccessFlags</span><span class="o">*</span> <span class="n">promoted_flags</span><span class="p">,</span>
+                                    <span class="kt">bool</span><span class="o">*</span> <span class="n">has_final_method</span><span class="p">,</span>
+                                    <span class="kt">bool</span><span class="o">*</span> <span class="n">declares_nonstatic_concrete_methods</span><span class="p">,</span>
+                                    <span class="n">TRAPS</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">cfs</span><span class="o">-&gt;</span><span class="n">guarantee_more</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">CHECK</span><span class="p">);</span>  <span class="c1">// length
+</span><span class="c1"></span>  <span class="k">const</span> <span class="n">u2</span> <span class="n">length</span> <span class="o">=</span> <span class="n">cfs</span><span class="o">-&gt;</span><span class="n">get_u2_fast</span><span class="p">();</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">length</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">_methods</span> <span class="o">=</span> <span class="n">Universe</span><span class="o">::</span><span class="n">the_empty_method_array</span><span class="p">();</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="n">_methods</span> <span class="o">=</span> <span class="n">MetadataFactory</span><span class="o">::</span><span class="n">new_array</span><span class="o">&lt;</span><span class="n">Method</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">_loader_data</span><span class="p">,</span>
+                                                   <span class="n">length</span><span class="p">,</span>
+                                                   <span class="nb">NULL</span><span class="p">,</span>
+                                                   <span class="n">CHECK</span><span class="p">);</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="n">length</span><span class="p">;</span> <span class="n">index</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+      <span class="c1">// ===============================================
+</span><span class="c1"></span>      <span class="c1">// 遍历解析所有方法
+</span><span class="c1"></span>      <span class="c1">// ===============================================
+</span><span class="c1"></span>      <span class="n">Method</span><span class="o">*</span> <span class="n">method</span> <span class="o">=</span> <span class="n">parse_method</span><span class="p">(</span><span class="n">cfs</span><span class="p">,</span>
+                                    <span class="n">is_interface</span><span class="p">,</span>
+                                    <span class="n">_cp</span><span class="p">,</span>
+                                    <span class="n">promoted_flags</span><span class="p">,</span>
+                                    <span class="n">CHECK</span><span class="p">);</span>
+
+      <span class="k">if</span> <span class="p">(</span><span class="n">method</span><span class="o">-&gt;</span><span class="n">is_final</span><span class="p">())</span> <span class="p">{</span>
+        <span class="o">*</span><span class="n">has_final_method</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="c1">// declares_nonstatic_concrete_methods: declares concrete instance methods, any access flags
+</span><span class="c1"></span>      <span class="c1">// used for interface initialization, and default method inheritance analysis
+</span><span class="c1"></span>      <span class="k">if</span> <span class="p">(</span><span class="n">is_interface</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="p">(</span><span class="o">*</span><span class="n">declares_nonstatic_concrete_methods</span><span class="p">)</span>
+        <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">method</span><span class="o">-&gt;</span><span class="n">is_abstract</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">method</span><span class="o">-&gt;</span><span class="n">is_static</span><span class="p">())</span> <span class="p">{</span>
+        <span class="o">*</span><span class="n">declares_nonstatic_concrete_methods</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+      <span class="p">}</span>
+      
+      <span class="c1">// 放入方法表
+</span><span class="c1"></span>      <span class="n">_methods</span><span class="o">-&gt;</span><span class="n">at_put</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">method</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span></code></pre></div>
+<h1 id="classfileparser-cpp-post-process-parsed-stream">classFileParser.cpp # post_process_parsed_stream()</h1>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="n">ClassFileParser</span><span class="o">::</span><span class="n">post_process_parsed_stream</span><span class="p">(</span><span class="k">const</span> <span class="n">ClassFileStream</span><span class="o">*</span> <span class="k">const</span> <span class="n">stream</span><span class="p">,</span>
+                                                 <span class="n">ConstantPool</span><span class="o">*</span> <span class="n">cp</span><span class="p">,</span>
+                                                 <span class="n">TRAPS</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">assert</span><span class="p">(</span><span class="n">stream</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">,</span> <span class="s">&#34;invariant&#34;</span><span class="p">);</span>
+  <span class="n">assert</span><span class="p">(</span><span class="n">stream</span><span class="o">-&gt;</span><span class="n">at_eos</span><span class="p">(),</span> <span class="s">&#34;invariant&#34;</span><span class="p">);</span>
+  <span class="n">assert</span><span class="p">(</span><span class="n">cp</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">,</span> <span class="s">&#34;invariant&#34;</span><span class="p">);</span>
+  <span class="n">assert</span><span class="p">(</span><span class="n">_loader_data</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">,</span> <span class="s">&#34;invariant&#34;</span><span class="p">);</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">_class_name</span> <span class="o">==</span> <span class="n">vmSymbols</span><span class="o">::</span><span class="n">java_lang_Object</span><span class="p">())</span> <span class="p">{</span>
+    <span class="n">check_property</span><span class="p">(</span><span class="n">_local_interfaces</span> <span class="o">==</span> <span class="n">Universe</span><span class="o">::</span><span class="n">the_empty_klass_array</span><span class="p">(),</span>
+                   <span class="s">&#34;java.lang.Object cannot implement an interface in class file %s&#34;</span><span class="p">,</span>
+                   <span class="n">CHECK</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="c1">// We check super class after class file is parsed and format is checked
+</span><span class="c1"></span>  <span class="k">if</span> <span class="p">(</span><span class="n">_super_class_index</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="nb">NULL</span> <span class="o">==</span><span class="n">_super_klass</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">Symbol</span><span class="o">*</span> <span class="k">const</span> <span class="n">super_class_name</span> <span class="o">=</span> <span class="n">cp</span><span class="o">-&gt;</span><span class="n">klass_name_at</span><span class="p">(</span><span class="n">_super_class_index</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">_access_flags</span><span class="p">.</span><span class="n">is_interface</span><span class="p">())</span> <span class="p">{</span>
+      <span class="c1">// Before attempting to resolve the superclass, check for class format
+</span><span class="c1"></span>      <span class="c1">// errors not checked yet.
+</span><span class="c1"></span>      <span class="n">guarantee_property</span><span class="p">(</span><span class="n">super_class_name</span> <span class="o">==</span> <span class="n">vmSymbols</span><span class="o">::</span><span class="n">java_lang_Object</span><span class="p">(),</span>
+        <span class="s">&#34;Interfaces must have java.lang.Object as superclass in class file %s&#34;</span><span class="p">,</span>
+        <span class="n">CHECK</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">Handle</span> <span class="n">loader</span><span class="p">(</span><span class="n">THREAD</span><span class="p">,</span> <span class="n">_loader_data</span><span class="o">-&gt;</span><span class="n">class_loader</span><span class="p">());</span>
+    <span class="c1">// 解析父类
+</span><span class="c1"></span>    <span class="n">_super_klass</span> <span class="o">=</span> <span class="p">(</span><span class="k">const</span> <span class="n">InstanceKlass</span><span class="o">*</span><span class="p">)</span>
+                       <span class="n">SystemDictionary</span><span class="o">::</span><span class="n">resolve_super_or_fail</span><span class="p">(</span><span class="n">_class_name</span><span class="p">,</span>
+                                                               <span class="n">super_class_name</span><span class="p">,</span>
+                                                               <span class="n">loader</span><span class="p">,</span>
+                                                               <span class="n">_protection_domain</span><span class="p">,</span>
+                                                               <span class="nb">true</span><span class="p">,</span>
+                                                               <span class="n">CHECK</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">_super_klass</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">_super_klass</span><span class="o">-&gt;</span><span class="n">has_nonstatic_concrete_methods</span><span class="p">())</span> <span class="p">{</span>
+      <span class="n">_has_nonstatic_concrete_methods</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// 确保不是接口
+</span><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="n">_super_klass</span><span class="o">-&gt;</span><span class="n">is_interface</span><span class="p">())</span> <span class="p">{</span>
+      <span class="n">ResourceMark</span> <span class="n">rm</span><span class="p">(</span><span class="n">THREAD</span><span class="p">);</span>
+      <span class="n">Exceptions</span><span class="o">::</span><span class="n">fthrow</span><span class="p">(</span>
+        <span class="n">THREAD_AND_LOCATION</span><span class="p">,</span>
+        <span class="n">vmSymbols</span><span class="o">::</span><span class="n">java_lang_IncompatibleClassChangeError</span><span class="p">(),</span>
+        <span class="s">&#34;class %s has interface %s as super class&#34;</span><span class="p">,</span>
+        <span class="n">_class_name</span><span class="o">-&gt;</span><span class="n">as_klass_external_name</span><span class="p">(),</span>
+        <span class="n">_super_klass</span><span class="o">-&gt;</span><span class="n">external_name</span><span class="p">()</span>
+      <span class="p">);</span>
+      <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="c1">// 确保父类不是final修饰
+</span><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="n">_super_klass</span><span class="o">-&gt;</span><span class="n">is_final</span><span class="p">())</span> <span class="p">{</span>
+      <span class="n">THROW_MSG</span><span class="p">(</span><span class="n">vmSymbols</span><span class="o">::</span><span class="n">java_lang_VerifyError</span><span class="p">(),</span> <span class="s">&#34;Cannot inherit from final class&#34;</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="c1">// 计算由此类实现的所有唯一接口的传递列表
+</span><span class="c1"></span>  <span class="c1">// Compute the transitive list of all unique interfaces implemented by this class
+</span><span class="c1"></span>  <span class="n">_transitive_interfaces</span> <span class="o">=</span>
+    <span class="n">compute_transitive_interfaces</span><span class="p">(</span><span class="n">_super_klass</span><span class="p">,</span>
+                                  <span class="n">_local_interfaces</span><span class="p">,</span>
+                                  <span class="n">_loader_data</span><span class="p">,</span>
+                                  <span class="n">CHECK</span><span class="p">);</span>
+
+  <span class="n">assert</span><span class="p">(</span><span class="n">_transitive_interfaces</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">,</span> <span class="s">&#34;invariant&#34;</span><span class="p">);</span>
+
+  <span class="c1">// sort methods
+</span><span class="c1"></span>  <span class="n">_method_ordering</span> <span class="o">=</span> <span class="n">sort_methods</span><span class="p">(</span><span class="n">_methods</span><span class="p">);</span>
+
+  <span class="n">_all_mirandas</span> <span class="o">=</span> <span class="n">new</span> <span class="n">GrowableArray</span><span class="o">&lt;</span><span class="n">Method</span><span class="o">*&gt;</span><span class="p">(</span><span class="mi">20</span><span class="p">);</span>
+
+  <span class="n">Handle</span> <span class="nf">loader</span><span class="p">(</span><span class="n">THREAD</span><span class="p">,</span> <span class="n">_loader_data</span><span class="o">-&gt;</span><span class="n">class_loader</span><span class="p">());</span>
+  
+  <span class="c1">// 计算虚拟表大小
+</span><span class="c1"></span>  <span class="n">klassVtable</span><span class="o">::</span><span class="n">compute_vtable_size_and_num_mirandas</span><span class="p">(</span><span class="o">&amp;</span><span class="n">_vtable_size</span><span class="p">,</span>
+                                                    <span class="o">&amp;</span><span class="n">_num_miranda_methods</span><span class="p">,</span>
+                                                    <span class="n">_all_mirandas</span><span class="p">,</span>
+                                                    <span class="n">_super_klass</span><span class="p">,</span>
+                                                    <span class="n">_methods</span><span class="p">,</span>
+                                                    <span class="n">_access_flags</span><span class="p">,</span>
+                                                    <span class="n">_major_version</span><span class="p">,</span>
+                                                    <span class="n">loader</span><span class="p">,</span>
+                                                    <span class="n">_class_name</span><span class="p">,</span>
+                                                    <span class="n">_local_interfaces</span><span class="p">,</span>
+                                                    <span class="n">CHECK</span><span class="p">);</span>
+
+  <span class="c1">// Size of Java itable (in words)
+</span><span class="c1"></span>  <span class="n">_itable_size</span> <span class="o">=</span> <span class="n">_access_flags</span><span class="p">.</span><span class="n">is_interface</span><span class="p">()</span> <span class="o">?</span> <span class="mi">0</span> <span class="o">:</span>
+    <span class="n">klassItable</span><span class="o">::</span><span class="n">compute_itable_size</span><span class="p">(</span><span class="n">_transitive_interfaces</span><span class="p">);</span>
+
+  <span class="n">_field_info</span> <span class="o">=</span> <span class="n">new</span> <span class="n">FieldLayoutInfo</span><span class="p">();</span>
+  <span class="n">layout_fields</span><span class="p">(</span><span class="n">cp</span><span class="p">,</span> <span class="n">_fac</span><span class="p">,</span> <span class="n">_parsed_annotations</span><span class="p">,</span> <span class="n">_field_info</span><span class="p">,</span> <span class="n">CHECK</span><span class="p">);</span>
+
+  <span class="c1">// Compute reference typ
+</span><span class="c1"></span>  <span class="n">_rt</span> <span class="o">=</span> <span class="p">(</span><span class="nb">NULL</span> <span class="o">==</span><span class="n">_super_klass</span><span class="p">)</span> <span class="o">?</span> <span class="nl">REF_NONE</span> <span class="p">:</span> <span class="n">_super_klass</span><span class="o">-&gt;</span><span class="n">reference_type</span><span class="p">();</span>
+
+<span class="p">}</span></code></pre></div>
+<h1 id="classfileparser-cpp-create-instance-klass">classFileParser.cpp # create_instance_klass()</h1>
+
+<p>接下来是创建InstanceKlass，并把classFileParser解析的文件流内容填充至InstanceKlass返回</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">InstanceKlass</span><span class="o">*</span> <span class="n">ClassFileParser</span><span class="o">::</span><span class="n">create_instance_klass</span><span class="p">(</span><span class="kt">bool</span> <span class="n">changed_by_loadhook</span><span class="p">,</span> <span class="n">TRAPS</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">_klass</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">_klass</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="c1">// 为新建的InstanceKlass分配内存空间
+</span><span class="c1"></span>  <span class="n">InstanceKlass</span><span class="o">*</span> <span class="k">const</span> <span class="n">ik</span> <span class="o">=</span>
+    <span class="n">InstanceKlass</span><span class="o">::</span><span class="n">allocate_instance_klass</span><span class="p">(</span><span class="o">*</span><span class="n">this</span><span class="p">,</span> <span class="n">CHECK_NULL</span><span class="p">);</span>
+
+  <span class="c1">// 把classFileParser解析的文件流内容填充至InstanceKlass
+</span><span class="c1"></span>  <span class="n">fill_instance_klass</span><span class="p">(</span><span class="n">ik</span><span class="p">,</span> <span class="n">changed_by_loadhook</span><span class="p">,</span> <span class="n">CHECK_NULL</span><span class="p">);</span>
+
+  <span class="k">return</span> <span class="n">ik</span><span class="p">;</span>
+<span class="p">}</span></code></pre></div>
+<h1 id="instanceklass-cpp-allocate-instance-klass">instanceKlass.cpp # allocate_instance_klass()</h1>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// 为新建的InstanceKlass分配内存空间
+</span><span class="c1"></span><span class="n">InstanceKlass</span><span class="o">*</span> <span class="n">InstanceKlass</span><span class="o">::</span><span class="n">allocate_instance_klass</span><span class="p">(</span><span class="k">const</span> <span class="n">ClassFileParser</span><span class="o">&amp;</span> <span class="n">parser</span><span class="p">,</span> <span class="n">TRAPS</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">const</span> <span class="kt">int</span> <span class="n">size</span> <span class="o">=</span> <span class="n">InstanceKlass</span><span class="o">::</span><span class="n">size</span><span class="p">(</span><span class="n">parser</span><span class="p">.</span><span class="n">vtable_size</span><span class="p">(),</span>
+                                       <span class="n">parser</span><span class="p">.</span><span class="n">itable_size</span><span class="p">(),</span>
+                                       <span class="n">nonstatic_oop_map_size</span><span class="p">(</span><span class="n">parser</span><span class="p">.</span><span class="n">total_oop_map_count</span><span class="p">()),</span>
+                                       <span class="n">parser</span><span class="p">.</span><span class="n">is_interface</span><span class="p">(),</span>
+                                       <span class="n">parser</span><span class="p">.</span><span class="n">is_anonymous</span><span class="p">(),</span>
+                                       <span class="n">should_store_fingerprint</span><span class="p">());</span>
+
+  <span class="k">const</span> <span class="n">Symbol</span><span class="o">*</span> <span class="k">const</span> <span class="n">class_name</span> <span class="o">=</span> <span class="n">parser</span><span class="p">.</span><span class="n">class_name</span><span class="p">();</span>
+  <span class="n">assert</span><span class="p">(</span><span class="n">class_name</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">,</span> <span class="s">&#34;invariant&#34;</span><span class="p">);</span>
+  <span class="n">ClassLoaderData</span><span class="o">*</span> <span class="n">loader_data</span> <span class="o">=</span> <span class="n">parser</span><span class="p">.</span><span class="n">loader_data</span><span class="p">();</span>
+  <span class="n">assert</span><span class="p">(</span><span class="n">loader_data</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">,</span> <span class="s">&#34;invariant&#34;</span><span class="p">);</span>
+
+  <span class="n">InstanceKlass</span><span class="o">*</span> <span class="n">ik</span><span class="p">;</span>
+
+  <span class="c1">// Allocation
+</span><span class="c1"></span>  <span class="k">if</span> <span class="p">(</span><span class="n">REF_NONE</span> <span class="o">==</span> <span class="n">parser</span><span class="p">.</span><span class="n">reference_type</span><span class="p">())</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">class_name</span> <span class="o">==</span> <span class="n">vmSymbols</span><span class="o">::</span><span class="n">java_lang_Class</span><span class="p">())</span> <span class="p">{</span>
+      <span class="c1">// mirror
+</span><span class="c1"></span>      <span class="n">ik</span> <span class="o">=</span> <span class="n">new</span> <span class="p">(</span><span class="n">loader_data</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">THREAD</span><span class="p">)</span> <span class="n">InstanceMirrorKlass</span><span class="p">(</span><span class="n">parser</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">is_class_loader</span><span class="p">(</span><span class="n">class_name</span><span class="p">,</span> <span class="n">parser</span><span class="p">))</span> <span class="p">{</span>
+      <span class="c1">// class loader
+</span><span class="c1"></span>      <span class="n">ik</span> <span class="o">=</span> <span class="n">new</span> <span class="p">(</span><span class="n">loader_data</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">THREAD</span><span class="p">)</span> <span class="n">InstanceClassLoaderKlass</span><span class="p">(</span><span class="n">parser</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="p">{</span>
+
+      <span class="c1">// 普通类
+</span><span class="c1"></span>      <span class="n">ik</span> <span class="o">=</span> <span class="n">new</span> <span class="p">(</span><span class="n">loader_data</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">THREAD</span><span class="p">)</span> <span class="n">InstanceKlass</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">InstanceKlass</span><span class="o">::</span><span class="n">_misc_kind_other</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">else</span> <span class="p">{</span>
+    <span class="c1">// reference
+</span><span class="c1"></span>    <span class="n">ik</span> <span class="o">=</span> <span class="n">new</span> <span class="p">(</span><span class="n">loader_data</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">THREAD</span><span class="p">)</span> <span class="n">InstanceRefKlass</span><span class="p">(</span><span class="n">parser</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="k">const</span> <span class="kt">bool</span> <span class="n">publicize</span> <span class="o">=</span> <span class="o">!</span><span class="n">parser</span><span class="p">.</span><span class="n">is_internal</span><span class="p">();</span>
+
+  <span class="c1">// 把当前类加入到classloader
+</span><span class="c1"></span>  <span class="c1">// Add all classes to our internal class loader list here,
+</span><span class="c1"></span>  <span class="c1">// including classes in the bootstrap (NULL) class loader.
+</span><span class="c1"></span>  <span class="n">loader_data</span><span class="o">-&gt;</span><span class="n">add_class</span><span class="p">(</span><span class="n">ik</span><span class="p">,</span> <span class="n">publicize</span><span class="p">);</span>
+  <span class="n">Atomic</span><span class="o">::</span><span class="n">inc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">_total_instanceKlass_count</span><span class="p">);</span>
+
+  <span class="k">return</span> <span class="n">ik</span><span class="p">;</span>
+<span class="p">}</span></code></pre></div>
+<h1 id="systemdictionary-cpp-define-instance-class">systemDictionary.cpp # define_instance_class()</h1>
+
+<p>至此，通过KlassFactory解析并创建完毕InstanceKlass，接下来就是调用<code>define_instance_class()</code>进行连接和初始化，</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="n">SystemDictionary</span><span class="o">::</span><span class="n">define_instance_class</span><span class="p">(</span><span class="n">InstanceKlass</span><span class="o">*</span> <span class="n">k</span><span class="p">,</span> <span class="n">TRAPS</span><span class="p">)</span> <span class="p">{</span>
+
+  
+
+  <span class="c1">// 调用Java方法ClassLoader#addClass()把该类注册到对应的classloader
+</span><span class="c1"></span>  <span class="c1">//
+</span><span class="c1"></span>  <span class="k">if</span> <span class="p">(</span><span class="n">k</span><span class="o">-&gt;</span><span class="n">class_loader</span><span class="p">()</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">methodHandle</span> <span class="n">m</span><span class="p">(</span><span class="n">THREAD</span><span class="p">,</span> <span class="n">Universe</span><span class="o">::</span><span class="n">loader_addClass_method</span><span class="p">());</span>
+    <span class="n">JavaValue</span> <span class="nf">result</span><span class="p">(</span><span class="n">T_VOID</span><span class="p">);</span>
+    <span class="n">JavaCallArguments</span> <span class="nf">args</span><span class="p">(</span><span class="n">class_loader_h</span><span class="p">);</span>
+    <span class="n">args</span><span class="p">.</span><span class="n">push_oop</span><span class="p">(</span><span class="n">Handle</span><span class="p">(</span><span class="n">THREAD</span><span class="p">,</span> <span class="n">k</span><span class="o">-&gt;</span><span class="n">java_mirror</span><span class="p">()));</span>
+    <span class="n">JavaCalls</span><span class="o">::</span><span class="n">call</span><span class="p">(</span><span class="o">&amp;</span><span class="n">result</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">args</span><span class="p">,</span> <span class="n">CHECK</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="c1">// 把新的class加入到systemDictionary
+</span><span class="c1"></span>  <span class="c1">//
+</span><span class="c1"></span>  <span class="c1">// Add the new class. We need recompile lock during update of CHA.
+</span><span class="c1"></span>  <span class="p">{</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">p_hash</span> <span class="o">=</span> <span class="n">placeholders</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">compute_hash</span><span class="p">(</span><span class="n">name_h</span><span class="p">);</span>
+    <span class="kt">int</span> <span class="n">p_index</span> <span class="o">=</span> <span class="n">placeholders</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">hash_to_index</span><span class="p">(</span><span class="n">p_hash</span><span class="p">);</span>
+
+    <span class="n">MutexLocker</span> <span class="nf">mu_r</span><span class="p">(</span><span class="n">Compile_lock</span><span class="p">,</span> <span class="n">THREAD</span><span class="p">);</span>
+
+    <span class="c1">// 添加到class结构目录，初始化虚拟表，并把状态标记为loaded
+</span><span class="c1"></span>    <span class="c1">//
+</span><span class="c1"></span>    <span class="c1">// Add to class hierarchy, initialize vtables, and do possible
+</span><span class="c1"></span>    <span class="c1">// deoptimizations.
+</span><span class="c1"></span>    <span class="n">add_to_hierarchy</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">CHECK</span><span class="p">);</span> <span class="c1">// No exception, but can block
+</span><span class="c1"></span>
+    <span class="c1">// 执行更新操作
+</span><span class="c1"></span>    <span class="c1">//
+</span><span class="c1"></span>    <span class="c1">// Add to systemDictionary - so other classes can see it.
+</span><span class="c1"></span>    <span class="c1">// Grabs and releases SystemDictionary_lock
+</span><span class="c1"></span>    <span class="n">update_dictionary</span><span class="p">(</span><span class="n">d_index</span><span class="p">,</span> <span class="n">d_hash</span><span class="p">,</span> <span class="n">p_index</span><span class="p">,</span> <span class="n">p_hash</span><span class="p">,</span>
+                      <span class="n">k</span><span class="p">,</span> <span class="n">class_loader_h</span><span class="p">,</span> <span class="n">THREAD</span><span class="p">);</span>
+  <span class="p">}</span>
+  
+  <span class="c1">// ============================================
+</span><span class="c1"></span>  <span class="c1">// 链接并初始化klass
+</span><span class="c1"></span>  <span class="c1">// ============================================
+</span><span class="c1"></span>  <span class="n">k</span><span class="o">-&gt;</span><span class="n">eager_initialize</span><span class="p">(</span><span class="n">THREAD</span><span class="p">);</span>
+
+  <span class="c1">// 通知 jvmti
+</span><span class="c1"></span>  <span class="k">if</span> <span class="p">(</span><span class="n">JvmtiExport</span><span class="o">::</span><span class="n">should_post_class_load</span><span class="p">())</span> <span class="p">{</span>
+      <span class="n">assert</span><span class="p">(</span><span class="n">THREAD</span><span class="o">-&gt;</span><span class="n">is_Java_thread</span><span class="p">(),</span> <span class="s">&#34;thread-&gt;is_Java_thread()&#34;</span><span class="p">);</span>
+      <span class="n">JvmtiExport</span><span class="o">::</span><span class="n">post_class_load</span><span class="p">((</span><span class="n">JavaThread</span> <span class="o">*</span><span class="p">)</span> <span class="n">THREAD</span><span class="p">,</span> <span class="n">k</span><span class="p">);</span>
+
+  <span class="p">}</span>
+  <span class="n">class_define_event</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">loader_data</span><span class="p">);</span>
+<span class="p">}</span></code></pre></div>
+<h1 id="instanceklass-cpp-eager-initialize">instanceKlass.cpp # eager_initialize()</h1>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="n">InstanceKlass</span><span class="o">::</span><span class="n">eager_initialize</span><span class="p">(</span><span class="n">Thread</span> <span class="o">*</span><span class="kr">thread</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">EagerInitialization</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">this</span><span class="o">-&gt;</span><span class="n">is_not_initialized</span><span class="p">())</span> <span class="p">{</span>
+    <span class="c1">// abort if the the class has a class initializer
+</span><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="n">this</span><span class="o">-&gt;</span><span class="n">class_initializer</span><span class="p">()</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+
+    <span class="c1">// abort if it is java.lang.Object (initialization is handled in genesis)
+</span><span class="c1"></span>    <span class="n">Klass</span><span class="o">*</span> <span class="n">super_klass</span> <span class="o">=</span> <span class="n">super</span><span class="p">();</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">super_klass</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+
+    <span class="c1">// abort if the super class should be initialized
+</span><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">InstanceKlass</span><span class="o">::</span><span class="n">cast</span><span class="p">(</span><span class="n">super_klass</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">is_initialized</span><span class="p">())</span> <span class="k">return</span><span class="p">;</span>
+
+    <span class="c1">// ============================================
+</span><span class="c1"></span>    <span class="c1">// 执行初始化该指针
+</span><span class="c1"></span>    <span class="c1">// ============================================
+</span><span class="c1"></span>    <span class="n">eager_initialize_impl</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="p">}</span></code></pre></div>
+<h1 id="instanceklass-cpp-eager-initialize-impl">instanceKlass.cpp # eager_initialize_impl()</h1>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="n">InstanceKlass</span><span class="o">::</span><span class="n">eager_initialize_impl</span><span class="p">()</span> <span class="p">{</span>
+  <span class="n">EXCEPTION_MARK</span><span class="p">;</span>
+  <span class="n">HandleMark</span> <span class="nf">hm</span><span class="p">(</span><span class="n">THREAD</span><span class="p">);</span>
+  <span class="n">Handle</span> <span class="nf">h_init_lock</span><span class="p">(</span><span class="n">THREAD</span><span class="p">,</span> <span class="n">init_lock</span><span class="p">());</span>
+  <span class="n">ObjectLocker</span> <span class="nf">ol</span><span class="p">(</span><span class="n">h_init_lock</span><span class="p">,</span> <span class="n">THREAD</span><span class="p">,</span> <span class="n">h_init_lock</span><span class="p">()</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">);</span>
+
+  <span class="c1">// abort if someone beat us to the initialization
+</span><span class="c1"></span>  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">is_not_initialized</span><span class="p">())</span> <span class="k">return</span><span class="p">;</span>  <span class="c1">// note: not equivalent to is_initialized()
+</span><span class="c1"></span>
+  <span class="n">ClassState</span> <span class="n">old_state</span> <span class="o">=</span> <span class="n">init_state</span><span class="p">();</span>
+  <span class="c1">// =====================================================
+</span><span class="c1"></span>  <span class="c1">//
+</span><span class="c1"></span>  <span class="c1">//     链接class
+</span><span class="c1"></span>  <span class="c1">//
+</span><span class="c1"></span>  <span class="c1">// =====================================================
+</span><span class="c1"></span>  <span class="n">link_class_impl</span><span class="p">(</span><span class="nb">true</span><span class="p">,</span> <span class="n">THREAD</span><span class="p">);</span>
+  
+  <span class="k">if</span> <span class="p">(</span><span class="n">HAS_PENDING_EXCEPTION</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">CLEAR_PENDING_EXCEPTION</span><span class="p">;</span>
+   
+    <span class="k">if</span> <span class="p">(</span><span class="n">old_state</span> <span class="o">!=</span> <span class="n">_init_state</span><span class="p">)</span>
+      <span class="n">set_init_state</span><span class="p">(</span><span class="n">old_state</span><span class="p">);</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+
+    <span class="c1">// =====================================================
+</span><span class="c1"></span>    <span class="c1">// class状态标记为fully_initialized
+</span><span class="c1"></span>    <span class="c1">// =====================================================
+</span><span class="c1"></span>    <span class="n">set_init_state</span><span class="p">(</span><span class="n">fully_initialized</span><span class="p">);</span>
+    <span class="n">fence_and_clear_init_lock</span><span class="p">();</span>
+<span class="p">}</span></code></pre></div>
+<h1 id="instanceklass-cpp-link-class-impl">instanceKlass.cpp # link_class_impl()</h1>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">bool</span> <span class="n">InstanceKlass</span><span class="o">::</span><span class="n">link_class_impl</span><span class="p">(</span><span class="kt">bool</span> <span class="n">throw_verifyerror</span><span class="p">,</span> <span class="n">TRAPS</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="c1">// return if already verified
+</span><span class="c1"></span>  <span class="k">if</span> <span class="p">(</span><span class="n">is_linked</span><span class="p">())</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+  <span class="p">}</span>
+  
+  <span class="n">JavaThread</span><span class="o">*</span> <span class="n">jt</span> <span class="o">=</span> <span class="p">(</span><span class="n">JavaThread</span><span class="o">*</span><span class="p">)</span><span class="n">THREAD</span><span class="p">;</span>
+
+  <span class="c1">// 在链接该类之前先链接父类
+</span><span class="c1"></span>  <span class="n">Klass</span><span class="o">*</span> <span class="n">super_klass</span> <span class="o">=</span> <span class="n">super</span><span class="p">();</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">super_klass</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">super_klass</span><span class="o">-&gt;</span><span class="n">is_interface</span><span class="p">())</span> <span class="p">{</span>  <span class="c1">// check if super class is an interface
+</span><span class="c1"></span>      <span class="n">ResourceMark</span> <span class="n">rm</span><span class="p">(</span><span class="n">THREAD</span><span class="p">);</span>
+      <span class="n">Exceptions</span><span class="o">::</span><span class="n">fthrow</span><span class="p">(</span>
+        <span class="n">THREAD_AND_LOCATION</span><span class="p">,</span>
+        <span class="n">vmSymbols</span><span class="o">::</span><span class="n">java_lang_IncompatibleClassChangeError</span><span class="p">(),</span>
+        <span class="s">&#34;class %s has interface %s as super class&#34;</span><span class="p">,</span>
+        <span class="n">external_name</span><span class="p">(),</span>
+        <span class="n">super_klass</span><span class="o">-&gt;</span><span class="n">external_name</span><span class="p">()</span>
+      <span class="p">);</span>
+      <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">InstanceKlass</span><span class="o">*</span> <span class="n">ik_super</span> <span class="o">=</span> <span class="n">InstanceKlass</span><span class="o">::</span><span class="n">cast</span><span class="p">(</span><span class="n">super_klass</span><span class="p">);</span>
+    <span class="c1">// 递归调用当前方法进行链接
+</span><span class="c1"></span>    <span class="n">ik_super</span><span class="o">-&gt;</span><span class="n">link_class_impl</span><span class="p">(</span><span class="n">throw_verifyerror</span><span class="p">,</span> <span class="n">CHECK_false</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="c1">// 在链接该类之前先链接该类实现的所有接口
+</span><span class="c1"></span>  <span class="n">Array</span><span class="o">&lt;</span><span class="n">Klass</span><span class="o">*&gt;*</span> <span class="n">interfaces</span> <span class="o">=</span> <span class="n">local_interfaces</span><span class="p">();</span>
+  <span class="kt">int</span> <span class="n">num_interfaces</span> <span class="o">=</span> <span class="n">interfaces</span><span class="o">-&gt;</span><span class="n">length</span><span class="p">();</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="n">num_interfaces</span><span class="p">;</span> <span class="n">index</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">InstanceKlass</span><span class="o">*</span> <span class="n">interk</span> <span class="o">=</span> <span class="n">InstanceKlass</span><span class="o">::</span><span class="n">cast</span><span class="p">(</span><span class="n">interfaces</span><span class="o">-&gt;</span><span class="n">at</span><span class="p">(</span><span class="n">index</span><span class="p">));</span>
+    <span class="n">interk</span><span class="o">-&gt;</span><span class="n">link_class_impl</span><span class="p">(</span><span class="n">throw_verifyerror</span><span class="p">,</span> <span class="n">CHECK_false</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="c1">// in case the class is linked in the process of linking its superclasses
+</span><span class="c1"></span>  <span class="k">if</span> <span class="p">(</span><span class="n">is_linked</span><span class="p">())</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="c1">// 验证 &amp; 重写
+</span><span class="c1"></span>  <span class="c1">// verification &amp; rewriting
+</span><span class="c1"></span>  <span class="p">{</span>
+    <span class="n">HandleMark</span> <span class="n">hm</span><span class="p">(</span><span class="n">THREAD</span><span class="p">);</span>
+    <span class="n">Handle</span> <span class="nf">h_init_lock</span><span class="p">(</span><span class="n">THREAD</span><span class="p">,</span> <span class="n">init_lock</span><span class="p">());</span>
+    <span class="n">ObjectLocker</span> <span class="nf">ol</span><span class="p">(</span><span class="n">h_init_lock</span><span class="p">,</span> <span class="n">THREAD</span><span class="p">,</span> <span class="n">h_init_lock</span><span class="p">()</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="c1">// rewritten will have been set if loader constraint error found
+</span><span class="c1"></span>    <span class="c1">// on an earlier link attempt
+</span><span class="c1"></span>    <span class="c1">// don&#39;t verify or rewrite if already rewritten
+</span><span class="c1"></span>    <span class="c1">//
+</span><span class="c1"></span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">is_linked</span><span class="p">())</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">is_rewritten</span><span class="p">())</span> <span class="p">{</span>
+        <span class="p">{</span>
+          <span class="kt">bool</span> <span class="n">verify_ok</span> <span class="o">=</span> <span class="n">verify_code</span><span class="p">(</span><span class="n">throw_verifyerror</span><span class="p">,</span> <span class="n">THREAD</span><span class="p">);</span>
+          <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">verify_ok</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="c1">// Just in case a side-effect of verify linked this class already
+</span><span class="c1"></span>        <span class="c1">// (which can sometimes happen since the verifier loads classes
+</span><span class="c1"></span>        <span class="c1">// using custom class loaders, which are free to initialize things)
+</span><span class="c1"></span>        <span class="k">if</span> <span class="p">(</span><span class="n">is_linked</span><span class="p">())</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="c1">// also sets rewritten
+</span><span class="c1"></span>        <span class="n">rewrite_class</span><span class="p">(</span><span class="n">CHECK_false</span><span class="p">);</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">is_shared</span><span class="p">())</span> <span class="p">{</span>
+        <span class="n">SystemDictionaryShared</span><span class="o">::</span><span class="n">check_verification_constraints</span><span class="p">(</span><span class="n">this</span><span class="p">,</span> <span class="n">CHECK_false</span><span class="p">);</span>
+      <span class="p">}</span>
+
+      <span class="c1">// 重写之后链接方法
+</span><span class="c1"></span>      <span class="c1">// relocate jsrs and link methods after they are all rewritten
+</span><span class="c1"></span>      <span class="n">link_methods</span><span class="p">(</span><span class="n">CHECK_false</span><span class="p">);</span>
+
+      <span class="c1">// 方法重写后初始化虚拟表和接口表
+</span><span class="c1"></span>      <span class="c1">// Initialize the vtable and interface table after
+</span><span class="c1"></span>      <span class="c1">// methods have been rewritten since rewrite may
+</span><span class="c1"></span>      <span class="c1">// fabricate new Method*s.
+</span><span class="c1"></span>      <span class="c1">// also does loader constraint checking
+</span><span class="c1"></span>      <span class="c1">//
+</span><span class="c1"></span>      <span class="c1">// initialize_vtable and initialize_itable need to be rerun for
+</span><span class="c1"></span>      <span class="c1">// a shared class if the class is not loaded by the NULL classloader.
+</span><span class="c1"></span>      <span class="n">ClassLoaderData</span> <span class="o">*</span> <span class="n">loader_data</span> <span class="o">=</span> <span class="n">class_loader_data</span><span class="p">();</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">is_shared</span><span class="p">()</span> <span class="o">&amp;&amp;</span>
+            <span class="n">loader_data</span><span class="o">-&gt;</span><span class="n">is_the_null_class_loader_data</span><span class="p">()))</span> <span class="p">{</span>
+        <span class="n">ResourceMark</span> <span class="n">rm</span><span class="p">(</span><span class="n">THREAD</span><span class="p">);</span>
+        <span class="c1">// 初始化虚拟表
+</span><span class="c1"></span>        <span class="n">vtable</span><span class="p">().</span><span class="n">initialize_vtable</span><span class="p">(</span><span class="nb">true</span><span class="p">,</span> <span class="n">CHECK_false</span><span class="p">);</span>
+        <span class="c1">// 初始化接口表
+</span><span class="c1"></span>        <span class="n">itable</span><span class="p">().</span><span class="n">initialize_itable</span><span class="p">(</span><span class="nb">true</span><span class="p">,</span> <span class="n">CHECK_false</span><span class="p">);</span>
+      <span class="p">}</span>
+      
+      <span class="c1">// class状态标记为linked
+</span><span class="c1"></span>      <span class="n">set_init_state</span><span class="p">(</span><span class="n">linked</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">JvmtiExport</span><span class="o">::</span><span class="n">should_post_class_prepare</span><span class="p">())</span> <span class="p">{</span>
+        <span class="n">Thread</span> <span class="o">*</span><span class="kr">thread</span> <span class="o">=</span> <span class="n">THREAD</span><span class="p">;</span>
+        <span class="n">assert</span><span class="p">(</span><span class="kr">thread</span><span class="o">-&gt;</span><span class="n">is_Java_thread</span><span class="p">(),</span> <span class="s">&#34;thread-&gt;is_Java_thread()&#34;</span><span class="p">);</span>
+        <span class="n">JvmtiExport</span><span class="o">::</span><span class="n">post_class_prepare</span><span class="p">((</span><span class="n">JavaThread</span> <span class="o">*</span><span class="p">)</span> <span class="kr">thread</span><span class="p">,</span> <span class="n">this</span><span class="p">);</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span></code></pre></div>
+<p>链接完成以后最终在方法<code>eager_initialize_impl()</code>内调用<code>set_init_state(fully_initialized);</code>把klass状态标记为
+<code>初始化完成</code>状态，并返回一个可用的实例对象，至此类的<code>装载</code>、<code>验证</code>、<code>准备</code>、<code>解析</code>、<code>初始化</code>所有操作全部完成。</p>
+          </div>
+          <br>
+          <div style="text-align:center;color: #ccc;font-size:14px;">- EOF -</div>
+          <br>
+          
+            <div class="blog-tags">
+              
+                <a href="https://hunterzhao.io/tags/openjdk/">OpenJDK</a>&nbsp;
+              
+                <a href="https://hunterzhao.io/tags/jvm/">JVM</a>&nbsp;
+              
+                <a href="https://hunterzhao.io/tags/hotspot/">HotSpot</a>&nbsp;
+              
+            </div>
+          
+
+
+
+
+          
+        </article>
+
+        
+          <ul class="pager blog-pager">
+            
+              <li class="previous">
+                <a href="https://hunterzhao.io/post/2018/05/15/hotspot-explore-java-lang-class-forname/" data-toggle="tooltip" data-placement="top" title="【JVM源码探秘】细说Class.forName()底层实现">&larr; Previous Post</a>
+              </li>
+            
+            
+              <li class="next">
+                <a href="https://hunterzhao.io/post/2018/05/20/hotspot-explore-thread-model/" data-toggle="tooltip" data-placement="top" title="【JVM源码探秘】JVM线程模型概览">Next Post &rarr;</a>
+              </li>
+            
+          </ul>
+        
+      </div>
+
+        
+          
+            <div class="disqus-comments">
+              <div id="disqus_thread"></div>
+<script>
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "workholiday" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+            </div>
+          
+          
+        
+      </div>
+  </div>
+</div>
+
+    <footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="mailto:mailto:zhaohevip@gmail.com" title="Email me" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-envelope fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.facebook.com/MrHunterZhao" title="Facebook" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/hzio" title="GitHub" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/mrhunterzhao" title="Twitter" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://stackoverflow.com/users/1858561/hunter-zhao" title="StackOverflow" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-stack-overflow fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://weibo.com/mrbobzhao" title="微博" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+          <li>
+            
+            <a href="https://hunterzhao.io/index.xml" title="RSS" target="_blank">
+            
+              <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          
+            
+              <a href="https://hunterzhao.io">HunterZhao</a>
+            
+          
+
+          &nbsp;&bull;&nbsp;
+          2018
+
+          
+            &nbsp;&bull;&nbsp;
+            <a href="https://hunterzhao.io">WorkHoliday</a>
+          
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          <a href="http://gohugo.io">Hugo v0.44</a> powered &nbsp;&bull;&nbsp; Theme by <a href="http://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a> adapted to <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/contrib/auto-render.min.js" integrity="sha384-dq1/gEHSxPZQ7DdrM82ID4YVol9BYyU7GbWlIwnwyPzotpoc57wDw/guX8EaYGPx" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://hunterzhao.io/js/main.js"></script>
+<script src="https://hunterzhao.io/js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> $(document).ready(function() {$("pre.chroma").css("padding","0");}); </script><script> renderMathInElement(document.body); </script>
+
+
+
+
+
+
+
+
+
+  </body>
+</html>
+

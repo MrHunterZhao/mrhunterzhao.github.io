@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>多线程 on WorkHoliday</title>
+    <link>https://hunterzhao.io/categories/%E5%A4%9A%E7%BA%BF%E7%A8%8B/</link>
+    <description>Recent content in 多线程 on WorkHoliday</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <managingEditor>mailto:zhaohevip@gmail.com (HunterZhao)</managingEditor>
+    <webMaster>mailto:zhaohevip@gmail.com (HunterZhao)</webMaster>
+    <lastBuildDate>Tue, 01 May 2018 03:27:18 +0000</lastBuildDate>
+    
+	<atom:link href="https://hunterzhao.io/categories/%E5%A4%9A%E7%BA%BF%E7%A8%8B/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>聊一聊使用多线程处理MQ消息的正确姿势</title>
+      <link>https://hunterzhao.io/post/2018/05/01/consume-mq-message-with-multithreading/</link>
+      <pubDate>Tue, 01 May 2018 03:27:18 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2018/05/01/consume-mq-message-with-multithreading/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;Q：有这样一个场景，MQ的生产者生产消息能力是消费者的数倍。
+如果不能尽快消费完会导致队列中的消息随着时间的推移会越积越多，而且业务也无任何时效性可言，
+那么问题来了，在不增加消费节点的前提下如何快速处理完消息以保证吞吐量？&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;面对以上问题，有人可能会信心满满地脱口而出：&lt;strong&gt;用多线程&lt;/strong&gt;。OK，我只能说思路没错，那么如何落地呢？&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

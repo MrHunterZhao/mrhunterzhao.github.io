@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>异步 on WorkHoliday</title>
+    <link>https://hunterzhao.io/tags/%E5%BC%82%E6%AD%A5/</link>
+    <description>Recent content in 异步 on WorkHoliday</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <managingEditor>mailto:zhaohevip@gmail.com (HunterZhao)</managingEditor>
+    <webMaster>mailto:zhaohevip@gmail.com (HunterZhao)</webMaster>
+    <lastBuildDate>Sun, 06 May 2018 23:40:47 +0000</lastBuildDate>
+    
+	<atom:link href="https://hunterzhao.io/tags/%E5%BC%82%E6%AD%A5/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>集群架构中的异步回调模型实现</title>
+      <link>https://hunterzhao.io/post/2018/05/06/async-callback-model-in-cluster-architecture/</link>
+      <pubDate>Sun, 06 May 2018 23:40:47 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2018/05/06/async-callback-model-in-cluster-architecture/</guid>
+      <description>&lt;p&gt;团队中前些天遇到这样一个问题，比较有意思也比较典型，我给出方案后团队成员实施出来，最终问题得以解决。
+&amp;gt; 一个智能终端连接到Netty服务保持会话，在异步完成某项操作后回调回来需要通过会话通知终端，终端再根据通知做相应业务处理，
+&amp;gt; 在部署单节点的情况下是OK的，但是系统整体由于要做HA，部署多节点后就会出现问题: &lt;strong&gt;并不能保证该回调请求一定负载到终端保持会话的节点&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;如何解决这个问题？这里跟大家分享一种类似场景的通用解决方案，以下是流程图：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-AsciiDoc&#34; data-lang=&#34;AsciiDoc&#34;&gt;                            &amp;lt; Async Callback Model in Cluster Architecture &amp;gt;
+
+                                              (D) Broadcast to all nodes
+                              +-----------------------------------------------------------------------+
+                              v                                                                       |
+                          + - - - - - - - - - +
+                          &amp;#39; Cluster:          &amp;#39;
+                          &amp;#39;                   &amp;#39;
++--------+  (A) Connect   &amp;#39; +---------------+ &amp;#39;  (B) Async call   +---------------+  (C) Callback   +----+
+|        | -------------&amp;gt; &amp;#39; | Server Node A | &amp;#39; ----------------&amp;gt; |               | --------------&amp;gt; |    |
+|        |                &amp;#39; +---------------+ &amp;#39;                   |               |                 |    |
+|        |                &amp;#39;                   &amp;#39;                   |               |                 |    |
+|        |                + - - - - - - - - - +                   |               |                 |    |
+|        |  (E) Notify        :                                   |               |                 |    |
+|        | &amp;lt;...................                                   |               |                 |    |
+|        |                                                        |               |                 |    |
+| Client |                + - - - - - - - - - +                   | Remote Server |                 | MQ |
+|        |                &amp;#39;                   &amp;#39;                   |               |                 |    |
+|        |                &amp;#39; +---------------+ &amp;#39;                   |               |                 |    |
+|        |                &amp;#39; | Server Node B | &amp;#39;                   |               |                 |    |
+|        |                &amp;#39; +---------------+ &amp;#39;                   |               |                 |    |
+|        |                &amp;#39; +---------------+ &amp;#39;                   |               |                 |    |
+|        |                &amp;#39; | Server Node C | &amp;#39;                   |               |                 |    |
+|        |                &amp;#39; +---------------+ &amp;#39;                   |               |                 |    |
+|        |                &amp;#39;                   &amp;#39;                   |               |                 |    |
++--------+                + - - - - - - - - - +                   +---------------+                 +----+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

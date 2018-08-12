@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>Spring Boot</title>
+  <meta property="og:title" content="Spring Boot" />
+  <meta name="twitter:title" content="Spring Boot" />
+  <meta name="author" content="HunterZhao"/>
+  <link href='https://hunterzhao.io/img/favicon-rh-100x100.png' rel='icon' type='image/x-icon'/>
+  <meta property="og:image" content="https://hunterzhao.io/img/4090800.jpeg" />
+  <meta name="twitter:image" content="https://hunterzhao.io/img/4090800.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@mrhunterzhao" />
+  <meta name="twitter:creator" content="@mrhunterzhao" />
+  <meta property="og:url" content="https://hunterzhao.io/tags/spring-boot/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="WorkHoliday" />
+
+  <meta name="generator" content="Hugo 0.44" />
+  <link rel="canonical" href="https://hunterzhao.io/tags/spring-boot/" />
+  <link rel="alternate" href="https://hunterzhao.io/tags/spring-boot/index.xml" type="application/rss+xml" title="WorkHoliday">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://hunterzhao.io/css/main.css" />
+  <link rel="stylesheet" href="https://hunterzhao.io/css/highlight.min.css" /><link rel="stylesheet" href="https://hunterzhao.io/css/highlight/styles/tomorrow-night-blue.css" /><link rel="stylesheet" href="https://hunterzhao.io/css/codeblock.css" />
+
+  <link rel="stylesheet" href="https://hunterzhao.io/css/animate.css">
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.css" integrity="sha384-h/L2W9KefUClHWaty3SLE5F/qvc4djlyR4qY3NUV5HGQBBW7stbcfff1+I/vmsHh" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/default-skin/default-skin.min.css" integrity="sha384-iD0dNku6PYSIQLyfTOpB06F2KCZJAKLOThS5HRe8b3ibhdEQ6eKsFf/EeFxdOt5R" crossorigin="anonymous">
+
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+</head>
+
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="https://hunterzhao.io">
+        <span class="logo">WorkHoliday</span>
+      </a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li>
+              <a class="dim link light-silver" title="首页" href="/">首页</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="文章" href="/post">文章</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="书单" href="/books">书单</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="作品" href="/works">作品</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="分类" href="/categories">分类</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="Tags" href="/tags">Tags</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="关于" href="/about">关于</a>
+            </li>
+          
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    <div class="avatar-container">
+      <div class="avatar-img-border">
+        
+          <a title="WorkHoliday" href="https://hunterzhao.io">
+            <img class="avatar-img" src="https://hunterzhao.io/img/4090800.jpeg" alt="WorkHoliday" />
+          </a>
+        
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+
+
+
+    
+  <header class="header-section ">
+    <div class="intro-header no-img">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+            <div class="page-heading">
+              <h1>#Spring Boot</h1>
+              <hr class="small">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+    
+  <div class="container" role="main">
+    <div class="row">
+      <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+        
+        <div class="posts-list animated fadeInUp">
+          
+            <div class="post-block">
+              <article class="post-preview">
+                <a href="https://hunterzhao.io/post/2017/12/02/customize-feign-decoder-in-spring-cloud/">
+                  <h2 class="post-title">SpringCloud自定义Feign解码器</h2>
+
+                  
+                </a>
+
+                <hr>
+                <p class="post-meta">
+                  <span class="post-meta">
+  
+  
+  <i class="fa fa-calendar-o"></i>&nbsp;Posted on December 2, 2017
+  
+  
+  &nbsp;|&nbsp;
+  <i class="fa fa-clock-o"></i> 1 minutes (70 words)
+  
+  
+</span>
+
+
+                </p>
+                <div class="post-entry">
+                  
+                  <p><img src="/images/post/2017/11/10/spring-cloud-logo.jpg" alt="spring-cloud" />
+在SpringCloud微服务中，Feign组件帮我们把跨服务HTTP请求模板化，我们的FeignClient看上去可能是下面这样，</p>
+
+<p>返回值都被封装在一个ApiResponse中，调用者获取真正内容时需要再次获取ApiResponse中的data内容，略显恶心。</p>
+
+<p></p>
+                  <a href="https://hunterzhao.io/post/2017/12/02/customize-feign-decoder-in-spring-cloud/" class="post-read-more">Read More>></a>
+                  
+                </div>
+
+                
+                <div class="blog-tags">
+                  
+                  <a href="https://hunterzhao.io/tags/spring-cloud/">Spring Cloud</a>&nbsp;
+                  
+                  <a href="https://hunterzhao.io/tags/spring-boot/">Spring Boot</a>&nbsp;
+                  
+                </div>
+                
+
+              </article>
+            </div>
+            <br>
+          
+            <div class="post-block">
+              <article class="post-preview">
+                <a href="https://hunterzhao.io/post/2017/11/22/cors-filter-settings-in-zuul-of-spring-cloud/">
+                  <h2 class="post-title">SpringCloud设置zuul网关跨域访问</h2>
+
+                  
+                </a>
+
+                <hr>
+                <p class="post-meta">
+                  <span class="post-meta">
+  
+  
+  <i class="fa fa-calendar-o"></i>&nbsp;Posted on November 22, 2017
+  
+  
+  &nbsp;|&nbsp;
+  <i class="fa fa-clock-o"></i> 1 minutes (38 words)
+  
+  
+</span>
+
+
+                </p>
+                <div class="post-entry">
+                  
+                  <p><img src="/images/post/2017/11/10/spring-cloud-logo.jpg" alt="spring-cloud" />
+SpringCloud设置跨域访问只需在zuul网关服务中加入如下configuration即可。</p>
+
+<p></p>
+                  <a href="https://hunterzhao.io/post/2017/11/22/cors-filter-settings-in-zuul-of-spring-cloud/" class="post-read-more">Read More>></a>
+                  
+                </div>
+
+                
+                <div class="blog-tags">
+                  
+                  <a href="https://hunterzhao.io/tags/spring-cloud/">Spring Cloud</a>&nbsp;
+                  
+                  <a href="https://hunterzhao.io/tags/spring-boot/">Spring Boot</a>&nbsp;
+                  
+                </div>
+                
+
+              </article>
+            </div>
+            <br>
+          
+            <div class="post-block">
+              <article class="post-preview">
+                <a href="https://hunterzhao.io/post/2017/11/20/using-redis-in-spring-cloud/">
+                  <h2 class="post-title">SpringCloud集成Redis哨兵</h2>
+
+                  
+                </a>
+
+                <hr>
+                <p class="post-meta">
+                  <span class="post-meta">
+  
+  
+  <i class="fa fa-calendar-o"></i>&nbsp;Posted on November 20, 2017
+  
+  
+  &nbsp;|&nbsp;
+  <i class="fa fa-clock-o"></i> 1 minutes (34 words)
+  
+  
+</span>
+
+
+                </p>
+                <div class="post-entry">
+                  
+                  <p><img src="/images/post/2017/11/10/spring-cloud-logo.jpg" alt="spring-cloud" />
+在SpringCloud中我们可以很容易地集成并使用Redis缓存，在pom.xml中加入依赖，
+
+pom.xml</p>
+                  <a href="https://hunterzhao.io/post/2017/11/20/using-redis-in-spring-cloud/" class="post-read-more">Read More>></a>
+                  
+                </div>
+
+                
+                <div class="blog-tags">
+                  
+                  <a href="https://hunterzhao.io/tags/spring-cloud/">Spring Cloud</a>&nbsp;
+                  
+                  <a href="https://hunterzhao.io/tags/spring-boot/">Spring Boot</a>&nbsp;
+                  
+                  <a href="https://hunterzhao.io/tags/redis/">Redis</a>&nbsp;
+                  
+                </div>
+                
+
+              </article>
+            </div>
+            <br>
+          
+            <div class="post-block">
+              <article class="post-preview">
+                <a href="https://hunterzhao.io/post/2017/11/16/set-http-message-converter-as-fastjson-in-spring-cloud/">
+                  <h2 class="post-title">SpringCloud设置HttpMessageConverter为fastjson格式化输出</h2>
+
+                  
+                </a>
+
+                <hr>
+                <p class="post-meta">
+                  <span class="post-meta">
+  
+  
+  <i class="fa fa-calendar-o"></i>&nbsp;Posted on November 16, 2017
+  
+  
+  &nbsp;|&nbsp;
+  <i class="fa fa-clock-o"></i> 1 minutes (44 words)
+  
+  
+</span>
+
+
+                </p>
+                <div class="post-entry">
+                  
+                  <p><img src="/images/post/2017/11/10/spring-cloud-logo.jpg" alt="spring-cloud" /></p>
+
+<p>我们的API响应的Media类型一般是<code>application/json;charset=UTF-8</code>，在SpringCloud中可以通过如下方式设置，</p>
+
+<p>并且将HttpMessageConverter设置为fastjson，使用fastjson提供的各种功能格式化输出内容。</p>
+
+<p></p>
+                  <a href="https://hunterzhao.io/post/2017/11/16/set-http-message-converter-as-fastjson-in-spring-cloud/" class="post-read-more">Read More>></a>
+                  
+                </div>
+
+                
+                <div class="blog-tags">
+                  
+                  <a href="https://hunterzhao.io/tags/spring-cloud/">Spring Cloud</a>&nbsp;
+                  
+                  <a href="https://hunterzhao.io/tags/spring-boot/">Spring Boot</a>&nbsp;
+                  
+                </div>
+                
+
+              </article>
+            </div>
+            <br>
+          
+            <div class="post-block">
+              <article class="post-preview">
+                <a href="https://hunterzhao.io/post/2017/11/14/multiple-files-and-directories-search-in-config-center-of-spring-cloud/">
+                  <h2 class="post-title">SpringCloud配置中心多级目录多文件匹配搜索</h2>
+
+                  
+                </a>
+
+                <hr>
+                <p class="post-meta">
+                  <span class="post-meta">
+  
+  
+  <i class="fa fa-calendar-o"></i>&nbsp;Posted on November 14, 2017
+  
+  
+  &nbsp;|&nbsp;
+  <i class="fa fa-clock-o"></i> 1 minutes (24 words)
+  
+  
+</span>
+
+
+                </p>
+                <div class="post-entry">
+                  
+                  <p><img src="/images/post/2017/11/10/spring-cloud-logo.jpg" alt="spring-cloud" /></p>
+
+<p>SpringCloud将所有配置通过文件或Git模式集中化，微服务在启动时通过注册中心找到配置中心并拉取对应配置文件，
+让微服务动态更新配置成为可能。很多情况下，不同功能角色的配置文件分散在不同的配置文件中，比如<code>redis</code>和<code>rabbitmq</code>，
+多文件匹配SpringCloud也是支持的，如下：</p>
+                  <a href="https://hunterzhao.io/post/2017/11/14/multiple-files-and-directories-search-in-config-center-of-spring-cloud/" class="post-read-more">Read More>></a>
+                  
+                </div>
+
+                
+                <div class="blog-tags">
+                  
+                  <a href="https://hunterzhao.io/tags/spring-cloud/">Spring Cloud</a>&nbsp;
+                  
+                  <a href="https://hunterzhao.io/tags/spring-boot/">Spring Boot</a>&nbsp;
+                  
+                </div>
+                
+
+              </article>
+            </div>
+            <br>
+          
+            <div class="post-block">
+              <article class="post-preview">
+                <a href="https://hunterzhao.io/post/2017/11/10/use-environment-variable-or-command-line-parameter-in-spring-cloud/">
+                  <h2 class="post-title">SpringCloud中读取命令行参数或系统环境变量</h2>
+
+                  
+                </a>
+
+                <hr>
+                <p class="post-meta">
+                  <span class="post-meta">
+  
+  
+  <i class="fa fa-calendar-o"></i>&nbsp;Posted on November 10, 2017
+  
+  
+  &nbsp;|&nbsp;
+  <i class="fa fa-clock-o"></i> 1 minutes (3 words)
+  
+  
+</span>
+
+
+                </p>
+                <div class="post-entry">
+                  
+                  <p><img src="/images/post/2017/11/10/spring-cloud-logo.jpg" alt="spring-cloud" /></p>
+
+<p>SpringCloud中帮我们很方便地提供了环境适配方案，通过命令行参数或export系统环境变量指定<code>REGISTRY_CENTER_URI</code>值，</p>
+
+<p>如果读取到，SpringCloud优先使用该值，如果该变量未指定则使用默认值<code>http://localhost:9000/eureka/</code>
+</p>
+                  <a href="https://hunterzhao.io/post/2017/11/10/use-environment-variable-or-command-line-parameter-in-spring-cloud/" class="post-read-more">Read More>></a>
+                  
+                </div>
+
+                
+                <div class="blog-tags">
+                  
+                  <a href="https://hunterzhao.io/tags/spring-cloud/">Spring Cloud</a>&nbsp;
+                  
+                  <a href="https://hunterzhao.io/tags/spring-boot/">Spring Boot</a>&nbsp;
+                  
+                </div>
+                
+
+              </article>
+            </div>
+            <br>
+          
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+    <footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="mailto:mailto:zhaohevip@gmail.com" title="Email me" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-envelope fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.facebook.com/MrHunterZhao" title="Facebook" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/hzio" title="GitHub" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/mrhunterzhao" title="Twitter" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://stackoverflow.com/users/1858561/hunter-zhao" title="StackOverflow" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-stack-overflow fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://weibo.com/mrbobzhao" title="微博" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+          <li>
+            
+            <a href="https://hunterzhao.io/tags/spring-boot/index.xml" title="RSS">
+            
+              <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          
+            
+              <a href="https://hunterzhao.io">HunterZhao</a>
+            
+          
+
+          &nbsp;&bull;&nbsp;
+          2018
+
+          
+            &nbsp;&bull;&nbsp;
+            <a href="https://hunterzhao.io">WorkHoliday</a>
+          
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          <a href="http://gohugo.io">Hugo v0.44</a> powered &nbsp;&bull;&nbsp; Theme by <a href="http://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a> adapted to <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/contrib/auto-render.min.js" integrity="sha384-dq1/gEHSxPZQ7DdrM82ID4YVol9BYyU7GbWlIwnwyPzotpoc57wDw/guX8EaYGPx" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://hunterzhao.io/js/main.js"></script>
+<script src="https://hunterzhao.io/js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> $(document).ready(function() {$("pre.chroma").css("padding","0");}); </script><script> renderMathInElement(document.body); </script>
+
+
+
+
+
+
+
+
+
+  </body>
+</html>
+

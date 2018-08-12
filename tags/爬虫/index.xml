@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>爬虫 on WorkHoliday</title>
+    <link>https://hunterzhao.io/tags/%E7%88%AC%E8%99%AB/</link>
+    <description>Recent content in 爬虫 on WorkHoliday</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <managingEditor>mailto:zhaohevip@gmail.com (HunterZhao)</managingEditor>
+    <webMaster>mailto:zhaohevip@gmail.com (HunterZhao)</webMaster>
+    <lastBuildDate>Sat, 05 May 2018 21:12:00 +0000</lastBuildDate>
+    
+	<atom:link href="https://hunterzhao.io/tags/%E7%88%AC%E8%99%AB/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>使用Python十行代码打造简单爬虫</title>
+      <link>https://hunterzhao.io/post/2018/05/05/parse_web_content_and_download_files_using_python/</link>
+      <pubDate>Sat, 05 May 2018 21:12:00 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2018/05/05/parse_web_content_and_download_files_using_python/</guid>
+      <description>&lt;p&gt;今天从&lt;a href=&#34;http://docs.huihoo.com/javaone/2015/&#34;&gt;某网站&lt;/a&gt;上看到一些文档觉得还不错， 一共有300+篇，一个个手动下载？这简直是对一个程序员的侮辱。&lt;/p&gt;
+
+&lt;p&gt;怎么办呢，写个简单的爬虫吧。&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;BeautifulSoup&lt;/code&gt;是做爬虫的好手，&lt;code&gt;requests&lt;/code&gt;是HTTP访问的强者，这里的Demo场景比较简单略显大材小用，&lt;/p&gt;
+
+&lt;p&gt;有效代码不超十行，十分简洁优雅，人生苦短，我用Python。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

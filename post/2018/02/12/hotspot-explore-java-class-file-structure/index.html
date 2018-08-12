@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>【JVM源码探秘】Java中的Class文件结构</title>
+  <meta property="og:title" content="【JVM源码探秘】Java中的Class文件结构" />
+  <meta name="twitter:title" content="【JVM源码探秘】Java中的Class文件结构" />
+  <meta name="description" content="我们都知道JVM并不能直接运行Java源文件，而是程序猿通过JDK提供的javac命令将Java源文件编译成.class二进制文件，
+然后供JVM加载并使用，也就是说class文件其实是程序猿和JVM之间交互的媒介，相当于介于用户和Linux内核之间的shell。
+
+一个class文件完整地描述了Java源文件的各种信息，Oracle JVM规范中的4.1 The ClassFile Structure 详细定义了一个标准class文件的结构
+
+">
+  <meta property="og:description" content="我们都知道JVM并不能直接运行Java源文件，而是程序猿通过JDK提供的javac命令将Java源文件编译成.class二进制文件，
+然后供JVM加载并使用，也就是说class文件其实是程序猿和JVM之间交互的媒介，相当于介于用户和Linux内核之间的shell。
+
+一个class文件完整地描述了Java源文件的各种信息，Oracle JVM规范中的4.1 The ClassFile Structure 详细定义了一个标准class文件的结构
+
+">
+  <meta name="twitter:description" content="我们都知道JVM并不能直接运行Java源文件，而是程序猿通过JDK提供的javac命令将Java源文件编译成.class二进制文件，
+然后供JVM加载并使用，也就是说class文件其实是程序猿和JVM之间交互的媒介，相当于介于用户和Linux内核之间的shell。
+
+一个class文件完整地描述了Java源文件的各种信息，Oracle JVM规范中的4.1 The ClassFile …">
+  <meta name="author" content="HunterZhao"/>
+  <link href='https://hunterzhao.io/img/favicon-rh-100x100.png' rel='icon' type='image/x-icon'/>
+  <meta property="og:image" content="https://hunterzhao.io/images/post/2018/01/29/openjdk.jpg" />
+  <meta name="twitter:image" content="https://hunterzhao.io/images/post/2018/01/29/openjdk.jpg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@mrhunterzhao" />
+  <meta name="twitter:creator" content="@mrhunterzhao" />
+  <meta property="og:url" content="https://hunterzhao.io/post/2018/02/12/hotspot-explore-java-class-file-structure/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="WorkHoliday" />
+
+  <meta name="generator" content="Hugo 0.44" />
+  <link rel="canonical" href="https://hunterzhao.io/post/2018/02/12/hotspot-explore-java-class-file-structure/" />
+  <link rel="alternate" href="https://hunterzhao.io/index.xml" type="application/rss+xml" title="WorkHoliday">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://hunterzhao.io/css/main.css" />
+  <link rel="stylesheet" href="https://hunterzhao.io/css/highlight.min.css" /><link rel="stylesheet" href="https://hunterzhao.io/css/highlight/styles/tomorrow-night-blue.css" /><link rel="stylesheet" href="https://hunterzhao.io/css/codeblock.css" />
+
+  <link rel="stylesheet" href="https://hunterzhao.io/css/animate.css">
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.css" integrity="sha384-h/L2W9KefUClHWaty3SLE5F/qvc4djlyR4qY3NUV5HGQBBW7stbcfff1+I/vmsHh" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/default-skin/default-skin.min.css" integrity="sha384-iD0dNku6PYSIQLyfTOpB06F2KCZJAKLOThS5HRe8b3ibhdEQ6eKsFf/EeFxdOt5R" crossorigin="anonymous">
+
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+</head>
+
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="https://hunterzhao.io">
+        <span class="logo">WorkHoliday</span>
+      </a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li>
+              <a class="dim link light-silver" title="首页" href="/">首页</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="文章" href="/post">文章</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="书单" href="/books">书单</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="作品" href="/works">作品</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="分类" href="/categories">分类</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="Tags" href="/tags">Tags</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="关于" href="/about">关于</a>
+            </li>
+          
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    <div class="avatar-container">
+      <div class="avatar-img-border">
+        
+          <a title="WorkHoliday" href="https://hunterzhao.io">
+            <img class="avatar-img" src="https://hunterzhao.io/img/4090800.jpeg" alt="WorkHoliday" />
+          </a>
+        
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+
+
+
+    
+  
+  
+  
+
+
+
+
+
+  
+    <div id="header-big-imgs" data-num-img=1 data-img-src-1="https://hunterzhao.io/img/banners/default_banner.jpg" ></div>
+  
+
+  <header class="header-section has-img">
+    
+      <div class="intro-header big-img">
+        
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+              <div class="post-heading">
+                <h1>【JVM源码探秘】Java中的Class文件结构</h1>
+                  
+                  
+                    <span class="post-meta">
+  
+  
+  <i class="fa fa-calendar-o"></i>&nbsp;Posted on February 12, 2018
+  
+  
+  &nbsp;|&nbsp;
+  <i class="fa fa-clock-o"></i> 2 minutes (291 words)
+  
+  
+</span>
+
+
+                  
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="img-desc" style="display: inline;"></span>
+      </div>
+    
+    <div class="intro-header no-img">
+      
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              <h1>【JVM源码探秘】Java中的Class文件结构</h1>
+                
+                
+                  <span class="post-meta">
+  
+  
+  <i class="fa fa-calendar-o"></i>&nbsp;Posted on February 12, 2018
+  
+  
+  &nbsp;|&nbsp;
+  <i class="fa fa-clock-o"></i> 2 minutes (291 words)
+  
+  
+</span>
+
+
+                
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+
+      <div class="post-block animated fadeInUp" style="opacity: 1; display: block;">
+
+        <article role="main" class="blog-post">
+          <hr>
+          <div class="blog-body">
+          <p>我们都知道JVM并不能直接运行Java源文件，而是程序猿通过JDK提供的<code>javac</code>命令将Java源文件编译成<code>.class</code>二进制文件，
+然后供JVM加载并使用，也就是说class文件其实是程序猿和JVM之间交互的媒介，相当于介于用户和Linux内核之间的shell。</p>
+
+<p>一个class文件完整地描述了Java源文件的各种信息，Oracle JVM规范中的<a href="https://docs.oracle.com/javase/specs/jvms/se10/html/jvms-4.html#jvms-4.1">4.1 The ClassFile Structure</a> 详细定义了一个标准class文件的结构</p>
+
+<p></p>
+<div class="highlight"><pre class="chroma">ClassFile {
+       u4             magic;
+       u2             minor_version;
+       u2             major_version;
+       u2             constant_pool_count;
+       cp_info        constant_pool[constant_pool_count-1];
+       u2             access_flags;
+       u2             this_class;
+       u2             super_class;
+       u2             interfaces_count;
+       u2             interfaces[interfaces_count];
+       u2             fields_count;
+       field_info     fields[fields_count];
+       u2             methods_count;
+       method_info    methods[methods_count];
+       u2             attributes_count;
+       attribute_info attributes[attributes_count];
+}</pre></div>
+<h1 id="magic">magic</h1>
+
+<p>class文件的魔数值，用于鉴定是否为一个合法class文件，值为<code>0xCAFEBABE</code></p>
+
+<h1 id="minor-version-major-version">minor_version &amp; major_version</h1>
+
+<p>class文件的主次版本号，随着JDK版本release递增，JVM运行时向下兼容，也就是说在JDK10上编译出的class文件在JRE7上无法运行，否则会抛出<code>java.lang.UnsupportedClassVersionError</code>
+minor_version和major_version项目的值是该类文件的次版本号和主版本号。 主版本号和次版本号一起决定了类文件格式的版本。
+如果一个类文件的主版本号为M，次版本号为m，那么我们将它的类文件格式的版本表示为M.m. 因此，类文件格式版本可以按照字典顺序排列，例如，1.5 &lt;2.0 &lt;2.1。
+Java虚拟机实现可以支持版本v的类文件格式，当且仅当v处于某个连续范围Mi.0≤v≤Mj.m. 范围基于实现符合的Java SE平台的版本。
+符合给定Java SE平台版本的实现必须支持表4.1-A中为该版本指定的范围，并且不支持其他范围。 （对于历史案例，显示的是JDK版本而不是Java SE平台版本。）</p>
+
+<table>
+<thead>
+<tr>
+<th>Java SE版本</th>
+<th>class文件格式版本号范围</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>1.0.2</td>
+<td>45.0 ≤ v ≤ 45.3</td>
+</tr>
+
+<tr>
+<td>1.1</td>
+<td>45.0 ≤ v ≤ 45.65535</td>
+</tr>
+
+<tr>
+<td>1.2</td>
+<td>45.0 ≤ v ≤ 46.0</td>
+</tr>
+
+<tr>
+<td>1.3</td>
+<td>45.0 ≤ v ≤ 47.0</td>
+</tr>
+
+<tr>
+<td>1.4</td>
+<td>45.0 ≤ v ≤ 48.0</td>
+</tr>
+
+<tr>
+<td>5.0</td>
+<td>45.0 ≤ v ≤ 49.0</td>
+</tr>
+
+<tr>
+<td>6</td>
+<td>45.0 ≤ v ≤ 50.0</td>
+</tr>
+
+<tr>
+<td>7</td>
+<td>45.0 ≤ v ≤ 51.0</td>
+</tr>
+
+<tr>
+<td>8</td>
+<td>45.0 ≤ v ≤ 52.0</td>
+</tr>
+
+<tr>
+<td>9</td>
+<td>45.0 ≤ v ≤ 53.0</td>
+</tr>
+
+<tr>
+<td>10</td>
+<td>45.0 ≤ v ≤ 54.0</td>
+</tr>
+</tbody>
+</table>
+
+<h1 id="constant-pool-count">constant_pool_count</h1>
+
+<p>常量池元素条目数量，constant_pool_count项的值等于constant_pool表中的条目数加1。</p>
+
+<h1 id="constant-pool-constant-pool-count-1">constant_pool[constant_pool_count-1]</h1>
+
+<p>constant_pool是一个结构表，它表示在ClassFile结构及其子结构中引用的各种字符串常量，类和接口名称，字段名称以及其他常量。
+每个constant_pool表项的格式由其第一个“标记”字节指示。constant_pool表的索引从1到constant_pool_count - 1。</p>
+
+<h1 id="access-flags">access_flags</h1>
+
+<p>access_flags项的值是用于表示对此类或接口的访问权限和属性的标志掩码。</p>
+
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>值</th>
+<th>说明</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>ACC_PUBLIC</td>
+<td>0x0001</td>
+<td>Declared public; may be accessed from outside its package.</td>
+</tr>
+
+<tr>
+<td>ACC_FINAL</td>
+<td>0x0010</td>
+<td>Declared final; no subclasses allowed.</td>
+</tr>
+
+<tr>
+<td>ACC_SUPER</td>
+<td>0x0020</td>
+<td>Treat superclass methods specially when invoked by the invokespecial instruction.</td>
+</tr>
+
+<tr>
+<td>ACC_INTERFACE</td>
+<td>0x0200</td>
+<td>Is an interface, not a class.</td>
+</tr>
+
+<tr>
+<td>ACC_ABSTRACT</td>
+<td>0x0400</td>
+<td>Declared abstract; must not be instantiated.</td>
+</tr>
+
+<tr>
+<td>ACC_SYNTHETIC</td>
+<td>0x1000</td>
+<td>Declared synthetic; not present in the source code.</td>
+</tr>
+
+<tr>
+<td>ACC_ANNOTATION</td>
+<td>0x2000</td>
+<td>Declared as an annotation type.</td>
+</tr>
+
+<tr>
+<td>ACC_ENUM</td>
+<td>0x4000</td>
+<td>Declared as an enum type.</td>
+</tr>
+
+<tr>
+<td>ACC_MODULE</td>
+<td>0x8000</td>
+<td>Is a module, not a class or interface.</td>
+</tr>
+</tbody>
+</table>
+
+<p>ACC_MODULE标志表明这个类文件定义了一个模块，而不是类或接口。如果设置了ACC_MODULE标志，则特殊规则适用于本节末尾给出的类文件。
+如果未设置ACC_MODULE标志，则当前段落下方的规则将应用于类文件。一个接口通过设置ACC_INTERFACE标志来区分。
+如果未设置ACC_INTERFACE标志，则此类文件定义一个类，而不是接口或模块。
+如果设置了ACC_INTERFACE标志，则还必须设置ACC_ABSTRACT标志，并且不得设置ACC_FINAL，ACC_SUPER，ACC_ENUM和ACC_MODULE标志集。
+如果ACC_INTERFACE标志没有置位，除了ACC_ANNOTATION和ACC_MODULE之外，可以设置表4.1-B中的其他任何标志。但是，这样的类文件不能同时设置
+其ACC_FINAL和ACC_ABSTRACT标志（JLS§8.1.1.2）。
+ACC_SUPER标志指示如果它出现在这个类或接口中，则由invokespecial指令（§invokespecial）表示两个可选语义中的哪一个。
+Java虚拟机指令集的编译器应该设置ACC_SUPER标志。在Java SE 8及更高版本中，Java虚拟机认为ACC_SUPER标志将在每个类文件中设置，
+而不管类文件中标志的实际值和类文件的版本如何。</p>
+
+<p>ACC_SUPER标志的存在是为了与用于Java编程语言的早期编译器编译的代码向后兼容。 在1.0.2之前的JDK版本中，编译器生成了access_flags，
+其中现在表示ACC_SUPER的标志没有指定的含义，并且Oracle的Java虚拟机实现忽略该标志（如果已设置）。ACC_SYNTHETIC标志表示该类或接口
+是由编译器生成的，并未出现在源代码中。
+注释类型（JLS§9.6）必须设置其ACC_ANNOTATION标志。 如果设置了ACC_ANNOTATION标志，则还必须设置ACC_INTERFACE标志。
+ACC_ENUM标志表明该类或其超类被声明为枚举类型（JLS§8.9）。
+未在表4.1-B中分配的access_flags项目的所有位保留供将来使用。 它们应该在生成的类文件中设置为零，并且应该被Java虚拟机实现忽略。</p>
+
+<h1 id="this-class">this_class</h1>
+
+<p>this_class项的值必须是constant_pool表中的有效索引。 该索引处的constant_pool条目必须是表示由此类文件定义的类或接口的CONSTANT_Class_info结构。</p>
+
+<h1 id="super-class">super_class</h1>
+
+<p>对于类来说，super_class项的值必须为零，或者必须是常量池表中的有效索引。 如果super_class项的值不为零，则该索引处的constant_pool条目
+必须是表示由此类文件定义的类的直接超类的CONSTANT_Class_info结构。 直接超类或其任何超类都不能在其ClassFile结构的access_flags项中
+设置ACC_FINAL标志。如果super_class项的值为零，那么这个类文件必须表示类Object，唯一没有直接超类的类或接口。
+对于接口来说，super_class项的值必须始终是constant_pool表中的有效索引。 该索引处的constant_pool条目必须是表示类Object的
+CONSTANT_Class_info结构。</p>
+
+<h1 id="interfaces-count">interfaces_count</h1>
+
+<p>interfaces_count项的值给出了此类或接口类型的直接超接口的数量。</p>
+
+<h1 id="interfaces-interfaces-count">interfaces[interfaces_count]</h1>
+
+<p>interfaces数组中的每个值都必须是constant_pool表中的有效索引。 在接口[i]的每个值处的constant_pool条目（其中0≤i&lt;interfaces_count）
+必须是CONSTANT_Class_info结构，该结构表示作为该类或接口类型的直接超级接口的接口，按照从左到右的顺序 类型的来源。</p>
+
+<h1 id="fields-count">fields_count</h1>
+
+<p>fields_count项的值给出了field表中field_info结构的数量。 field_info结构表示由此类或接口类型声明的所有字段，包括类变量和实例变量。</p>
+
+<h1 id="fields-fields-count">fields[fields_count]</h1>
+
+<p>字段表中的每个值都必须是一个field_info结构，以便对此类或接口中的字段进行完整描述。 字段表仅包含由此类或接口声明的那些字段。
+它不包含表示从超类或超接口继承的字段的项。</p>
+
+<h1 id="methods-count">methods_count</h1>
+
+<p>methods_count项的值给出了method_info的编号
+结构在方法表中。</p>
+
+<h1 id="methods-methods-count">methods[methods_count]</h1>
+
+<p>方法表中的每个值都必须是一个method_info结构（第4.6节），以提供此类或接口中方法的完整描述。 如果在method_info结构的access_flags项中
+没有设置ACC_NATIVE和ACC_ABSTRACT标志，则也会提供实现该方法的Java虚拟机指令。
+method_info结构表示由此类或接口类型声明的所有方法，包括实例方法，类方法，实例初始化方法）以及任何类或接口初始化方法。
+方法表不包含表示从超类或超接口继承的方法的项。</p>
+
+<h1 id="attributes-count">attributes_count</h1>
+
+<p>attributes_count项的值给出了此类的属性表中的属性数量。</p>
+
+<h1 id="attributes-attributes-count">attributes[attributes_count]</h1>
+
+<p>属性表的每个值必须是一个attribute_info结构</p>
+
+<blockquote>
+<p>如果在access_flags项中设置了ACC_MODULE标志，则可以设置access_flags项中的其他标志，并且以下规则适用于ClassFile结构的其余部分：
+  •major_version，minor_version：≥53.0（即Java SE 9及以上）
+  •this_class：模块信息
+  •super_class，interfaces_count，fields_count，methods_count：零
+  •属性：必须存在一个模块属性。 除了Module，ModulePackages，ModuleMainClass，InnerClasses，SourceFile，SourceDebugExtension，
+  RuntimeVisibleAnnotations和RuntimeInvisibleAnnotations之外，可能不会出现任何预定义的属性（§4.7）。</p>
+</blockquote>
+          </div>
+          <br>
+          <div style="text-align:center;color: #ccc;font-size:14px;">- EOF -</div>
+          <br>
+          
+            <div class="blog-tags">
+              
+                <a href="https://hunterzhao.io/tags/openjdk/">OpenJDK</a>&nbsp;
+              
+                <a href="https://hunterzhao.io/tags/jvm/">JVM</a>&nbsp;
+              
+                <a href="https://hunterzhao.io/tags/hotspot/">HotSpot</a>&nbsp;
+              
+            </div>
+          
+
+
+
+
+          
+        </article>
+
+        
+          <ul class="pager blog-pager">
+            
+              <li class="previous">
+                <a href="https://hunterzhao.io/post/2018/01/30/debug-openjdk10-source-code-on-mac-with-clion-ide/" data-toggle="tooltip" data-placement="top" title="【JVM源码探秘】在Mac上搭建OpenJDK10源码调试环境">&larr; Previous Post</a>
+              </li>
+            
+            
+              <li class="next">
+                <a href="https://hunterzhao.io/post/2018/02/23/hotspot-explore-startup-process-creation/" data-toggle="tooltip" data-placement="top" title="【JVM源码探秘】HotSpot启动流程分析-创建">Next Post &rarr;</a>
+              </li>
+            
+          </ul>
+        
+      </div>
+
+        
+          
+            <div class="disqus-comments">
+              <div id="disqus_thread"></div>
+<script>
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "workholiday" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+            </div>
+          
+          
+        
+      </div>
+  </div>
+</div>
+
+    <footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="mailto:mailto:zhaohevip@gmail.com" title="Email me" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-envelope fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.facebook.com/MrHunterZhao" title="Facebook" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/hzio" title="GitHub" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/mrhunterzhao" title="Twitter" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://stackoverflow.com/users/1858561/hunter-zhao" title="StackOverflow" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-stack-overflow fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://weibo.com/mrbobzhao" title="微博" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+          <li>
+            
+            <a href="https://hunterzhao.io/index.xml" title="RSS" target="_blank">
+            
+              <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          
+            
+              <a href="https://hunterzhao.io">HunterZhao</a>
+            
+          
+
+          &nbsp;&bull;&nbsp;
+          2018
+
+          
+            &nbsp;&bull;&nbsp;
+            <a href="https://hunterzhao.io">WorkHoliday</a>
+          
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          <a href="http://gohugo.io">Hugo v0.44</a> powered &nbsp;&bull;&nbsp; Theme by <a href="http://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a> adapted to <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/contrib/auto-render.min.js" integrity="sha384-dq1/gEHSxPZQ7DdrM82ID4YVol9BYyU7GbWlIwnwyPzotpoc57wDw/guX8EaYGPx" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://hunterzhao.io/js/main.js"></script>
+<script src="https://hunterzhao.io/js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> $(document).ready(function() {$("pre.chroma").css("padding","0");}); </script><script> renderMathInElement(document.body); </script>
+
+
+
+
+
+
+
+
+
+  </body>
+</html>
+

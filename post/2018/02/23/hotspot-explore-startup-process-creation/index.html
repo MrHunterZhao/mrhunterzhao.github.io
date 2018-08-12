@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>【JVM源码探秘】HotSpot启动流程分析-创建</title>
+  <meta property="og:title" content="【JVM源码探秘】HotSpot启动流程分析-创建" />
+  <meta name="twitter:title" content="【JVM源码探秘】HotSpot启动流程分析-创建" />
+  <meta name="description" content="在之前的文章中已经介绍了如何在Mac上编译及调试OpenJDK10源码，
+
+那么，一个Java实例从开始运行至结束经历了什么？本文将从JVM源码角度一探究竟，深入剖析HotSpot其创建流程。
+
+">
+  <meta property="og:description" content="在之前的文章中已经介绍了如何在Mac上编译及调试OpenJDK10源码，
+
+那么，一个Java实例从开始运行至结束经历了什么？本文将从JVM源码角度一探究竟，深入剖析HotSpot其创建流程。
+
+">
+  <meta name="twitter:description" content="在之前的文章中已经介绍了如何在Mac上编译及调试OpenJDK10源码，
+
+那么，一个Java实例从开始运行至结束经历了什么？本文将从JVM源码角度一探究竟，深入剖析HotSpot其创建流程。
+
+">
+  <meta name="author" content="HunterZhao"/>
+  <link href='https://hunterzhao.io/img/favicon-rh-100x100.png' rel='icon' type='image/x-icon'/>
+  <meta property="og:image" content="https://hunterzhao.io/images/post/2018/01/29/openjdk.jpg" />
+  <meta name="twitter:image" content="https://hunterzhao.io/images/post/2018/01/29/openjdk.jpg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@mrhunterzhao" />
+  <meta name="twitter:creator" content="@mrhunterzhao" />
+  <meta property="og:url" content="https://hunterzhao.io/post/2018/02/23/hotspot-explore-startup-process-creation/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="WorkHoliday" />
+
+  <meta name="generator" content="Hugo 0.44" />
+  <link rel="canonical" href="https://hunterzhao.io/post/2018/02/23/hotspot-explore-startup-process-creation/" />
+  <link rel="alternate" href="https://hunterzhao.io/index.xml" type="application/rss+xml" title="WorkHoliday">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://hunterzhao.io/css/main.css" />
+  <link rel="stylesheet" href="https://hunterzhao.io/css/highlight.min.css" /><link rel="stylesheet" href="https://hunterzhao.io/css/highlight/styles/tomorrow-night-blue.css" /><link rel="stylesheet" href="https://hunterzhao.io/css/codeblock.css" />
+
+  <link rel="stylesheet" href="https://hunterzhao.io/css/animate.css">
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.css" integrity="sha384-h/L2W9KefUClHWaty3SLE5F/qvc4djlyR4qY3NUV5HGQBBW7stbcfff1+I/vmsHh" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/default-skin/default-skin.min.css" integrity="sha384-iD0dNku6PYSIQLyfTOpB06F2KCZJAKLOThS5HRe8b3ibhdEQ6eKsFf/EeFxdOt5R" crossorigin="anonymous">
+
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+</head>
+
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="https://hunterzhao.io">
+        <span class="logo">WorkHoliday</span>
+      </a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li>
+              <a class="dim link light-silver" title="首页" href="/">首页</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="文章" href="/post">文章</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="书单" href="/books">书单</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="作品" href="/works">作品</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="分类" href="/categories">分类</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="Tags" href="/tags">Tags</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="关于" href="/about">关于</a>
+            </li>
+          
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    <div class="avatar-container">
+      <div class="avatar-img-border">
+        
+          <a title="WorkHoliday" href="https://hunterzhao.io">
+            <img class="avatar-img" src="https://hunterzhao.io/img/4090800.jpeg" alt="WorkHoliday" />
+          </a>
+        
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+
+
+
+    
+  
+  
+  
+
+
+
+
+
+  
+    <div id="header-big-imgs" data-num-img=1 data-img-src-1="https://hunterzhao.io/img/banners/default_banner.jpg" ></div>
+  
+
+  <header class="header-section has-img">
+    
+      <div class="intro-header big-img">
+        
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+              <div class="post-heading">
+                <h1>【JVM源码探秘】HotSpot启动流程分析-创建</h1>
+                  
+                  
+                    <span class="post-meta">
+  
+  
+  <i class="fa fa-calendar-o"></i>&nbsp;Posted on February 23, 2018
+  
+  
+  &nbsp;|&nbsp;
+  <i class="fa fa-clock-o"></i> 7 minutes (1480 words)
+  
+  
+</span>
+
+
+                  
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="img-desc" style="display: inline;"></span>
+      </div>
+    
+    <div class="intro-header no-img">
+      
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              <h1>【JVM源码探秘】HotSpot启动流程分析-创建</h1>
+                
+                
+                  <span class="post-meta">
+  
+  
+  <i class="fa fa-calendar-o"></i>&nbsp;Posted on February 23, 2018
+  
+  
+  &nbsp;|&nbsp;
+  <i class="fa fa-clock-o"></i> 7 minutes (1480 words)
+  
+  
+</span>
+
+
+                
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+
+      <div class="post-block animated fadeInUp" style="opacity: 1; display: block;">
+
+        <article role="main" class="blog-post">
+          <hr>
+          <div class="blog-body">
+          <p>在之前的文章中已经介绍了如何在Mac上<a href="/post/2018/01/29/compile-openjdk10-source-code-on-mac/">编译</a>及<a href="/post/2018/01/30/debug-openjdk10-source-code-on-mac-with-clion-ide/">调试</a>OpenJDK10源码，</p>
+
+<p>那么，一个Java实例从开始运行至结束经历了什么？本文将从JVM源码角度一探究竟，深入剖析HotSpot其创建流程。</p>
+
+<p></p>
+
+<h1 id="main-c-main">main.c # main()</h1>
+
+<p>程序主入口位于<code>src/java.base/share/native/launcher/main.c</code></p>
+<div class="highlight"><pre class="chroma"><code class="language-c++" data-lang="c++"><span class="kt">int</span>
+<span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">margc</span><span class="p">;</span>
+    <span class="kt">char</span><span class="o">**</span> <span class="n">margv</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">jargc</span><span class="p">;</span>
+    <span class="kt">char</span><span class="o">**</span> <span class="n">jargv</span><span class="p">;</span>
+    <span class="k">const</span> <span class="n">jboolean</span> <span class="n">const_javaw</span> <span class="o">=</span> <span class="n">JNI_FALSE</span><span class="p">;</span>
+
+    <span class="p">...</span>
+
+<span class="cp">#endif </span><span class="cm">/* WIN32 */</span><span class="cp">
+</span><span class="cp"></span>    <span class="k">return</span> <span class="n">JLI_Launch</span><span class="p">(</span><span class="n">margc</span><span class="p">,</span> <span class="n">margv</span><span class="p">,</span>
+                   <span class="n">jargc</span><span class="p">,</span> <span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">**</span><span class="p">)</span> <span class="n">jargv</span><span class="p">,</span>
+                   <span class="mi">0</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span>
+                   <span class="n">VERSION_STRING</span><span class="p">,</span>
+                   <span class="n">DOT_VERSION</span><span class="p">,</span>
+                   <span class="p">(</span><span class="n">const_progname</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="o">?</span> <span class="nl">const_progname</span> <span class="p">:</span> <span class="o">*</span><span class="n">margv</span><span class="p">,</span>
+                   <span class="p">(</span><span class="n">const_launcher</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="o">?</span> <span class="nl">const_launcher</span> <span class="p">:</span> <span class="o">*</span><span class="n">margv</span><span class="p">,</span>
+                   <span class="n">jargc</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span>
+                   <span class="n">const_cpwildcard</span><span class="p">,</span> <span class="n">const_javaw</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>main返回了<code>JLI_Launch()</code>函数，位于<code>src/java.base/share/native/libjli/java.c</code></p>
+
+<h1 id="java-c-jli-launch">java.c # JLI_Launch()</h1>
+<div class="highlight"><pre class="chroma"><code class="language-c++" data-lang="c++"><span class="cm">/*
+</span><span class="cm"> * Entry point.
+</span><span class="cm"> */</span>
+<span class="kt">int</span>
+<span class="nf">JLI_Launch</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span> <span class="n">argv</span><span class="p">,</span>              <span class="cm">/* main argc, argc */</span>
+        <span class="kt">int</span> <span class="n">jargc</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span><span class="o">**</span> <span class="n">jargv</span><span class="p">,</span>          <span class="cm">/* java args */</span>
+        <span class="kt">int</span> <span class="n">appclassc</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span><span class="o">**</span> <span class="n">appclassv</span><span class="p">,</span>  <span class="cm">/* app classpath */</span>
+        <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">fullversion</span><span class="p">,</span>                <span class="cm">/* full version defined */</span>
+        <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">dotversion</span><span class="p">,</span>                 <span class="cm">/* UNUSED dot version defined */</span>
+        <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">pname</span><span class="p">,</span>                      <span class="cm">/* program name */</span>
+        <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">lname</span><span class="p">,</span>                      <span class="cm">/* launcher name */</span>
+        <span class="n">jboolean</span> <span class="n">javaargs</span><span class="p">,</span>                      <span class="cm">/* JAVA_ARGS */</span>
+        <span class="n">jboolean</span> <span class="n">cpwildcard</span><span class="p">,</span>                    <span class="cm">/* classpath wildcard*/</span>
+        <span class="n">jboolean</span> <span class="n">javaw</span><span class="p">,</span>                         <span class="cm">/* windows-only javaw */</span>
+        <span class="n">jint</span> <span class="n">ergo</span>                               <span class="cm">/* unused */</span>
+<span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">mode</span> <span class="o">=</span> <span class="n">LM_UNKNOWN</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">what</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">main_class</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">ret</span><span class="p">;</span>
+    <span class="n">InvocationFunctions</span> <span class="n">ifn</span><span class="p">;</span>
+    <span class="n">jlong</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">jvmpath</span><span class="p">[</span><span class="n">MAXPATHLEN</span><span class="p">];</span>
+    <span class="kt">char</span> <span class="n">jrepath</span><span class="p">[</span><span class="n">MAXPATHLEN</span><span class="p">];</span>
+    <span class="kt">char</span> <span class="n">jvmcfg</span><span class="p">[</span><span class="n">MAXPATHLEN</span><span class="p">];</span>
+    
+    <span class="cm">/*
+</span><span class="cm">     * 确保运行适当的JRE
+</span><span class="cm">     * 
+</span><span class="cm">     * SelectVersion() has several responsibilities:
+</span><span class="cm">     *
+</span><span class="cm">     *  1) Disallow specification of another JRE.  With 1.9, another
+</span><span class="cm">     *     version of the JRE cannot be invoked.
+</span><span class="cm">     *  2) Allow for a JRE version to invoke JDK 1.9 or later.  Since
+</span><span class="cm">     *     all mJRE directives have been stripped from the request but
+</span><span class="cm">     *     the pre 1.9 JRE [ 1.6 thru 1.8 ], it is as if 1.9+ has been
+</span><span class="cm">     *     invoked from the command line.
+</span><span class="cm">     */</span>
+    <span class="n">SelectVersion</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span> <span class="n">argv</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">main_class</span><span class="p">);</span>
+
+    <span class="c1">// 创建运行环境，如检查系统使用的数据模型（32bit、64bit），获取使用的JRE路径，找到jvm.cfg解析已知的vm类型
+</span><span class="c1"></span>    <span class="c1">// 设置新的LD_LIBRARY_PATH变量
+</span><span class="c1"></span>    <span class="n">CreateExecutionEnvironment</span><span class="p">(</span><span class="o">&amp;</span><span class="n">argc</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">argv</span><span class="p">,</span>
+                               <span class="n">jrepath</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">jrepath</span><span class="p">),</span>
+                               <span class="n">jvmpath</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">jvmpath</span><span class="p">),</span>
+                               <span class="n">jvmcfg</span><span class="p">,</span>  <span class="k">sizeof</span><span class="p">(</span><span class="n">jvmcfg</span><span class="p">));</span>
+
+
+    <span class="c1">// 加载JVM
+</span><span class="c1"></span>    <span class="c1">// 通过jvmpath找到libjvm.so 返回以下方法
+</span><span class="c1"></span>    <span class="c1">// JNI_CreateJavaVM
+</span><span class="c1"></span>    <span class="c1">// JNI_GetDefaultJavaVMInitArgs
+</span><span class="c1"></span>    <span class="c1">// GetCreatedJavaVMs
+</span><span class="c1"></span>    <span class="c1">// 的符号地址返回，挂载到InvocationFunctions以便后续调用
+</span><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">LoadJavaVM</span><span class="p">(</span><span class="n">jvmpath</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">ifn</span><span class="p">))</span> <span class="p">{</span>
+        <span class="k">return</span><span class="p">(</span><span class="mi">6</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">IsJavaArgs</span><span class="p">())</span> <span class="p">{</span>
+        <span class="c1">// 转换命令行参数 如：javac -cp foo:foo/&#34;*&#34; -J-ms32m
+</span><span class="c1"></span>        <span class="cm">/* Preprocess wrapper arguments */</span>
+        <span class="n">TranslateApplicationArgs</span><span class="p">(</span><span class="n">jargc</span><span class="p">,</span> <span class="n">jargv</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">argc</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">argv</span><span class="p">);</span>
+
+        <span class="cm">/*
+</span><span class="cm">         * 添加了三个VM选项
+</span><span class="cm">         * -Denv.class.path 用户设置的CLASSPATH变量，如果CLASSPATH显式设置了tools.jar
+</span><span class="cm">         *  				则可以反编译VM的工具类sun.tools.*
+</span><span class="cm">         * -Dapplication.home 应用程序目录
+</span><span class="cm">         * -Djava.class.path 应用程序的类文件目录
+</span><span class="cm">         */</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">AddApplicationOptions</span><span class="p">(</span><span class="n">appclassc</span><span class="p">,</span> <span class="n">appclassv</span><span class="p">))</span> <span class="p">{</span>
+            <span class="k">return</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="cm">/* Set default CLASSPATH */</span>
+        <span class="kt">char</span><span class="o">*</span> <span class="n">cpath</span> <span class="o">=</span> <span class="n">getenv</span><span class="p">(</span><span class="s">&#34;CLASSPATH&#34;</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">cpath</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">SetClassPath</span><span class="p">(</span><span class="n">cpath</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="cm">/* 解析命令行参数-jar -cp、-version、-*path、-X*等参数
+</span><span class="cm">     *
+</span><span class="cm">     * Parse command line options; if the return value of
+</span><span class="cm">     * ParseArguments is false, the program should exit.
+</span><span class="cm">     */</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">ParseArguments</span><span class="p">(</span><span class="o">&amp;</span><span class="n">argc</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">argv</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mode</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">what</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">ret</span><span class="p">,</span> <span class="n">jrepath</span><span class="p">))</span>
+    <span class="p">{</span>
+        <span class="k">return</span><span class="p">(</span><span class="n">ret</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="c1">// 设置classpath
+</span><span class="c1"></span>    <span class="cm">/* Override class path if -jar flag was specified */</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">mode</span> <span class="o">==</span> <span class="n">LM_JAR</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">SetClassPath</span><span class="p">(</span><span class="n">what</span><span class="p">);</span>     <span class="cm">/* Override class path */</span>
+    <span class="p">}</span>
+    
+    <span class="p">...</span>
+    
+    <span class="k">return</span> <span class="n">JVMInit</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ifn</span><span class="p">,</span> <span class="n">threadStackSize</span><span class="p">,</span> <span class="n">argc</span><span class="p">,</span> <span class="n">argv</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">what</span><span class="p">,</span> <span class="n">ret</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>继续跟进<code>JVMInit()</code>方法，位于<code>src/java.base/macosx/native/libjli/java_md_macosx.c</code>，
+&gt; 注：
+&gt; 由于我的系统是Mac，所以对应的是java_md_macosx.c，
+&gt; 其他系统位于目录<code>src/java.base</code>对应操作系统类型下的java_md.c或java_md_xxx.c</p>
+
+<h1 id="java-md-macosx-c-jvminit">java_md_macosx.c # JVMInit()</h1>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">int</span>
+<span class="nf">JVMInit</span><span class="p">(</span><span class="n">InvocationFunctions</span><span class="o">*</span> <span class="n">ifn</span><span class="p">,</span> <span class="n">jlong</span> <span class="n">threadStackSize</span><span class="p">,</span>
+                 <span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">,</span>
+                 <span class="kt">int</span> <span class="n">mode</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">what</span><span class="p">,</span> <span class="kt">int</span> <span class="n">ret</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">sameThread</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">JLI_TraceLauncher</span><span class="p">(</span><span class="s">&#34;In same thread</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+        <span class="c1">// need to block this thread against the main thread
+</span><span class="c1"></span>        <span class="c1">// so signals get caught correctly
+</span><span class="c1"></span>        <span class="n">__block</span> <span class="kt">int</span> <span class="n">rslt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="n">NSAutoreleasePool</span> <span class="o">*</span><span class="n">pool</span> <span class="o">=</span> <span class="p">[[</span><span class="n">NSAutoreleasePool</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">];</span>
+        <span class="p">{</span>
+            <span class="n">NSBlockOperation</span> <span class="o">*</span><span class="n">op</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSBlockOperation</span> <span class="nl">blockOperationWithBlock</span><span class="p">:</span> <span class="o">^</span><span class="p">{</span>
+                <span class="n">JavaMainArgs</span> <span class="n">args</span><span class="p">;</span>
+                <span class="n">args</span><span class="p">.</span><span class="n">argc</span> <span class="o">=</span> <span class="n">argc</span><span class="p">;</span>
+                <span class="n">args</span><span class="p">.</span><span class="n">argv</span> <span class="o">=</span> <span class="n">argv</span><span class="p">;</span>
+                <span class="n">args</span><span class="p">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span><span class="p">;</span>
+                <span class="n">args</span><span class="p">.</span><span class="n">what</span> <span class="o">=</span> <span class="n">what</span><span class="p">;</span>
+                <span class="n">args</span><span class="p">.</span><span class="n">ifn</span>  <span class="o">=</span> <span class="o">*</span><span class="n">ifn</span><span class="p">;</span>
+                <span class="n">rslt</span> <span class="o">=</span> <span class="n">JavaMain</span><span class="p">(</span><span class="o">&amp;</span><span class="n">args</span><span class="p">);</span>
+            <span class="p">}];</span>
+
+            <span class="cm">/*
+</span><span class="cm">             * We cannot use dispatch_sync here, because it blocks the main dispatch queue.
+</span><span class="cm">             * Using the main NSRunLoop allows the dispatch queue to run properly once
+</span><span class="cm">             * SWT (or whatever toolkit this is needed for) kicks off it&#39;s own NSRunLoop
+</span><span class="cm">             * and starts running.
+</span><span class="cm">             */</span>
+            <span class="p">[</span><span class="n">op</span> <span class="nl">performSelectorOnMainThread</span><span class="p">:</span><span class="err">@</span><span class="n">selector</span><span class="p">(</span><span class="n">start</span><span class="p">)</span> <span class="nl">withObject</span><span class="p">:</span><span class="n">nil</span> <span class="nl">waitUntilDone</span><span class="p">:</span><span class="n">YES</span><span class="p">];</span>
+        <span class="p">}</span>
+        <span class="p">[</span><span class="n">pool</span> <span class="n">drain</span><span class="p">];</span>
+        <span class="k">return</span> <span class="n">rslt</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="c1">// block当前线程并且在新线程中继续执行
+</span><span class="c1"></span>        <span class="c1">// 至于为什么在新线程中创建JVM见引用https://bugs.openjdk.java.net/browse/JDK-6316197
+</span><span class="c1"></span>        <span class="k">return</span> <span class="n">ContinueInNewThread</span><span class="p">(</span><span class="n">ifn</span><span class="p">,</span> <span class="n">threadStackSize</span><span class="p">,</span> <span class="n">argc</span><span class="p">,</span> <span class="n">argv</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">what</span><span class="p">,</span> <span class="n">ret</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></div>
+<p><code>JVMInit</code>方法紧接着又return回<code>java.c</code>的<code>ContinueInNewThread()</code>方法</p>
+
+<h1 id="java-c-continueinnewthread">java.c # ContinueInNewThread()</h1>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">int</span>
+<span class="nf">ContinueInNewThread</span><span class="p">(</span><span class="n">InvocationFunctions</span><span class="o">*</span> <span class="n">ifn</span><span class="p">,</span> <span class="n">jlong</span> <span class="n">threadStackSize</span><span class="p">,</span>
+                    <span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">,</span>
+                    <span class="kt">int</span> <span class="n">mode</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">what</span><span class="p">,</span> <span class="kt">int</span> <span class="n">ret</span><span class="p">)</span>
+<span class="p">{</span>
+
+    <span class="cm">/*
+</span><span class="cm">     * 指定线程大小
+</span><span class="cm">     * If user doesn&#39;t specify stack size, check if VM has a preference.
+</span><span class="cm">     * Note that HotSpot no longer supports JNI_VERSION_1_1 but it will
+</span><span class="cm">     * return its default stack size through the init args structure.
+</span><span class="cm">     */</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">threadStackSize</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">struct</span> <span class="n">JDK1_1InitArgs</span> <span class="n">args1_1</span><span class="p">;</span>
+      <span class="n">memset</span><span class="p">((</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">args1_1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">args1_1</span><span class="p">));</span>
+      <span class="n">args1_1</span><span class="p">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">JNI_VERSION_1_1</span><span class="p">;</span>
+      <span class="n">ifn</span><span class="o">-&gt;</span><span class="n">GetDefaultJavaVMInitArgs</span><span class="p">(</span><span class="o">&amp;</span><span class="n">args1_1</span><span class="p">);</span>  <span class="cm">/* ignore return value */</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">args1_1</span><span class="p">.</span><span class="n">javaStackSize</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+         <span class="n">threadStackSize</span> <span class="o">=</span> <span class="n">args1_1</span><span class="p">.</span><span class="n">javaStackSize</span><span class="p">;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="p">{</span> <span class="cm">/* Create a new thread to create JVM and invoke main method */</span>
+      <span class="n">JavaMainArgs</span> <span class="n">args</span><span class="p">;</span>
+      <span class="kt">int</span> <span class="n">rslt</span><span class="p">;</span>
+
+      <span class="n">args</span><span class="p">.</span><span class="n">argc</span> <span class="o">=</span> <span class="n">argc</span><span class="p">;</span>
+      <span class="n">args</span><span class="p">.</span><span class="n">argv</span> <span class="o">=</span> <span class="n">argv</span><span class="p">;</span>
+      <span class="n">args</span><span class="p">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span><span class="p">;</span>
+      <span class="n">args</span><span class="p">.</span><span class="n">what</span> <span class="o">=</span> <span class="n">what</span><span class="p">;</span>
+      <span class="n">args</span><span class="p">.</span><span class="n">ifn</span> <span class="o">=</span> <span class="o">*</span><span class="n">ifn</span><span class="p">;</span>
+
+      <span class="c1">// 在新线程中执行
+</span><span class="c1"></span>      <span class="n">rslt</span> <span class="o">=</span> <span class="n">ContinueInNewThread0</span><span class="p">(</span><span class="n">JavaMain</span><span class="p">,</span> <span class="n">threadStackSize</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">args</span><span class="p">);</span>
+      <span class="cm">/* If the caller has deemed there is an error we
+</span><span class="cm">       * simply return that, otherwise we return the value of
+</span><span class="cm">       * the callee
+</span><span class="cm">       */</span>
+      <span class="k">return</span> <span class="p">(</span><span class="n">ret</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">?</span> <span class="nl">ret</span> <span class="p">:</span> <span class="n">rslt</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></div>
+<p><code>ContinueInNewThread()</code>方法调用了执行方法<code>ContinueInNewThread0()</code></p>
+
+<h1 id="java-c-continueinnewthread0">java.c # ContinueInNewThread0()</h1>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="cm">/*
+</span><span class="cm"> * Block current thread and continue execution in a new thread
+</span><span class="cm"> */</span>
+<span class="kt">int</span>
+<span class="nf">ContinueInNewThread0</span><span class="p">(</span><span class="kt">int</span> <span class="p">(</span><span class="n">JNICALL</span> <span class="o">*</span><span class="n">continuation</span><span class="p">)(</span><span class="kt">void</span> <span class="o">*</span><span class="p">),</span> <span class="n">jlong</span> <span class="n">stack_size</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span> <span class="n">args</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">rslt</span><span class="p">;</span>
+    <span class="n">pthread_t</span> <span class="n">tid</span><span class="p">;</span>
+    <span class="n">pthread_attr_t</span> <span class="n">attr</span><span class="p">;</span>
+    <span class="n">pthread_attr_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">attr</span><span class="p">);</span>
+    <span class="n">pthread_attr_setdetachstate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">attr</span><span class="p">,</span> <span class="n">PTHREAD_CREATE_JOINABLE</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">stack_size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">pthread_attr_setstacksize</span><span class="p">(</span><span class="o">&amp;</span><span class="n">attr</span><span class="p">,</span> <span class="n">stack_size</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">pthread_attr_setguardsize</span><span class="p">(</span><span class="o">&amp;</span><span class="n">attr</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span> <span class="c1">// no pthread guard page on java threads
+</span><span class="c1"></span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">pthread_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tid</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">attr</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="p">)(</span><span class="kt">void</span><span class="o">*</span><span class="p">))</span><span class="n">continuation</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kt">void</span> <span class="o">*</span> <span class="n">tmp</span><span class="p">;</span>
+      <span class="n">pthread_join</span><span class="p">(</span><span class="n">tid</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">tmp</span><span class="p">);</span>
+      <span class="n">rslt</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="p">)(</span><span class="n">intptr_t</span><span class="p">)</span><span class="n">tmp</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+     <span class="cm">/*
+</span><span class="cm">      *  调用JNI_CreateJavaVM执行创建虚拟机
+</span><span class="cm">      *
+</span><span class="cm">      * Continue execution in current thread if for some reason (e.g. out of
+</span><span class="cm">      * memory/LWP)  a new thread can&#39;t be created. This will likely fail
+</span><span class="cm">      * later in continuation as JNI_CreateJavaVM needs to create quite a
+</span><span class="cm">      * few new threads, anyway, just give it a try..
+</span><span class="cm">      */</span>
+      <span class="n">rslt</span> <span class="o">=</span> <span class="n">continuation</span><span class="p">(</span><span class="n">args</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">pthread_attr_destroy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">attr</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">rslt</span><span class="p">;</span>
+<span class="p">}</span></code></pre></div>
+<p><code>ContinueInNewThread0()</code>中最终执行了名为<code>continuation</code>的JNICALL，而这个的JNICALL正是上一步传过来的<code>JavaMain</code>，
+单看<code>JavaMain</code>这个名字就好熟悉，有木有？接下来我们看看<code>JavaMain</code>的庐山真面目</p>
+
+<h1 id="java-c-javamain">java.c # JavaMain()</h1>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="n">JNICALL</span>
+<span class="nf">JavaMain</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span> <span class="n">_args</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">JavaMainArgs</span> <span class="o">*</span><span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">JavaMainArgs</span> <span class="o">*</span><span class="p">)</span><span class="n">_args</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">argc</span> <span class="o">=</span> <span class="n">args</span><span class="o">-&gt;</span><span class="n">argc</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span> <span class="o">=</span> <span class="n">args</span><span class="o">-&gt;</span><span class="n">argv</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">mode</span> <span class="o">=</span> <span class="n">args</span><span class="o">-&gt;</span><span class="n">mode</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">what</span> <span class="o">=</span> <span class="n">args</span><span class="o">-&gt;</span><span class="n">what</span><span class="p">;</span>
+    <span class="n">InvocationFunctions</span> <span class="n">ifn</span> <span class="o">=</span> <span class="n">args</span><span class="o">-&gt;</span><span class="n">ifn</span><span class="p">;</span>
+
+    <span class="n">JavaVM</span> <span class="o">*</span><span class="n">vm</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">jclass</span> <span class="n">mainClass</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+    <span class="n">jclass</span> <span class="n">appClass</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span> <span class="c1">// actual application class being launched
+</span><span class="c1"></span>    <span class="n">jmethodID</span> <span class="n">mainID</span><span class="p">;</span>
+    <span class="n">jobjectArray</span> <span class="n">mainArgs</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">ret</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">jlong</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">;</span>
+
+    <span class="n">RegisterThread</span><span class="p">();</span>
+
+    <span class="c1">// ================================
+</span><span class="c1"></span>    <span class="c1">//          初始化虚拟机
+</span><span class="c1"></span>    <span class="c1">// ================================
+</span><span class="c1"></span>    <span class="cm">/* Initialize the virtual machine */</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">CounterGet</span><span class="p">();</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">InitializeJVM</span><span class="p">(</span><span class="o">&amp;</span><span class="n">vm</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">env</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">ifn</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">JLI_ReportErrorMessage</span><span class="p">(</span><span class="n">JVM_ERROR1</span><span class="p">);</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="p">...</span>
+
+    <span class="c1">// 如果输入了-version或-showversion参数
+</span><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="n">printVersion</span> <span class="o">||</span> <span class="n">showVersion</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">PrintJavaVersion</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">showVersion</span><span class="p">);</span>
+        <span class="n">CHECK_EXCEPTION_LEAVE</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">printVersion</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">LEAVE</span><span class="p">();</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="c1">// 如果jar文件和类名均未指定则输出默认usage信息
+</span><span class="c1"></span>    <span class="cm">/* If the user specified neither a class name nor a JAR file */</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">printXUsage</span> <span class="o">||</span> <span class="n">printUsage</span> <span class="o">||</span> <span class="n">what</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">LM_UNKNOWN</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">PrintUsage</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">printXUsage</span><span class="p">);</span>
+        <span class="n">CHECK_EXCEPTION_LEAVE</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+        <span class="n">LEAVE</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="n">FreeKnownVMs</span><span class="p">();</span> <span class="cm">/* after last possible PrintUsage */</span>
+
+    <span class="n">ret</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+
+    <span class="cm">/*
+</span><span class="cm">     * 加载Java程序的main方法，如果没找到则退出
+</span><span class="cm">     *
+</span><span class="cm">     * Get the application&#39;s main class. It also checks if the main
+</span><span class="cm">     * method exists.
+</span><span class="cm">     *
+</span><span class="cm">     * See bugid 5030265.  The Main-Class name has already been parsed
+</span><span class="cm">     * from the manifest, but not parsed properly for UTF-8 support.
+</span><span class="cm">     * Hence the code here ignores the value previously extracted and
+</span><span class="cm">     * uses the pre-existing code to reextract the value.  This is
+</span><span class="cm">     * possibly an end of release cycle expedient.  However, it has
+</span><span class="cm">     * also been discovered that passing some character sets through
+</span><span class="cm">     * the environment has &#34;strange&#34; behavior on some variants of
+</span><span class="cm">     * Windows.  Hence, maybe the manifest parsing code local to the
+</span><span class="cm">     * launcher should never be enhanced.
+</span><span class="cm">     *
+</span><span class="cm">     * Hence, future work should either:
+</span><span class="cm">     *     1)   Correct the local parsing code and verify that the
+</span><span class="cm">     *          Main-Class attribute gets properly passed through
+</span><span class="cm">     *          all environments,
+</span><span class="cm">     *     2)   Remove the vestages of maintaining main_class through
+</span><span class="cm">     *          the environment (and remove these comments).
+</span><span class="cm">     *
+</span><span class="cm">     * This method also correctly handles launching existing JavaFX
+</span><span class="cm">     * applications that may or may not have a Main-Class manifest entry.
+</span><span class="cm">     */</span>
+    <span class="n">mainClass</span> <span class="o">=</span> <span class="n">LoadMainClass</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">what</span><span class="p">);</span>
+    <span class="n">CHECK_EXCEPTION_NULL_LEAVE</span><span class="p">(</span><span class="n">mainClass</span><span class="p">);</span>
+    <span class="cm">/*
+</span><span class="cm">     * 获取程序主类Class对象
+</span><span class="cm">     *
+</span><span class="cm">     * In some cases when launching an application that needs a helper, e.g., a
+</span><span class="cm">     * JavaFX application with no main method, the mainClass will not be the
+</span><span class="cm">     * applications own main class but rather a helper class. To keep things
+</span><span class="cm">     * consistent in the UI we need to track and report the application main class.
+</span><span class="cm">     */</span>
+    <span class="n">appClass</span> <span class="o">=</span> <span class="n">GetApplicationClass</span><span class="p">(</span><span class="n">env</span><span class="p">);</span>
+    <span class="n">NULL_CHECK_RETURN_VALUE</span><span class="p">(</span><span class="n">appClass</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+
+    <span class="c1">// 构建main方法参数列表
+</span><span class="c1"></span>    <span class="cm">/* Build platform specific argument array */</span>
+    <span class="n">mainArgs</span> <span class="o">=</span> <span class="n">CreateApplicationArgs</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">argv</span><span class="p">,</span> <span class="n">argc</span><span class="p">);</span>
+    <span class="n">CHECK_EXCEPTION_NULL_LEAVE</span><span class="p">(</span><span class="n">mainArgs</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">dryRun</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="n">LEAVE</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="cm">/*
+</span><span class="cm">     * PostJVMInit uses the class name as the application name for GUI purposes,
+</span><span class="cm">     * for example, on OSX this sets the application name in the menu bar for
+</span><span class="cm">     * both SWT and JavaFX. So we&#39;ll pass the actual application class here
+</span><span class="cm">     * instead of mainClass as that may be a launcher or helper class instead
+</span><span class="cm">     * of the application class.
+</span><span class="cm">     */</span>
+    <span class="n">PostJVMInit</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">appClass</span><span class="p">,</span> <span class="n">vm</span><span class="p">);</span>
+    <span class="n">CHECK_EXCEPTION_LEAVE</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+
+    <span class="cm">/*
+</span><span class="cm">     * 获取main方法ID
+</span><span class="cm">     *
+</span><span class="cm">     * The LoadMainClass not only loads the main class, it will also ensure
+</span><span class="cm">     * that the main method&#39;s signature is correct, therefore further checking
+</span><span class="cm">     * is not required. The main method is invoked here so that extraneous java
+</span><span class="cm">     * stacks are not in the application stack trace.
+</span><span class="cm">     */</span>
+    <span class="n">mainID</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">GetStaticMethodID</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">mainClass</span><span class="p">,</span> <span class="s">&#34;main&#34;</span><span class="p">,</span>
+                                       <span class="s">&#34;([Ljava/lang/String;)V&#34;</span><span class="p">);</span>
+    <span class="n">CHECK_EXCEPTION_NULL_LEAVE</span><span class="p">(</span><span class="n">mainID</span><span class="p">);</span>
+
+    <span class="c1">// 调用main方法
+</span><span class="c1"></span>    <span class="cm">/* Invoke main method. */</span>
+    <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">CallStaticVoidMethod</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">mainClass</span><span class="p">,</span> <span class="n">mainID</span><span class="p">,</span> <span class="n">mainArgs</span><span class="p">);</span>
+
+    <span class="cm">/*
+</span><span class="cm">     * 如果有异常抛出，程序将返回非零结束码
+</span><span class="cm">     * 
+</span><span class="cm">     * The launcher&#39;s exit code (in the absence of calls to
+</span><span class="cm">     * System.exit) will be non-zero if main threw an exception.
+</span><span class="cm">     */</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">ExceptionOccurred</span><span class="p">(</span><span class="n">env</span><span class="p">)</span> <span class="o">==</span> <span class="nb">NULL</span> <span class="o">?</span> <span class="mi">0</span> <span class="o">:</span> <span class="mi">1</span><span class="p">;</span>
+
+    <span class="c1">// 退出
+</span><span class="c1"></span>    <span class="n">LEAVE</span><span class="p">();</span>
+<span class="p">}</span></code></pre></div>
+<p>可见<code>JavaMain()</code>是Java主程序的native调用。
+在该方法里会执行虚拟机的初始化，获取Java程序主类及main方法，然后通过JNI调用main方法，
+自此，整个JVM进程执行结束，最终退出。</p>
+
+<p><strong>值得注意的是:</strong>
+该方法中调用的<code>InitializeJVM()</code>方法会执行一系列关于虚拟机的分配、挂载、初始化等工作，下篇文章我们继续详细深入介绍。</p>
+          </div>
+          <br>
+          <div style="text-align:center;color: #ccc;font-size:14px;">- EOF -</div>
+          <br>
+          
+            <div class="blog-tags">
+              
+                <a href="https://hunterzhao.io/tags/openjdk/">OpenJDK</a>&nbsp;
+              
+                <a href="https://hunterzhao.io/tags/jvm/">JVM</a>&nbsp;
+              
+                <a href="https://hunterzhao.io/tags/hotspot/">HotSpot</a>&nbsp;
+              
+            </div>
+          
+
+
+
+
+          
+        </article>
+
+        
+          <ul class="pager blog-pager">
+            
+              <li class="previous">
+                <a href="https://hunterzhao.io/post/2018/02/12/hotspot-explore-java-class-file-structure/" data-toggle="tooltip" data-placement="top" title="【JVM源码探秘】Java中的Class文件结构">&larr; Previous Post</a>
+              </li>
+            
+            
+              <li class="next">
+                <a href="https://hunterzhao.io/post/2018/02/23/hotspot-explore-startup-process-initialization/" data-toggle="tooltip" data-placement="top" title="【JVM源码探秘】HotSpot启动流程分析-初始化">Next Post &rarr;</a>
+              </li>
+            
+          </ul>
+        
+      </div>
+
+        
+          
+            <div class="disqus-comments">
+              <div id="disqus_thread"></div>
+<script>
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "workholiday" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+            </div>
+          
+          
+        
+      </div>
+  </div>
+</div>
+
+    <footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="mailto:mailto:zhaohevip@gmail.com" title="Email me" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-envelope fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.facebook.com/MrHunterZhao" title="Facebook" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/hzio" title="GitHub" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/mrhunterzhao" title="Twitter" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://stackoverflow.com/users/1858561/hunter-zhao" title="StackOverflow" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-stack-overflow fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://weibo.com/mrbobzhao" title="微博" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+          <li>
+            
+            <a href="https://hunterzhao.io/index.xml" title="RSS" target="_blank">
+            
+              <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          
+            
+              <a href="https://hunterzhao.io">HunterZhao</a>
+            
+          
+
+          &nbsp;&bull;&nbsp;
+          2018
+
+          
+            &nbsp;&bull;&nbsp;
+            <a href="https://hunterzhao.io">WorkHoliday</a>
+          
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          <a href="http://gohugo.io">Hugo v0.44</a> powered &nbsp;&bull;&nbsp; Theme by <a href="http://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a> adapted to <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/contrib/auto-render.min.js" integrity="sha384-dq1/gEHSxPZQ7DdrM82ID4YVol9BYyU7GbWlIwnwyPzotpoc57wDw/guX8EaYGPx" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://hunterzhao.io/js/main.js"></script>
+<script src="https://hunterzhao.io/js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> $(document).ready(function() {$("pre.chroma").css("padding","0");}); </script><script> renderMathInElement(document.body); </script>
+
+
+
+
+
+
+
+
+
+  </body>
+</html>
+

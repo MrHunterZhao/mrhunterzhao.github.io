@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>集群架构中的异步回调模型实现</title>
+  <meta property="og:title" content="集群架构中的异步回调模型实现" />
+  <meta name="twitter:title" content="集群架构中的异步回调模型实现" />
+  <meta name="description" content="团队中前些天遇到这样一个问题，比较有意思也比较典型，我给出方案后团队成员实施出来，最终问题得以解决。
+&gt; 一个智能终端连接到Netty服务保持会话，在异步完成某项操作后回调回来需要通过会话通知终端，终端再根据通知做相应业务处理，
+&gt; 在部署单节点的情况下是OK的，但是系统整体由于要做HA，部署多节点后就会出现问题: 并不能保证该回调请求一定负载到终端保持会话的节点。
+
+如何解决这个问题？这里跟大家分享一种类似场景的通用解决方案，以下是流程图：
+                            &lt; Async Callback Model in Cluster Architecture &gt;
+
+                                              (D) Broadcast to all nodes
+                              &#43;-----------------------------------------------------------------------&#43;
+                              v                                                                       |
+                          &#43; - - - - - - - - - &#43;
+                          &#39; Cluster:          &#39;
+                          &#39;                   &#39;
+&#43;--------&#43;  (A) Connect   &#39; &#43;---------------&#43; &#39;  (B) Async call   &#43;---------------&#43;  (C) Callback   &#43;----&#43;
+|        | -------------&gt; &#39; | Server Node A | &#39; ----------------&gt; |               | --------------&gt; |    |
+|        |                &#39; &#43;---------------&#43; &#39;                   |               |                 |    |
+|        |                &#39;                   &#39;                   |               |                 |    |
+|        |                &#43; - - - - - - - - - &#43;                   |               |                 |    |
+|        |  (E) Notify        :                                   |               |                 |    |
+|        | &lt;...................                                   |               |                 |    |
+|        |                                                        |               |                 |    |
+| Client |                &#43; - - - - - - - - - &#43;                   | Remote Server |                 | MQ |
+|        |                &#39;                   &#39;                   |               |                 |    |
+|        |                &#39; &#43;---------------&#43; &#39;                   |               |                 |    |
+|        |                &#39; | Server Node B | &#39;                   |               |                 |    |
+|        |                &#39; &#43;---------------&#43; &#39;                   |               |                 |    |
+|        |                &#39; &#43;---------------&#43; &#39;                   |               |                 |    |
+|        |                &#39; | Server Node C | &#39;                   |               |                 |    |
+|        |                &#39; &#43;---------------&#43; &#39;                   |               |                 |    |
+|        |                &#39;                   &#39;                   |               |                 |    |
+&#43;--------&#43;                &#43; - - - - - - - - - &#43;                   &#43;---------------&#43;                 &#43;----&#43;
+">
+  <meta property="og:description" content="团队中前些天遇到这样一个问题，比较有意思也比较典型，我给出方案后团队成员实施出来，最终问题得以解决。
+&gt; 一个智能终端连接到Netty服务保持会话，在异步完成某项操作后回调回来需要通过会话通知终端，终端再根据通知做相应业务处理，
+&gt; 在部署单节点的情况下是OK的，但是系统整体由于要做HA，部署多节点后就会出现问题: 并不能保证该回调请求一定负载到终端保持会话的节点。
+
+如何解决这个问题？这里跟大家分享一种类似场景的通用解决方案，以下是流程图：
+                            &lt; Async Callback Model in Cluster Architecture &gt;
+
+                                              (D) Broadcast to all nodes
+                              &#43;-----------------------------------------------------------------------&#43;
+                              v                                                                       |
+                          &#43; - - - - - - - - - &#43;
+                          &#39; Cluster:          &#39;
+                          &#39;                   &#39;
+&#43;--------&#43;  (A) Connect   &#39; &#43;---------------&#43; &#39;  (B) Async call   &#43;---------------&#43;  (C) Callback   &#43;----&#43;
+|        | -------------&gt; &#39; | Server Node A | &#39; ----------------&gt; |               | --------------&gt; |    |
+|        |                &#39; &#43;---------------&#43; &#39;                   |               |                 |    |
+|        |                &#39;                   &#39;                   |               |                 |    |
+|        |                &#43; - - - - - - - - - &#43;                   |               |                 |    |
+|        |  (E) Notify        :                                   |               |                 |    |
+|        | &lt;...................                                   |               |                 |    |
+|        |                                                        |               |                 |    |
+| Client |                &#43; - - - - - - - - - &#43;                   | Remote Server |                 | MQ |
+|        |                &#39;                   &#39;                   |               |                 |    |
+|        |                &#39; &#43;---------------&#43; &#39;                   |               |                 |    |
+|        |                &#39; | Server Node B | &#39;                   |               |                 |    |
+|        |                &#39; &#43;---------------&#43; &#39;                   |               |                 |    |
+|        |                &#39; &#43;---------------&#43; &#39;                   |               |                 |    |
+|        |                &#39; | Server Node C | &#39;                   |               |                 |    |
+|        |                &#39; &#43;---------------&#43; &#39;                   |               |                 |    |
+|        |                &#39;                   &#39;                   |               |                 |    |
+&#43;--------&#43;                &#43; - - - - - - - - - &#43;                   &#43;---------------&#43;                 &#43;----&#43;
+">
+  <meta name="twitter:description" content="团队中前些天遇到这样一个问题，比较有意思也比较典型，我给出方案后团队成员实施出来，最终问题得以解决。
+&gt; 一个智能终端连接到Netty服务保持会话，在异步完成某项操作后回调回来需要通过会话通知终端，终端再根据通知做相应业务处理，
+&gt; 在部署单节点的情况下是OK的，但是系统整体由于要做HA，部署多节点后就会出现问题: 并不能保证该回调请求一定负载到终端保持会话的节点。
+
+如何解决这个问 …">
+  <meta name="author" content="HunterZhao"/>
+  <link href='https://hunterzhao.io/img/favicon-rh-100x100.png' rel='icon' type='image/x-icon'/>
+  <meta property="og:image" content="https://hunterzhao.io/img/4090800.jpeg" />
+  <meta name="twitter:image" content="https://hunterzhao.io/img/4090800.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@mrhunterzhao" />
+  <meta name="twitter:creator" content="@mrhunterzhao" />
+  <meta property="og:url" content="https://hunterzhao.io/post/2018/05/06/async-callback-model-in-cluster-architecture/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="WorkHoliday" />
+
+  <meta name="generator" content="Hugo 0.44" />
+  <link rel="canonical" href="https://hunterzhao.io/post/2018/05/06/async-callback-model-in-cluster-architecture/" />
+  <link rel="alternate" href="https://hunterzhao.io/index.xml" type="application/rss+xml" title="WorkHoliday">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://hunterzhao.io/css/main.css" />
+  <link rel="stylesheet" href="https://hunterzhao.io/css/highlight.min.css" /><link rel="stylesheet" href="https://hunterzhao.io/css/highlight/styles/tomorrow-night-blue.css" /><link rel="stylesheet" href="https://hunterzhao.io/css/codeblock.css" />
+
+  <link rel="stylesheet" href="https://hunterzhao.io/css/animate.css">
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.css" integrity="sha384-h/L2W9KefUClHWaty3SLE5F/qvc4djlyR4qY3NUV5HGQBBW7stbcfff1+I/vmsHh" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/default-skin/default-skin.min.css" integrity="sha384-iD0dNku6PYSIQLyfTOpB06F2KCZJAKLOThS5HRe8b3ibhdEQ6eKsFf/EeFxdOt5R" crossorigin="anonymous">
+
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+</head>
+
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="https://hunterzhao.io">
+        <span class="logo">WorkHoliday</span>
+      </a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li>
+              <a class="dim link light-silver" title="首页" href="/">首页</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="文章" href="/post">文章</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="书单" href="/books">书单</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="作品" href="/works">作品</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="分类" href="/categories">分类</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="Tags" href="/tags">Tags</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="关于" href="/about">关于</a>
+            </li>
+          
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    <div class="avatar-container">
+      <div class="avatar-img-border">
+        
+          <a title="WorkHoliday" href="https://hunterzhao.io">
+            <img class="avatar-img" src="https://hunterzhao.io/img/4090800.jpeg" alt="WorkHoliday" />
+          </a>
+        
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+
+
+
+    
+  
+  
+  
+
+
+
+
+
+  
+    <div id="header-big-imgs" data-num-img=1 data-img-src-1="https://hunterzhao.io/img/banners/default_banner.jpg" ></div>
+  
+
+  <header class="header-section has-img">
+    
+      <div class="intro-header big-img">
+        
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+              <div class="post-heading">
+                <h1>集群架构中的异步回调模型实现</h1>
+                  
+                  
+                    <span class="post-meta">
+  
+  
+  <i class="fa fa-calendar-o"></i>&nbsp;Posted on May 6, 2018
+  
+  
+  &nbsp;|&nbsp;
+  <i class="fa fa-clock-o"></i> 2 minutes (252 words)
+  
+  
+</span>
+
+
+                  
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="img-desc" style="display: inline;"></span>
+      </div>
+    
+    <div class="intro-header no-img">
+      
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              <h1>集群架构中的异步回调模型实现</h1>
+                
+                
+                  <span class="post-meta">
+  
+  
+  <i class="fa fa-calendar-o"></i>&nbsp;Posted on May 6, 2018
+  
+  
+  &nbsp;|&nbsp;
+  <i class="fa fa-clock-o"></i> 2 minutes (252 words)
+  
+  
+</span>
+
+
+                
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+
+      <div class="post-block animated fadeInUp" style="opacity: 1; display: block;">
+
+        <article role="main" class="blog-post">
+          <hr>
+          <div class="blog-body">
+          <p>团队中前些天遇到这样一个问题，比较有意思也比较典型，我给出方案后团队成员实施出来，最终问题得以解决。
+&gt; 一个智能终端连接到Netty服务保持会话，在异步完成某项操作后回调回来需要通过会话通知终端，终端再根据通知做相应业务处理，
+&gt; 在部署单节点的情况下是OK的，但是系统整体由于要做HA，部署多节点后就会出现问题: <strong>并不能保证该回调请求一定负载到终端保持会话的节点</strong>。</p>
+
+<p>如何解决这个问题？这里跟大家分享一种类似场景的通用解决方案，以下是流程图：</p>
+<div class="highlight"><pre class="chroma"><code class="language-AsciiDoc" data-lang="AsciiDoc">                            &lt; Async Callback Model in Cluster Architecture &gt;
+
+                                              (D) Broadcast to all nodes
+                              +-----------------------------------------------------------------------+
+                              v                                                                       |
+                          + - - - - - - - - - +
+                          &#39; Cluster:          &#39;
+                          &#39;                   &#39;
++--------+  (A) Connect   &#39; +---------------+ &#39;  (B) Async call   +---------------+  (C) Callback   +----+
+|        | -------------&gt; &#39; | Server Node A | &#39; ----------------&gt; |               | --------------&gt; |    |
+|        |                &#39; +---------------+ &#39;                   |               |                 |    |
+|        |                &#39;                   &#39;                   |               |                 |    |
+|        |                + - - - - - - - - - +                   |               |                 |    |
+|        |  (E) Notify        :                                   |               |                 |    |
+|        | &lt;...................                                   |               |                 |    |
+|        |                                                        |               |                 |    |
+| Client |                + - - - - - - - - - +                   | Remote Server |                 | MQ |
+|        |                &#39;                   &#39;                   |               |                 |    |
+|        |                &#39; +---------------+ &#39;                   |               |                 |    |
+|        |                &#39; | Server Node B | &#39;                   |               |                 |    |
+|        |                &#39; +---------------+ &#39;                   |               |                 |    |
+|        |                &#39; +---------------+ &#39;                   |               |                 |    |
+|        |                &#39; | Server Node C | &#39;                   |               |                 |    |
+|        |                &#39; +---------------+ &#39;                   |               |                 |    |
+|        |                &#39;                   &#39;                   |               |                 |    |
++--------+                + - - - - - - - - - +                   +---------------+                 +----+</code></pre></div>
+<p></p>
+
+<ul>
+<li>(A) 客户端向<code>Server Node A</code>发起请求并保持会话。</li>
+<li>(B) 异步向<code>Remote Server</code>发起请求处理业务。</li>
+<li>&copy; <code>Remote Server</code>处理完成后回调将消息放入消息队列。</li>
+<li>(D) MQ将回调消息以<strong>广播形式</strong>广播到集群各个节点。</li>
+<li>(E) 各节点收到广播消息后，能取到对应客户端会话则处理，否则丢弃消息。</li>
+</ul>
+
+<p>注：本案例中的客户端是以TCP连接至服务端，在HTTP服务中如果处理类似场景可以使用Java8中的<code>CompletableFuture</code>来实现。</p>
+          </div>
+          <br>
+          <div style="text-align:center;color: #ccc;font-size:14px;">- EOF -</div>
+          <br>
+          
+            <div class="blog-tags">
+              
+                <a href="https://hunterzhao.io/tags/%E6%9E%B6%E6%9E%84/">架构</a>&nbsp;
+              
+                <a href="https://hunterzhao.io/tags/%E9%9B%86%E7%BE%A4/">集群</a>&nbsp;
+              
+                <a href="https://hunterzhao.io/tags/%E5%BC%82%E6%AD%A5/">异步</a>&nbsp;
+              
+                <a href="https://hunterzhao.io/tags/%E5%9B%9E%E8%B0%83/">回调</a>&nbsp;
+              
+                <a href="https://hunterzhao.io/tags/netty/">Netty</a>&nbsp;
+              
+            </div>
+          
+
+
+
+
+          
+        </article>
+
+        
+          <ul class="pager blog-pager">
+            
+              <li class="previous">
+                <a href="https://hunterzhao.io/post/2018/05/05/parse_web_content_and_download_files_using_python/" data-toggle="tooltip" data-placement="top" title="使用Python十行代码打造简单爬虫">&larr; Previous Post</a>
+              </li>
+            
+            
+              <li class="next">
+                <a href="https://hunterzhao.io/post/2018/05/15/hotspot-explore-java-lang-class-forname/" data-toggle="tooltip" data-placement="top" title="【JVM源码探秘】细说Class.forName()底层实现">Next Post &rarr;</a>
+              </li>
+            
+          </ul>
+        
+      </div>
+
+        
+          
+            <div class="disqus-comments">
+              <div id="disqus_thread"></div>
+<script>
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "workholiday" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+            </div>
+          
+          
+        
+      </div>
+  </div>
+</div>
+
+    <footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="mailto:mailto:zhaohevip@gmail.com" title="Email me" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-envelope fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.facebook.com/MrHunterZhao" title="Facebook" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/hzio" title="GitHub" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/mrhunterzhao" title="Twitter" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://stackoverflow.com/users/1858561/hunter-zhao" title="StackOverflow" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-stack-overflow fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://weibo.com/mrbobzhao" title="微博" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+          <li>
+            
+            <a href="https://hunterzhao.io/index.xml" title="RSS" target="_blank">
+            
+              <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          
+            
+              <a href="https://hunterzhao.io">HunterZhao</a>
+            
+          
+
+          &nbsp;&bull;&nbsp;
+          2018
+
+          
+            &nbsp;&bull;&nbsp;
+            <a href="https://hunterzhao.io">WorkHoliday</a>
+          
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          <a href="http://gohugo.io">Hugo v0.44</a> powered &nbsp;&bull;&nbsp; Theme by <a href="http://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a> adapted to <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/contrib/auto-render.min.js" integrity="sha384-dq1/gEHSxPZQ7DdrM82ID4YVol9BYyU7GbWlIwnwyPzotpoc57wDw/guX8EaYGPx" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://hunterzhao.io/js/main.js"></script>
+<script src="https://hunterzhao.io/js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> $(document).ready(function() {$("pre.chroma").css("padding","0");}); </script><script> renderMathInElement(document.body); </script>
+
+
+
+
+
+
+
+
+
+  </body>
+</html>
+

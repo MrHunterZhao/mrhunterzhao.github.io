@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Hotspot on WorkHoliday</title>
+    <link>https://hunterzhao.io/tags/hotspot/</link>
+    <description>Recent content in Hotspot on WorkHoliday</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <managingEditor>mailto:zhaohevip@gmail.com (HunterZhao)</managingEditor>
+    <webMaster>mailto:zhaohevip@gmail.com (HunterZhao)</webMaster>
+    <lastBuildDate>Mon, 11 Jun 2018 13:30:00 +0000</lastBuildDate>
+    
+	<atom:link href="https://hunterzhao.io/tags/hotspot/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>【JVM源码探秘】深入理解Thread.run()底层实现</title>
+      <link>https://hunterzhao.io/post/2018/06/11/hotspot-explore-inside-java-thread-run/</link>
+      <pubDate>Mon, 11 Jun 2018 13:30:00 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2018/06/11/hotspot-explore-inside-java-thread-run/</guid>
+      <description>&lt;p&gt;对于Java程序猿来说可以通过new java.lang.Thread.start()来启动一个线程，只需要将业务逻辑放在run()方法里即可，
+如此高效且易用的Java线程在JVM层面是怎样的呢？本文将从源码角度深入解读。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>【JVM源码探秘】JVM线程模型概览</title>
+      <link>https://hunterzhao.io/post/2018/05/20/hotspot-explore-thread-model/</link>
+      <pubDate>Sun, 20 May 2018 15:30:00 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2018/05/20/hotspot-explore-thread-model/</guid>
+      <description>&lt;p&gt;HotSpot中的线程模型是Java线程（java.lang.Thread）与本地操作系统线程一一映射，本地线程在Java线程启动（调用start()）时创建，
+并在终止时回收。操作系统负责调度本地线程给可用的CPU来执行。Java线程优先级和操作系统优先级之间的关系是相当复杂的，并且因操作系统而异。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>【JVM源码探秘】细说Class的装载、链接和初始化</title>
+      <link>https://hunterzhao.io/post/2018/05/17/hotspot-explore-class-loading-linking-and-initializing/</link>
+      <pubDate>Thu, 17 May 2018 19:30:00 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2018/05/17/hotspot-explore-class-loading-linking-and-initializing/</guid>
+      <description>&lt;p&gt;接上篇&lt;a href=&#34;https://hunterzhao.io/post/2018/05/15/hotspot-explore-java-lang-class-forname/&#34;&gt;《【JVM源码探秘】细说Class.forName()底层实现》&lt;/a&gt;执行Class.forName(&amp;ldquo;com.xxx.Xxx&amp;rdquo;)通过&lt;code&gt;JavaCalls&lt;/code&gt;组件调用了
+Java方法&lt;code&gt;ClassLoader.loadClass()&lt;/code&gt;对该类进行加载&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>【JVM源码探秘】细说Class.forName()底层实现</title>
+      <link>https://hunterzhao.io/post/2018/05/15/hotspot-explore-java-lang-class-forname/</link>
+      <pubDate>Tue, 15 May 2018 19:30:00 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2018/05/15/hotspot-explore-java-lang-class-forname/</guid>
+      <description>&lt;p&gt;JVM允许在运行时动态装载类，这为开发者提供了极大方便，使用&lt;code&gt;Class.forName(&amp;quot;com.xxx.Xxx&amp;quot;)&lt;/code&gt;，
+装载完成后可以通过调用其&lt;code&gt;newInstance()&lt;/code&gt;完成对象的创建，然后便可以正常操作该类。&lt;/p&gt;
+
+&lt;p&gt;接下来我们就细说说Class.forName()在JVM层面所做的事情。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>【JVM源码探秘】深入registerNatives()底层实现</title>
+      <link>https://hunterzhao.io/post/2018/04/06/hotspot-explore-register-natives/</link>
+      <pubDate>Fri, 06 Apr 2018 19:30:00 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2018/04/06/hotspot-explore-register-natives/</guid>
+      <description>&lt;p&gt;在Java的系统包下如：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;java.lang.System&lt;/li&gt;
+&lt;li&gt;java.lang.Object&lt;/li&gt;
+&lt;li&gt;java.lang.Class&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;等类中均有一个静态块用来执行一个叫做&lt;code&gt;registerNatives()&lt;/code&gt;的native方法，&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;    &lt;span class=&#34;kd&#34;&gt;private&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;static&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;native&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;registerNatives&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
+    &lt;span class=&#34;kd&#34;&gt;static&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;n&#34;&gt;registerNatives&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
+    &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;这个native方法里究竟都做了啥？我们进去瞧瞧。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>【JVM源码探秘】深入System.gc()底层实现</title>
+      <link>https://hunterzhao.io/post/2018/04/05/hotspot-explore-system-gc/</link>
+      <pubDate>Thu, 05 Apr 2018 19:30:00 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2018/04/05/hotspot-explore-system-gc/</guid>
+      <description>&lt;p&gt;对于Java语言来说是不用手动释放内存的，并且不需要手动干预JVM的GC行为，但在一些监控和agent工具里却是必要的。&lt;/p&gt;
+
+&lt;p&gt;Hotspot为我们开放了Java语言级别的GC手动触发入口&lt;code&gt;System.gc()&lt;/code&gt;，本文将深入介绍JVM底层实现。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>【JVM源码探秘】Java对象模型之对象头</title>
+      <link>https://hunterzhao.io/post/2018/02/25/hotspot-explore-java-object-header/</link>
+      <pubDate>Sun, 25 Feb 2018 21:10:00 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2018/02/25/hotspot-explore-java-object-header/</guid>
+      <description>&lt;p&gt;一个Java对象在JVM中是由一个对应角色的&lt;code&gt;oop&lt;/code&gt;对象来描述的，比如&lt;code&gt;instanceOopDesc&lt;/code&gt;用来描述普通实例对象，&lt;code&gt;arrayOopDesc&lt;/code&gt;用来描述数组对象，而这些类型的oop对象均是继承自&lt;code&gt;oopDesc&lt;/code&gt;。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>【JVM源码探秘】Java对象模型OOP-Klass</title>
+      <link>https://hunterzhao.io/post/2018/02/24/hotspot-explore-java-object-model-oop-klass/</link>
+      <pubDate>Sat, 24 Feb 2018 20:10:00 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2018/02/24/hotspot-explore-java-object-model-oop-klass/</guid>
+      <description>&lt;p&gt;一个Java类在JVM中是如何描述的？创建一个Java对象在JVM中数据又是如何存储的？&lt;/p&gt;
+
+&lt;p&gt;在Hotspot VM中，设计者设计了OOP-Klass模型用来描述class的属性和行为，这里的OOP并不是面向对象编程（Object-oriented programming），
+而是Ordinary Object Pointer（普通对象指针），之所以设计为OOP和Klass两部分是因为不希望每个对象都有一个C ++ vtbl指针，
+因此，普通的oops没有任何虚拟功能。 相反，他们将所有“虚拟”函数转发到它们的klass，它具有vtbl并根据对象的实际类型执行C ++调度。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>【JVM源码探秘】HotSpot启动流程分析-初始化</title>
+      <link>https://hunterzhao.io/post/2018/02/23/hotspot-explore-startup-process-initialization/</link>
+      <pubDate>Fri, 23 Feb 2018 17:10:35 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2018/02/23/hotspot-explore-startup-process-initialization/</guid>
+      <description>&lt;p&gt;接&lt;a href=&#34;https://hunterzhao.io/post/2018/02/23/hotspot-explore-startup-process-creation/&#34;&gt;上篇&lt;/a&gt;，HotSpot在启动流程完成了参数的解析、JNI入口的定位、环境变量的设置等一系列操作，&lt;/p&gt;
+
+&lt;p&gt;最终在&lt;code&gt;JavaMain()&lt;/code&gt;中调用了&lt;code&gt;InitializeJVM()&lt;/code&gt;方法，用于完成虚拟机所需的内存申请、挂载和初始化，本文我们就一起一探究竟。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>【JVM源码探秘】HotSpot启动流程分析-创建</title>
+      <link>https://hunterzhao.io/post/2018/02/23/hotspot-explore-startup-process-creation/</link>
+      <pubDate>Fri, 23 Feb 2018 15:53:30 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2018/02/23/hotspot-explore-startup-process-creation/</guid>
+      <description>&lt;p&gt;在之前的文章中已经介绍了如何在Mac上&lt;a href=&#34;https://hunterzhao.io/post/2018/01/29/compile-openjdk10-source-code-on-mac/&#34;&gt;编译&lt;/a&gt;及&lt;a href=&#34;https://hunterzhao.io/post/2018/01/30/debug-openjdk10-source-code-on-mac-with-clion-ide/&#34;&gt;调试&lt;/a&gt;OpenJDK10源码，&lt;/p&gt;
+
+&lt;p&gt;那么，一个Java实例从开始运行至结束经历了什么？本文将从JVM源码角度一探究竟，深入剖析HotSpot其创建流程。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>【JVM源码探秘】Java中的Class文件结构</title>
+      <link>https://hunterzhao.io/post/2018/02/12/hotspot-explore-java-class-file-structure/</link>
+      <pubDate>Mon, 12 Feb 2018 17:10:35 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2018/02/12/hotspot-explore-java-class-file-structure/</guid>
+      <description>&lt;p&gt;我们都知道JVM并不能直接运行Java源文件，而是程序猿通过JDK提供的&lt;code&gt;javac&lt;/code&gt;命令将Java源文件编译成&lt;code&gt;.class&lt;/code&gt;二进制文件，
+然后供JVM加载并使用，也就是说class文件其实是程序猿和JVM之间交互的媒介，相当于介于用户和Linux内核之间的shell。&lt;/p&gt;
+
+&lt;p&gt;一个class文件完整地描述了Java源文件的各种信息，Oracle JVM规范中的&lt;a href=&#34;https://docs.oracle.com/javase/specs/jvms/se10/html/jvms-4.html#jvms-4.1&#34;&gt;4.1 The ClassFile Structure&lt;/a&gt; 详细定义了一个标准class文件的结构&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>【JVM源码探秘】在Mac上搭建OpenJDK10源码调试环境</title>
+      <link>https://hunterzhao.io/post/2018/01/30/debug-openjdk10-source-code-on-mac-with-clion-ide/</link>
+      <pubDate>Tue, 30 Jan 2018 01:08:18 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2018/01/30/debug-openjdk10-source-code-on-mac-with-clion-ide/</guid>
+      <description>&lt;p&gt;前面文章已经介绍了如何&lt;a href=&#34;https://hunterzhao.io/post/2018/01/29/compile-openjdk10-source-code-on-mac/&#34;&gt;在Mac上编译OpenJDK10源码&lt;/a&gt;，拥有了自己的JDK版本，&lt;/p&gt;
+
+&lt;p&gt;为了深入了解Java实例的创建、初始化和执行流程以及内部实现原理，DEBUG是必不可少的必杀技。&lt;/p&gt;
+
+&lt;p&gt;所以，本篇文章继续介绍在Mac上搭建OpenJDK10源码调试环境，黑喂狗。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>【JVM源码探秘】在Mac上编译OpenJDK10源码</title>
+      <link>https://hunterzhao.io/post/2018/01/29/compile-openjdk10-source-code-on-mac/</link>
+      <pubDate>Mon, 29 Jan 2018 01:03:13 +0000</pubDate>
+      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <guid>https://hunterzhao.io/post/2018/01/29/compile-openjdk10-source-code-on-mac/</guid>
+      <description>&lt;p&gt;博主在11年到12年的时候曾连续研究过十个月的JVM，读过的相关书籍包括：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://book.douban.com/subject/1138768/&#34;&gt;深入Java虚拟机&lt;/a&gt;
+这本书可以说是介绍JVM内部原理的鼻祖了，于2003年出版现已绝版，不过可以再某宝买到影印版。虽然当时JDK最高仅为1.4但JVM内部的构造已大体形成，所以博主强烈推荐此书。p.s 我肯定不会告诉你这书博主看了3遍：D&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://book.douban.com/subject/6522893/&#34;&gt;深入理解Java虚拟机&lt;/a&gt;
+国内周某人写的，鉴于博主对于国人写的书向来不怎么感兴趣还是不提了。&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://book.douban.com/subject/25847620/&#34;&gt;HotSpot实战&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://book.douban.com/subject/27086821/&#34;&gt;揭秘Java虚拟机 JVM设计原理与实现&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://book.douban.com/subject/26802084/&#34;&gt;自己动手写Java虚拟机&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;之前的研究基本上都是虚拟机规范和JVM参数调优层面的内容，但是总觉得有些意犹未尽所以决定深入研究一下Hotspot实现，
+由大部分C/C++和少量汇编代码构成，但清晰的结构和优雅的编码使其并不难读，不得不赞叹一句SUN的大师们的智慧。
+今天就从编译OpenJDK开始我们的《JVM源码探秘》系列文章之旅。&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

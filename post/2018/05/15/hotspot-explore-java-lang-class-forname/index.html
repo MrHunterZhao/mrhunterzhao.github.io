@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>【JVM源码探秘】细说Class.forName()底层实现</title>
+  <meta property="og:title" content="【JVM源码探秘】细说Class.forName()底层实现" />
+  <meta name="twitter:title" content="【JVM源码探秘】细说Class.forName()底层实现" />
+  <meta name="description" content="JVM允许在运行时动态装载类，这为开发者提供了极大方便，使用Class.forName(&quot;com.xxx.Xxx&quot;)，
+装载完成后可以通过调用其newInstance()完成对象的创建，然后便可以正常操作该类。
+
+接下来我们就细说说Class.forName()在JVM层面所做的事情。
+
+">
+  <meta property="og:description" content="JVM允许在运行时动态装载类，这为开发者提供了极大方便，使用Class.forName(&quot;com.xxx.Xxx&quot;)，
+装载完成后可以通过调用其newInstance()完成对象的创建，然后便可以正常操作该类。
+
+接下来我们就细说说Class.forName()在JVM层面所做的事情。
+
+">
+  <meta name="twitter:description" content="JVM允许在运行时动态装载类，这为开发者提供了极大方便，使用Class.forName(&quot;com.xxx.Xxx&quot;)，
+装载完成后可以通过调用其newInstance()完成对象的创建，然后便可以正常操作该类。
+
+接下来我们就细说说Class.forName()在JVM层面所做的事情。
+
+">
+  <meta name="author" content="HunterZhao"/>
+  <link href='https://hunterzhao.io/img/favicon-rh-100x100.png' rel='icon' type='image/x-icon'/>
+  <meta property="og:image" content="https://hunterzhao.io/images/post/2018/01/29/openjdk.jpg" />
+  <meta name="twitter:image" content="https://hunterzhao.io/images/post/2018/01/29/openjdk.jpg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@mrhunterzhao" />
+  <meta name="twitter:creator" content="@mrhunterzhao" />
+  <meta property="og:url" content="https://hunterzhao.io/post/2018/05/15/hotspot-explore-java-lang-class-forname/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="WorkHoliday" />
+
+  <meta name="generator" content="Hugo 0.44" />
+  <link rel="canonical" href="https://hunterzhao.io/post/2018/05/15/hotspot-explore-java-lang-class-forname/" />
+  <link rel="alternate" href="https://hunterzhao.io/index.xml" type="application/rss+xml" title="WorkHoliday">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://hunterzhao.io/css/main.css" />
+  <link rel="stylesheet" href="https://hunterzhao.io/css/highlight.min.css" /><link rel="stylesheet" href="https://hunterzhao.io/css/highlight/styles/tomorrow-night-blue.css" /><link rel="stylesheet" href="https://hunterzhao.io/css/codeblock.css" />
+
+  <link rel="stylesheet" href="https://hunterzhao.io/css/animate.css">
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.css" integrity="sha384-h/L2W9KefUClHWaty3SLE5F/qvc4djlyR4qY3NUV5HGQBBW7stbcfff1+I/vmsHh" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/default-skin/default-skin.min.css" integrity="sha384-iD0dNku6PYSIQLyfTOpB06F2KCZJAKLOThS5HRe8b3ibhdEQ6eKsFf/EeFxdOt5R" crossorigin="anonymous">
+
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+</head>
+
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="https://hunterzhao.io">
+        <span class="logo">WorkHoliday</span>
+      </a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li>
+              <a class="dim link light-silver" title="首页" href="/">首页</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="文章" href="/post">文章</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="书单" href="/books">书单</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="作品" href="/works">作品</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="分类" href="/categories">分类</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="Tags" href="/tags">Tags</a>
+            </li>
+          
+        
+          
+            <li>
+              <a class="dim link light-silver" title="关于" href="/about">关于</a>
+            </li>
+          
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    <div class="avatar-container">
+      <div class="avatar-img-border">
+        
+          <a title="WorkHoliday" href="https://hunterzhao.io">
+            <img class="avatar-img" src="https://hunterzhao.io/img/4090800.jpeg" alt="WorkHoliday" />
+          </a>
+        
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+
+
+
+    
+  
+  
+  
+
+
+
+
+
+  
+    <div id="header-big-imgs" data-num-img=1 data-img-src-1="https://hunterzhao.io/img/banners/default_banner.jpg" ></div>
+  
+
+  <header class="header-section has-img">
+    
+      <div class="intro-header big-img">
+        
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+              <div class="post-heading">
+                <h1>【JVM源码探秘】细说Class.forName()底层实现</h1>
+                  
+                  
+                    <span class="post-meta">
+  
+  
+  <i class="fa fa-calendar-o"></i>&nbsp;Posted on May 15, 2018
+  
+  
+  &nbsp;|&nbsp;
+  <i class="fa fa-clock-o"></i> 5 minutes (1048 words)
+  
+  
+</span>
+
+
+                  
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="img-desc" style="display: inline;"></span>
+      </div>
+    
+    <div class="intro-header no-img">
+      
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              <h1>【JVM源码探秘】细说Class.forName()底层实现</h1>
+                
+                
+                  <span class="post-meta">
+  
+  
+  <i class="fa fa-calendar-o"></i>&nbsp;Posted on May 15, 2018
+  
+  
+  &nbsp;|&nbsp;
+  <i class="fa fa-clock-o"></i> 5 minutes (1048 words)
+  
+  
+</span>
+
+
+                
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+
+      <div class="post-block animated fadeInUp" style="opacity: 1; display: block;">
+
+        <article role="main" class="blog-post">
+          <hr>
+          <div class="blog-body">
+          <p>JVM允许在运行时动态装载类，这为开发者提供了极大方便，使用<code>Class.forName(&quot;com.xxx.Xxx&quot;)</code>，
+装载完成后可以通过调用其<code>newInstance()</code>完成对象的创建，然后便可以正常操作该类。</p>
+
+<p>接下来我们就细说说Class.forName()在JVM层面所做的事情。</p>
+
+<p></p>
+
+<h1 id="java-lang-class">java.lang.Class</h1>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java">    <span class="kd">public</span> <span class="kd">static</span> <span class="n">Class</span><span class="o">&lt;?&gt;</span> <span class="n">forName</span><span class="o">(</span><span class="n">String</span> <span class="n">className</span><span class="o">)</span>
+                <span class="kd">throws</span> <span class="n">ClassNotFoundException</span> <span class="o">{</span>
+        <span class="n">Class</span><span class="o">&lt;?&gt;</span> <span class="n">caller</span> <span class="o">=</span> <span class="n">Reflection</span><span class="o">.</span><span class="na">getCallerClass</span><span class="o">();</span>
+        <span class="k">return</span> <span class="n">forName0</span><span class="o">(</span><span class="n">className</span><span class="o">,</span> <span class="kc">true</span><span class="o">,</span> <span class="n">ClassLoader</span><span class="o">.</span><span class="na">getClassLoader</span><span class="o">(</span><span class="n">caller</span><span class="o">),</span> <span class="n">caller</span><span class="o">);</span>
+    <span class="o">}</span></code></pre></div>
+<p>这里调用了native方法forName0()</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="cm">/** Called after security check for system loader access checks have been made. */</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">native</span> <span class="n">Class</span><span class="o">&lt;?&gt;</span> <span class="n">forName0</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">,</span> <span class="kt">boolean</span> <span class="n">initialize</span><span class="o">,</span>
+                                            <span class="n">ClassLoader</span> <span class="n">loader</span><span class="o">,</span>
+                                            <span class="n">Class</span><span class="o">&lt;?&gt;</span> <span class="n">caller</span><span class="o">)</span>
+       <span class="kd">throws</span> <span class="n">ClassNotFoundException</span><span class="o">;</span></code></pre></div>
+<h1 id="class-c-java-java-lang-class-forname0">Class.c # Java_java_lang_Class_forName0()</h1>
+
+<p>源码实现位于src/java.base/share/native/libjava/Class.c</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// 动态装载类型入口
+</span><span class="c1"></span><span class="n">JNIEXPORT</span> <span class="n">jclass</span> <span class="n">JNICALL</span>
+<span class="nf">Java_java_lang_Class_forName0</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="n">jclass</span> <span class="n">this</span><span class="p">,</span> <span class="n">jstring</span> <span class="n">classname</span><span class="p">,</span>
+                              <span class="n">jboolean</span> <span class="n">initialize</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">loader</span><span class="p">,</span> <span class="n">jclass</span> <span class="n">caller</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">clname</span><span class="p">;</span>
+    <span class="n">jclass</span> <span class="n">cls</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">buf</span><span class="p">[</span><span class="mi">128</span><span class="p">];</span>
+    <span class="n">jsize</span> <span class="n">len</span><span class="p">;</span>
+    <span class="n">jsize</span> <span class="n">unicode_len</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">classname</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">JNU_ThrowNullPointerException</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// 把类全限定名里的&#39;.&#39;翻译成&#39;/&#39;
+</span><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="n">VerifyFixClassname</span><span class="p">(</span><span class="n">clname</span><span class="p">)</span> <span class="o">==</span> <span class="n">JNI_TRUE</span><span class="p">)</span> <span class="p">{</span>
+        <span class="cm">/* slashes present in clname, use name b4 translation for exception */</span>
+        <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">GetStringUTFRegion</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">classname</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">unicode_len</span><span class="p">,</span> <span class="n">clname</span><span class="p">);</span>
+        <span class="n">JNU_ThrowClassNotFoundException</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">clname</span><span class="p">);</span>
+        <span class="k">goto</span> <span class="n">done</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// 验证类全限定名名合法性（是否以&#39;/&#39;分隔）
+</span><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">VerifyClassname</span><span class="p">(</span><span class="n">clname</span><span class="p">,</span> <span class="n">JNI_TRUE</span><span class="p">))</span> <span class="p">{</span>  <span class="cm">/* expects slashed name */</span>
+        <span class="n">JNU_ThrowClassNotFoundException</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">clname</span><span class="p">);</span>
+        <span class="k">goto</span> <span class="n">done</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// 从指定的加载器查找该类
+</span><span class="c1"></span>    <span class="n">cls</span> <span class="o">=</span> <span class="n">JVM_FindClassFromCaller</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">clname</span><span class="p">,</span> <span class="n">initialize</span><span class="p">,</span> <span class="n">loader</span><span class="p">,</span> <span class="n">caller</span><span class="p">);</span>
+
+ <span class="nl">done</span><span class="p">:</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">clname</span> <span class="o">!=</span> <span class="n">buf</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">free</span><span class="p">(</span><span class="n">clname</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">cls</span><span class="p">;</span>
+<span class="p">}</span></code></pre></div>
+<h1 id="jvm-cpp-jvm-findclassfromcaller">jvm.cpp # JVM_FindClassFromCaller()</h1>
+
+<p><code>JVM_FindClassFromCaller</code>方法位于<code>src/hotspot/share/prims/jvm.cpp</code></p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// 从指定的加载器查找该类
+</span><span class="c1">// Find a class with this name in this loader, using the caller&#39;s protection domain.
+</span><span class="c1"></span><span class="n">JVM_ENTRY</span><span class="p">(</span><span class="n">jclass</span><span class="p">,</span> <span class="n">JVM_FindClassFromCaller</span><span class="p">(</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">name</span><span class="p">,</span>
+                                          <span class="n">jboolean</span> <span class="n">init</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">loader</span><span class="p">,</span>
+                                          <span class="n">jclass</span> <span class="n">caller</span><span class="p">))</span>
+
+  <span class="c1">// 把当前类加入符号表（一个哈希表实现）
+</span><span class="c1"></span>  <span class="n">TempNewSymbol</span> <span class="n">h_name</span> <span class="o">=</span> <span class="n">SymbolTable</span><span class="o">::</span><span class="n">new_symbol</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">CHECK_NULL</span><span class="p">);</span>
+
+  <span class="c1">// 获取加载器和调用类
+</span><span class="c1"></span>  <span class="n">oop</span> <span class="n">loader_oop</span> <span class="o">=</span> <span class="n">JNIHandles</span><span class="o">::</span><span class="n">resolve</span><span class="p">(</span><span class="n">loader</span><span class="p">);</span>
+  <span class="n">oop</span> <span class="n">from_class</span> <span class="o">=</span> <span class="n">JNIHandles</span><span class="o">::</span><span class="n">resolve</span><span class="p">(</span><span class="n">caller</span><span class="p">);</span>
+  <span class="n">oop</span> <span class="n">protection_domain</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">from_class</span> <span class="o">!=</span> <span class="nb">NULL</span> <span class="o">&amp;&amp;</span> <span class="n">loader_oop</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">protection_domain</span> <span class="o">=</span> <span class="n">java_lang_Class</span><span class="o">::</span><span class="n">as_Klass</span><span class="p">(</span><span class="n">from_class</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">protection_domain</span><span class="p">();</span>
+  <span class="p">}</span>
+  
+  <span class="c1">// 查找该类
+</span><span class="c1"></span>  <span class="n">jclass</span> <span class="n">result</span> <span class="o">=</span> <span class="n">find_class_from_class_loader</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">h_name</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">h_loader</span><span class="p">,</span>
+                                               <span class="n">h_prot</span><span class="p">,</span> <span class="nb">false</span><span class="p">,</span> <span class="n">THREAD</span><span class="p">);</span>
+
+  <span class="c1">// 返回结果
+</span><span class="c1"></span>  <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+<span class="n">JVM_END</span></code></pre></div>
+<h1 id="symboltable-cpp-lookup">symbolTable.cpp # lookup()</h1>
+
+<p>把当前类加入符号表，实现<code>src/hotspot/share/classfile/symbolTable.cpp</code></p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c">  <span class="c1">// Symbol creation
+</span><span class="c1"></span>  <span class="k">static</span> <span class="n">Symbol</span><span class="o">*</span> <span class="nf">new_symbol</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">utf8_buffer</span><span class="p">,</span> <span class="kt">int</span> <span class="n">length</span><span class="p">,</span> <span class="n">TRAPS</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">assert</span><span class="p">(</span><span class="n">utf8_buffer</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">,</span> <span class="s">&#34;just checking&#34;</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">lookup</span><span class="p">(</span><span class="n">utf8_buffer</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">THREAD</span><span class="p">);</span>
+  <span class="p">}</span>
+  
+  
+  <span class="n">Symbol</span><span class="o">*</span> <span class="n">SymbolTable</span><span class="o">::</span><span class="n">lookup</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">name</span><span class="p">,</span> <span class="kt">int</span> <span class="n">len</span><span class="p">,</span> <span class="n">TRAPS</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">hashValue</span> <span class="o">=</span> <span class="n">hash_symbol</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
+    <span class="kt">int</span> <span class="n">index</span> <span class="o">=</span> <span class="n">the_table</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">hash_to_index</span><span class="p">(</span><span class="n">hashValue</span><span class="p">);</span>
+  
+    <span class="n">Symbol</span><span class="o">*</span> <span class="n">s</span> <span class="o">=</span> <span class="n">the_table</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">lookup</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">len</span><span class="p">,</span> <span class="n">hashValue</span><span class="p">);</span>
+  
+    <span class="c1">// 找到则直接返回
+</span><span class="c1"></span>    <span class="c1">// Found
+</span><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="n">s</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="k">return</span> <span class="n">s</span><span class="p">;</span>
+  
+    <span class="c1">// 先获取SymbolTable_lock
+</span><span class="c1"></span>    <span class="n">MutexLocker</span> <span class="nf">ml</span><span class="p">(</span><span class="n">SymbolTable_lock</span><span class="p">,</span> <span class="n">THREAD</span><span class="p">);</span>
+  
+    <span class="c1">// 然后把该类加入符号表
+</span><span class="c1"></span>    <span class="k">return</span> <span class="nf">the_table</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">basic_add</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="p">(</span><span class="n">u1</span><span class="o">*</span><span class="p">)</span><span class="n">name</span><span class="p">,</span> <span class="n">len</span><span class="p">,</span> <span class="n">hashValue</span><span class="p">,</span> <span class="nb">true</span><span class="p">,</span> <span class="n">THREAD</span><span class="p">);</span>
+  <span class="p">}</span></code></pre></div>
+<h1 id="jvm-cpp-find-class-from-class-loader">jvm.cpp # find_class_from_class_loader()</h1>
+
+<p>加入符号表后紧接着在指定的classloader中查找该类，<code>/src/hotspot/share/prims/jvm.cpp</code></p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// Shared JNI/JVM entry points //////////////////////////////////////////////////////////////
+</span><span class="c1">// 从指定的classloader中查找类
+</span><span class="c1"></span><span class="n">jclass</span> <span class="nf">find_class_from_class_loader</span><span class="p">(</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">,</span> <span class="n">Symbol</span><span class="o">*</span> <span class="n">name</span><span class="p">,</span> <span class="n">jboolean</span> <span class="n">init</span><span class="p">,</span>
+                                    <span class="n">Handle</span> <span class="n">loader</span><span class="p">,</span> <span class="n">Handle</span> <span class="n">protection_domain</span><span class="p">,</span>
+                                    <span class="n">jboolean</span> <span class="n">throwError</span><span class="p">,</span> <span class="n">TRAPS</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="c1">//==========================================
+</span><span class="c1"></span>  <span class="c1">//
+</span><span class="c1"></span>  <span class="c1">// 根据指定的类名和加载器返回一个Klass对象，必要情况下需要加载该类。
+</span><span class="c1"></span>  <span class="c1">// 如果未找到该类则抛出NoClassDefFoundError或ClassNotFoundException
+</span><span class="c1"></span>  <span class="c1">//
+</span><span class="c1"></span>  <span class="c1">//=========================================
+</span><span class="c1"></span>  <span class="n">Klass</span><span class="o">*</span> <span class="n">klass</span> <span class="o">=</span> <span class="n">SystemDictionary</span><span class="o">::</span><span class="n">resolve_or_fail</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">loader</span><span class="p">,</span> <span class="n">protection_domain</span><span class="p">,</span> <span class="n">throwError</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">CHECK_NULL</span><span class="p">);</span>
+
+  <span class="c1">// Check if we should initialize the class
+</span><span class="c1"></span>  <span class="k">if</span> <span class="p">(</span><span class="n">init</span> <span class="o">&amp;&amp;</span> <span class="n">klass</span><span class="o">-&gt;</span><span class="n">is_instance_klass</span><span class="p">())</span> <span class="p">{</span>
+    <span class="n">klass</span><span class="o">-&gt;</span><span class="n">initialize</span><span class="p">(</span><span class="n">CHECK_NULL</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="p">(</span><span class="n">jclass</span><span class="p">)</span> <span class="n">JNIHandles</span><span class="o">::</span><span class="n">make_local</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">klass</span><span class="o">-&gt;</span><span class="n">java_mirror</span><span class="p">());</span>
+<span class="p">}</span></code></pre></div>
+<h1 id="systemdictionary-cpp-resolve-or-fail">systemDictionary.cpp # resolve_or_fail()</h1>
+
+<p>方法<code>SystemDictionary::resolve_or_fail()</code>位于<code>src/hotspot/share/classfile/systemDictionary.cpp</code></p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// Forwards to resolve_or_null
+</span><span class="c1"></span>
+<span class="n">Klass</span><span class="o">*</span> <span class="n">SystemDictionary</span><span class="o">::</span><span class="n">resolve_or_fail</span><span class="p">(</span><span class="n">Symbol</span><span class="o">*</span> <span class="n">class_name</span><span class="p">,</span> <span class="n">Handle</span> <span class="n">class_loader</span><span class="p">,</span> <span class="n">Handle</span> <span class="n">protection_domain</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">throw_error</span><span class="p">,</span> <span class="n">TRAPS</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">Klass</span><span class="o">*</span> <span class="n">klass</span> <span class="o">=</span> <span class="n">resolve_or_null</span><span class="p">(</span><span class="n">class_name</span><span class="p">,</span> <span class="n">class_loader</span><span class="p">,</span> <span class="n">protection_domain</span><span class="p">,</span> <span class="n">THREAD</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">HAS_PENDING_EXCEPTION</span> <span class="o">||</span> <span class="n">klass</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// can return a null klass
+</span><span class="c1"></span>    <span class="n">klass</span> <span class="o">=</span> <span class="n">handle_resolution_exception</span><span class="p">(</span><span class="n">class_name</span><span class="p">,</span> <span class="n">throw_error</span><span class="p">,</span> <span class="n">klass</span><span class="p">,</span> <span class="n">THREAD</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">klass</span><span class="p">;</span>
+<span class="p">}</span></code></pre></div>
+<h1 id="systemdictionary-cpp-resolve-or-null">systemDictionary.cpp # resolve_or_null()</h1>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// Forwards to resolve_instance_class_or_null
+</span><span class="c1"></span>
+<span class="n">Klass</span><span class="o">*</span> <span class="n">SystemDictionary</span><span class="o">::</span><span class="n">resolve_or_null</span><span class="p">(</span><span class="n">Symbol</span><span class="o">*</span> <span class="n">class_name</span><span class="p">,</span> <span class="n">Handle</span> <span class="n">class_loader</span><span class="p">,</span> <span class="n">Handle</span> <span class="n">protection_domain</span><span class="p">,</span> <span class="n">TRAPS</span><span class="p">)</span> <span class="p">{</span>
+  
+  <span class="k">if</span> <span class="p">(</span><span class="n">FieldType</span><span class="o">::</span><span class="n">is_array</span><span class="p">(</span><span class="n">class_name</span><span class="p">))</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">resolve_array_class_or_null</span><span class="p">(</span><span class="n">class_name</span><span class="p">,</span> <span class="n">class_loader</span><span class="p">,</span> <span class="n">protection_domain</span><span class="p">,</span> <span class="n">THREAD</span><span class="p">);</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">FieldType</span><span class="o">::</span><span class="n">is_obj</span><span class="p">(</span><span class="n">class_name</span><span class="p">))</span> <span class="p">{</span>
+    <span class="n">ResourceMark</span> <span class="n">rm</span><span class="p">(</span><span class="n">THREAD</span><span class="p">);</span>
+    <span class="c1">// Ignore wrapping L and ;.
+</span><span class="c1"></span>    <span class="n">TempNewSymbol</span> <span class="n">name</span> <span class="o">=</span> <span class="n">SymbolTable</span><span class="o">::</span><span class="n">new_symbol</span><span class="p">(</span><span class="n">class_name</span><span class="o">-&gt;</span><span class="n">as_C_string</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                                   <span class="n">class_name</span><span class="o">-&gt;</span><span class="n">utf8_length</span><span class="p">()</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="n">CHECK_NULL</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nf">resolve_instance_class_or_null</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">class_loader</span><span class="p">,</span> <span class="n">protection_domain</span><span class="p">,</span> <span class="n">THREAD</span><span class="p">);</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="c1">// 解析实例类
+</span><span class="c1"></span>    <span class="k">return</span> <span class="n">resolve_instance_class_or_null</span><span class="p">(</span><span class="n">class_name</span><span class="p">,</span> <span class="n">class_loader</span><span class="p">,</span> <span class="n">protection_domain</span><span class="p">,</span> <span class="n">THREAD</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span></code></pre></div>
+<h1 id="systemdictionary-cpp-resolve-instance-class-or-null">systemDictionary.cpp # resolve_instance_class_or_null()</h1>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">Klass</span><span class="o">*</span> <span class="n">SystemDictionary</span><span class="o">::</span><span class="n">resolve_instance_class_or_null</span><span class="p">(</span><span class="n">Symbol</span><span class="o">*</span> <span class="n">name</span><span class="p">,</span>
+                                                        <span class="n">Handle</span> <span class="n">class_loader</span><span class="p">,</span>
+                                                        <span class="n">Handle</span> <span class="n">protection_domain</span><span class="p">,</span>
+                                                        <span class="n">TRAPS</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">Handle</span> <span class="n">lockObject</span> <span class="o">=</span> <span class="n">compute_loader_lock_object</span><span class="p">(</span><span class="n">class_loader</span><span class="p">,</span> <span class="n">THREAD</span><span class="p">);</span>
+  <span class="n">check_loader_lock_contention</span><span class="p">(</span><span class="n">lockObject</span><span class="p">,</span> <span class="n">THREAD</span><span class="p">);</span>
+  <span class="c1">// 获取对象锁
+</span><span class="c1"></span>  <span class="n">ObjectLocker</span> <span class="nf">ol</span><span class="p">(</span><span class="n">lockObject</span><span class="p">,</span> <span class="n">THREAD</span><span class="p">,</span> <span class="n">DoObjectLock</span><span class="p">);</span>
+
+  <span class="p">{</span>
+    <span class="n">MutexLocker</span> <span class="n">mu</span><span class="p">(</span><span class="n">SystemDictionary_lock</span><span class="p">,</span> <span class="n">THREAD</span><span class="p">);</span>
+    <span class="c1">// 查找类
+</span><span class="c1"></span>    <span class="n">InstanceKlass</span><span class="o">*</span> <span class="n">check</span> <span class="o">=</span> <span class="n">find_class</span><span class="p">(</span><span class="n">d_index</span><span class="p">,</span> <span class="n">d_hash</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">dictionary</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">check</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+      <span class="c1">// Klass is already loaded, so just return it
+</span><span class="c1"></span>      <span class="n">class_has_been_loaded</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+      <span class="n">k</span> <span class="o">=</span> <span class="n">check</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="c1">// 查找该类是否在placeholder table中
+</span><span class="c1"></span>      <span class="n">placeholder</span> <span class="o">=</span> <span class="n">placeholders</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">get_entry</span><span class="p">(</span><span class="n">p_index</span><span class="p">,</span> <span class="n">p_hash</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">loader_data</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">placeholder</span> <span class="o">&amp;&amp;</span> <span class="n">placeholder</span><span class="o">-&gt;</span><span class="n">super_load_in_progress</span><span class="p">())</span> <span class="p">{</span>
+         <span class="n">super_load_in_progress</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+         <span class="k">if</span> <span class="p">(</span><span class="n">placeholder</span><span class="o">-&gt;</span><span class="n">havesupername</span><span class="p">()</span> <span class="o">==</span> <span class="nb">true</span><span class="p">)</span> <span class="p">{</span>
+           <span class="n">superclassname</span> <span class="o">=</span> <span class="n">placeholder</span><span class="o">-&gt;</span><span class="n">supername</span><span class="p">();</span>
+           <span class="n">havesupername</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+         <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="c1">// 如果该类在placeholder table中，则说明类加载进行中
+</span><span class="c1"></span>  <span class="k">if</span> <span class="p">(</span><span class="n">super_load_in_progress</span> <span class="o">&amp;&amp;</span> <span class="n">havesupername</span><span class="o">==</span><span class="nb">true</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="n">handle_parallel_super_load</span><span class="p">(</span><span class="n">name</span><span class="p">,</span>
+                                   <span class="n">superclassname</span><span class="p">,</span>
+                                   <span class="n">class_loader</span><span class="p">,</span>
+                                   <span class="n">protection_domain</span><span class="p">,</span>
+                                   <span class="n">lockObject</span><span class="p">,</span> <span class="n">THREAD</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">HAS_PENDING_EXCEPTION</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">k</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">class_has_been_loaded</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="kt">bool</span> <span class="n">throw_circularity_error</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">class_has_been_loaded</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">bool</span> <span class="n">load_instance_added</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">class_has_been_loaded</span><span class="p">)</span> <span class="p">{</span>
+
+      <span class="c1">// =====================================
+</span><span class="c1"></span>      <span class="c1">//
+</span><span class="c1"></span>      <span class="c1">//      执行实例加载动作
+</span><span class="c1"></span>      <span class="c1">//
+</span><span class="c1"></span>      <span class="c1">// =====================================
+</span><span class="c1"></span>      <span class="n">k</span> <span class="o">=</span> <span class="n">load_instance_class</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">class_loader</span><span class="p">,</span> <span class="n">THREAD</span><span class="p">);</span>
+
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">HAS_PENDING_EXCEPTION</span> <span class="o">&amp;&amp;</span> <span class="n">k</span> <span class="o">!=</span> <span class="nb">NULL</span> <span class="o">&amp;&amp;</span>
+        <span class="n">k</span><span class="o">-&gt;</span><span class="n">class_loader</span><span class="p">()</span> <span class="o">!=</span> <span class="n">class_loader</span><span class="p">())</span> <span class="p">{</span>
+
+        <span class="n">check_constraints</span><span class="p">(</span><span class="n">d_index</span><span class="p">,</span> <span class="n">d_hash</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">class_loader</span><span class="p">,</span> <span class="nb">false</span><span class="p">,</span> <span class="n">THREAD</span><span class="p">);</span>
+
+        <span class="c1">// Need to check for a PENDING_EXCEPTION again; check_constraints
+</span><span class="c1"></span>        <span class="c1">// can throw and doesn&#39;t use the CHECK macro.
+</span><span class="c1"></span>        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">HAS_PENDING_EXCEPTION</span><span class="p">)</span> <span class="p">{</span>
+          <span class="p">{</span> <span class="c1">// Grabbing the Compile_lock prevents systemDictionary updates
+</span><span class="c1"></span>            <span class="c1">// during compilations.
+</span><span class="c1"></span>            <span class="n">MutexLocker</span> <span class="n">mu</span><span class="p">(</span><span class="n">Compile_lock</span><span class="p">,</span> <span class="n">THREAD</span><span class="p">);</span>
+            <span class="n">update_dictionary</span><span class="p">(</span><span class="n">d_index</span><span class="p">,</span> <span class="n">d_hash</span><span class="p">,</span> <span class="n">p_index</span><span class="p">,</span> <span class="n">p_hash</span><span class="p">,</span>
+              <span class="n">k</span><span class="p">,</span> <span class="n">class_loader</span><span class="p">,</span> <span class="n">THREAD</span><span class="p">);</span>
+          <span class="p">}</span>
+
+          <span class="c1">// 通知JVMTI类加载事件
+</span><span class="c1"></span>          <span class="k">if</span> <span class="p">(</span><span class="n">JvmtiExport</span><span class="o">::</span><span class="n">should_post_class_load</span><span class="p">())</span> <span class="p">{</span>
+            <span class="n">Thread</span> <span class="o">*</span><span class="kr">thread</span> <span class="o">=</span> <span class="n">THREAD</span><span class="p">;</span>
+            <span class="n">assert</span><span class="p">(</span><span class="kr">thread</span><span class="o">-&gt;</span><span class="n">is_Java_thread</span><span class="p">(),</span> <span class="s">&#34;thread-&gt;is_Java_thread()&#34;</span><span class="p">);</span>
+            <span class="n">JvmtiExport</span><span class="o">::</span><span class="n">post_class_load</span><span class="p">((</span><span class="n">JavaThread</span> <span class="o">*</span><span class="p">)</span> <span class="kr">thread</span><span class="p">,</span> <span class="n">k</span><span class="p">);</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span> <span class="c1">// load_instance_class
+</span><span class="c1"></span>  <span class="p">}</span>
+
+  <span class="p">...</span>
+
+  <span class="k">return</span> <span class="n">k</span><span class="p">;</span>
+<span class="p">}</span></code></pre></div>
+<h1 id="systemdictionary-cpp-load-instance-class">systemDictionary.cpp # load_instance_class()</h1>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// ===================================================================================
+</span><span class="c1">//
+</span><span class="c1">//              加载实例class，这里有两种方式：
+</span><span class="c1">// ===================================================================================
+</span><span class="c1">//
+</span><span class="c1">// 1、如果classloader为null则说明是加载系统类，使用bootstrap loader
+</span><span class="c1">//    调用方式：直接调用ClassLoader::load_class()加载该类
+</span><span class="c1">//
+</span><span class="c1">// 2、如果classloader不为null则说明是非系统类，使用ext/app/自定义 classloader
+</span><span class="c1">//    调用方式：通过JavaCalls::call_virtual()调用Java方法ClassLoader.loadClass()加载该类
+</span><span class="c1">//
+</span><span class="c1">// ===================================================================================
+</span><span class="c1"></span><span class="n">InstanceKlass</span><span class="o">*</span> <span class="n">SystemDictionary</span><span class="o">::</span><span class="n">load_instance_class</span><span class="p">(</span><span class="n">Symbol</span><span class="o">*</span> <span class="n">class_name</span><span class="p">,</span> <span class="n">Handle</span> <span class="n">class_loader</span><span class="p">,</span> <span class="n">TRAPS</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="c1">// 使用bootstrap加载器加载
+</span><span class="c1"></span>  <span class="k">if</span> <span class="p">(</span><span class="n">class_loader</span><span class="p">.</span><span class="n">is_null</span><span class="p">())</span> <span class="p">{</span>
+
+    <span class="c1">// 根据全限定名获取包名
+</span><span class="c1"></span>    <span class="c1">// Find the package in the boot loader&#39;s package entry table.
+</span><span class="c1"></span>    <span class="n">TempNewSymbol</span> <span class="n">pkg_name</span> <span class="o">=</span> <span class="n">InstanceKlass</span><span class="o">::</span><span class="n">package_from_name</span><span class="p">(</span><span class="n">class_name</span><span class="p">,</span> <span class="n">CHECK_NULL</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">pkg_name</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">pkg_entry</span> <span class="o">=</span> <span class="n">loader_data</span><span class="o">-&gt;</span><span class="n">packages</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">lookup_only</span><span class="p">(</span><span class="n">pkg_name</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">InstanceKlass</span><span class="o">*</span> <span class="n">k</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">k</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+      <span class="c1">// Use VM class loader
+</span><span class="c1"></span>      <span class="n">PerfTraceTime</span> <span class="n">vmtimer</span><span class="p">(</span><span class="n">ClassLoader</span><span class="o">::</span><span class="n">perf_sys_classload_time</span><span class="p">());</span>
+      <span class="c1">// =================================================================
+</span><span class="c1"></span>      <span class="c1">//
+</span><span class="c1"></span>      <span class="c1">//        使用bootstrap loader加载该类
+</span><span class="c1"></span>      <span class="c1">//
+</span><span class="c1"></span>      <span class="c1">// =================================================================
+</span><span class="c1"></span>      <span class="n">k</span> <span class="o">=</span> <span class="n">ClassLoader</span><span class="o">::</span><span class="n">load_class</span><span class="p">(</span><span class="n">class_name</span><span class="p">,</span> <span class="n">search_only_bootloader_append</span><span class="p">,</span> <span class="n">CHECK_NULL</span><span class="p">);</span>
+    <span class="p">}</span>
+
+
+    <span class="k">return</span> <span class="n">k</span><span class="p">;</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="c1">// =======================================================================================
+</span><span class="c1"></span>    <span class="c1">//
+</span><span class="c1"></span>    <span class="c1">// 使用用户指定的加载器加载该类，调用class_loader的loadClass操作方法，
+</span><span class="c1"></span>    <span class="c1">// 最终返回一个标准的InstanceKlass，流程如下
+</span><span class="c1"></span>    <span class="c1">//
+</span><span class="c1"></span>    <span class="c1">// +-----------+  loadClass()   +---------------+  get_jobject()   +-------------+
+</span><span class="c1"></span>    <span class="c1">// | className | -------------&gt; |   JavaValue   | ---------------&gt; |     oop     |
+</span><span class="c1"></span>    <span class="c1">// +-----------+                +---------------+                  +-------------+
+</span><span class="c1"></span>    <span class="c1">//                                                                       |
+</span><span class="c1"></span>    <span class="c1">//                                                                       | as_Klass()
+</span><span class="c1"></span>    <span class="c1">//                                                                       v
+</span><span class="c1"></span>    <span class="c1">//                               +---------------+  cast()          +-------------+
+</span><span class="c1"></span>    <span class="c1">//                               | InstanceKlass | &lt;--------------- |    Klass    |
+</span><span class="c1"></span>    <span class="c1">//                               +---------------+                  +-------------+
+</span><span class="c1"></span>    <span class="c1">//
+</span><span class="c1"></span>    <span class="c1">// =======================================================================================  
+</span><span class="c1"></span>    <span class="n">ResourceMark</span> <span class="n">rm</span><span class="p">(</span><span class="n">THREAD</span><span class="p">);</span>
+
+    <span class="n">assert</span><span class="p">(</span><span class="n">THREAD</span><span class="o">-&gt;</span><span class="n">is_Java_thread</span><span class="p">(),</span> <span class="s">&#34;must be a JavaThread&#34;</span><span class="p">);</span>
+    <span class="n">JavaThread</span><span class="o">*</span> <span class="n">jt</span> <span class="o">=</span> <span class="p">(</span><span class="n">JavaThread</span><span class="o">*</span><span class="p">)</span> <span class="n">THREAD</span><span class="p">;</span>
+
+    <span class="n">PerfClassTraceTime</span> <span class="nf">vmtimer</span><span class="p">(</span><span class="n">ClassLoader</span><span class="o">::</span><span class="n">perf_app_classload_time</span><span class="p">(),</span>
+                               <span class="n">ClassLoader</span><span class="o">::</span><span class="n">perf_app_classload_selftime</span><span class="p">(),</span>
+                               <span class="n">ClassLoader</span><span class="o">::</span><span class="n">perf_app_classload_count</span><span class="p">(),</span>
+                               <span class="n">jt</span><span class="o">-&gt;</span><span class="n">get_thread_stat</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">perf_recursion_counts_addr</span><span class="p">(),</span>
+                               <span class="n">jt</span><span class="o">-&gt;</span><span class="n">get_thread_stat</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">perf_timers_addr</span><span class="p">(),</span>
+                               <span class="n">PerfClassTraceTime</span><span class="o">::</span><span class="n">CLASS_LOAD</span><span class="p">);</span>
+
+    <span class="n">Handle</span> <span class="n">s</span> <span class="o">=</span> <span class="n">java_lang_String</span><span class="o">::</span><span class="n">create_from_symbol</span><span class="p">(</span><span class="n">class_name</span><span class="p">,</span> <span class="n">CHECK_NULL</span><span class="p">);</span>
+    <span class="c1">// Translate to external class name format, i.e., convert &#39;/&#39; chars to &#39;.&#39;
+</span><span class="c1"></span>    <span class="n">Handle</span> <span class="n">string</span> <span class="o">=</span> <span class="n">java_lang_String</span><span class="o">::</span><span class="n">externalize_classname</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">CHECK_NULL</span><span class="p">);</span>
+
+    <span class="n">JavaValue</span> <span class="nf">result</span><span class="p">(</span><span class="n">T_OBJECT</span><span class="p">);</span>
+
+    <span class="n">InstanceKlass</span><span class="o">*</span> <span class="n">spec_klass</span> <span class="o">=</span> <span class="n">SystemDictionary</span><span class="o">::</span><span class="n">ClassLoader_klass</span><span class="p">();</span>
+
+    <span class="c1">// Added MustCallLoadClassInternal in case we discover in the field
+</span><span class="c1"></span>    <span class="c1">// a customer that counts on this call
+</span><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="n">MustCallLoadClassInternal</span> <span class="o">&amp;&amp;</span> <span class="n">has_loadClassInternal</span><span class="p">())</span> <span class="p">{</span>
+      <span class="n">JavaCalls</span><span class="o">::</span><span class="n">call_special</span><span class="p">(</span><span class="o">&amp;</span><span class="n">result</span><span class="p">,</span>
+                              <span class="n">class_loader</span><span class="p">,</span>
+                              <span class="n">spec_klass</span><span class="p">,</span>
+                              <span class="n">vmSymbols</span><span class="o">::</span><span class="n">loadClassInternal_name</span><span class="p">(),</span>
+                              <span class="n">vmSymbols</span><span class="o">::</span><span class="n">string_class_signature</span><span class="p">(),</span>
+                              <span class="n">string</span><span class="p">,</span>
+                              <span class="n">CHECK_NULL</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="c1">// ===============================================================
+</span><span class="c1"></span>      <span class="c1">//
+</span><span class="c1"></span>      <span class="c1">// 调用ClassLoader.loadClass()方法加载该类，而最终会调用ClassLoader的native方法defineClass1()
+</span><span class="c1"></span>      <span class="c1">// 其实现位于ClassLoader.c # Java_java_lang_ClassLoader_defineClass1()
+</span><span class="c1"></span>      <span class="c1">//
+</span><span class="c1"></span>      <span class="c1">// ===============================================================
+</span><span class="c1"></span>      <span class="n">JavaCalls</span><span class="o">::</span><span class="n">call_virtual</span><span class="p">(</span><span class="o">&amp;</span><span class="n">result</span><span class="p">,</span>
+                              <span class="n">class_loader</span><span class="p">,</span>
+                              <span class="n">spec_klass</span><span class="p">,</span>
+                              <span class="n">vmSymbols</span><span class="o">::</span><span class="n">loadClass_name</span><span class="p">(),</span>
+                              <span class="n">vmSymbols</span><span class="o">::</span><span class="n">string_class_signature</span><span class="p">(),</span>
+                              <span class="n">string</span><span class="p">,</span>
+                              <span class="n">CHECK_NULL</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">assert</span><span class="p">(</span><span class="n">result</span><span class="p">.</span><span class="n">get_type</span><span class="p">()</span> <span class="o">==</span> <span class="n">T_OBJECT</span><span class="p">,</span> <span class="s">&#34;just checking&#34;</span><span class="p">);</span>
+    <span class="c1">// 获取oop对象
+</span><span class="c1"></span>    <span class="n">oop</span> <span class="n">obj</span> <span class="o">=</span> <span class="p">(</span><span class="n">oop</span><span class="p">)</span> <span class="n">result</span><span class="p">.</span><span class="n">get_jobject</span><span class="p">();</span>
+
+    <span class="c1">// 如果不是基本类，则转换成对应的InstanceKlass
+</span><span class="c1"></span>    <span class="k">if</span> <span class="p">((</span><span class="n">obj</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="p">(</span><span class="n">java_lang_Class</span><span class="o">::</span><span class="n">is_primitive</span><span class="p">(</span><span class="n">obj</span><span class="p">)))</span> <span class="p">{</span>
+      <span class="n">InstanceKlass</span><span class="o">*</span> <span class="n">k</span> <span class="o">=</span> <span class="n">InstanceKlass</span><span class="o">::</span><span class="n">cast</span><span class="p">(</span><span class="n">java_lang_Class</span><span class="o">::</span><span class="n">as_Klass</span><span class="p">(</span><span class="n">obj</span><span class="p">));</span>
+      
+      <span class="k">if</span> <span class="p">(</span><span class="n">class_name</span> <span class="o">==</span> <span class="n">k</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">())</span> <span class="p">{</span>
+        <span class="c1">// 返回最终InstanceKlass
+</span><span class="c1"></span>        <span class="k">return</span> <span class="n">k</span><span class="p">;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="c1">// Class is not found or has the wrong name, return NULL
+</span><span class="c1"></span>    <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span></code></pre></div>
+<p>至此，JVM便完成了类型的InstanceKlass实例创建，这里两种加载方式中不管是通过bootstrap loader还是app(or自定义) loader均是
+殊途同归，都会经历class文件的<code>装载</code>、<code>验证</code>、<code>准备</code>、<code>解析</code>、<code>初始化</code>等操作。具体流程在<a href="/post/2018/05/17/hotspot-explore-class-loading-linking-and-initializing/">下一篇</a>文章中详细介绍。</p>
+          </div>
+          <br>
+          <div style="text-align:center;color: #ccc;font-size:14px;">- EOF -</div>
+          <br>
+          
+            <div class="blog-tags">
+              
+                <a href="https://hunterzhao.io/tags/openjdk/">OpenJDK</a>&nbsp;
+              
+                <a href="https://hunterzhao.io/tags/jvm/">JVM</a>&nbsp;
+              
+                <a href="https://hunterzhao.io/tags/hotspot/">HotSpot</a>&nbsp;
+              
+            </div>
+          
+
+
+
+
+          
+        </article>
+
+        
+          <ul class="pager blog-pager">
+            
+              <li class="previous">
+                <a href="https://hunterzhao.io/post/2018/05/06/async-callback-model-in-cluster-architecture/" data-toggle="tooltip" data-placement="top" title="集群架构中的异步回调模型实现">&larr; Previous Post</a>
+              </li>
+            
+            
+              <li class="next">
+                <a href="https://hunterzhao.io/post/2018/05/17/hotspot-explore-class-loading-linking-and-initializing/" data-toggle="tooltip" data-placement="top" title="【JVM源码探秘】细说Class的装载、链接和初始化">Next Post &rarr;</a>
+              </li>
+            
+          </ul>
+        
+      </div>
+
+        
+          
+            <div class="disqus-comments">
+              <div id="disqus_thread"></div>
+<script>
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "workholiday" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+            </div>
+          
+          
+        
+      </div>
+  </div>
+</div>
+
+    <footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-10 col-lg-offset-1 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="mailto:mailto:zhaohevip@gmail.com" title="Email me" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-envelope fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.facebook.com/MrHunterZhao" title="Facebook" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/hzio" title="GitHub" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/mrhunterzhao" title="Twitter" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://stackoverflow.com/users/1858561/hunter-zhao" title="StackOverflow" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-stack-overflow fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://weibo.com/mrbobzhao" title="微博" target="_blank">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+          <li>
+            
+            <a href="https://hunterzhao.io/index.xml" title="RSS" target="_blank">
+            
+              <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          
+            
+              <a href="https://hunterzhao.io">HunterZhao</a>
+            
+          
+
+          &nbsp;&bull;&nbsp;
+          2018
+
+          
+            &nbsp;&bull;&nbsp;
+            <a href="https://hunterzhao.io">WorkHoliday</a>
+          
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          <a href="http://gohugo.io">Hugo v0.44</a> powered &nbsp;&bull;&nbsp; Theme by <a href="http://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a> adapted to <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/contrib/auto-render.min.js" integrity="sha384-dq1/gEHSxPZQ7DdrM82ID4YVol9BYyU7GbWlIwnwyPzotpoc57wDw/guX8EaYGPx" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://hunterzhao.io/js/main.js"></script>
+<script src="https://hunterzhao.io/js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> $(document).ready(function() {$("pre.chroma").css("padding","0");}); </script><script> renderMathInElement(document.body); </script>
+
+
+
+
+
+
+
+
+
+  </body>
+</html>
+
