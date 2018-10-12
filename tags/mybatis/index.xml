@@ -5,8 +5,8 @@
     <link>https://hunterzhao.io/tags/mybatis/</link>
     <description>Recent content in Mybatis on WorkHoliday</description>
     <generator>Hugo -- gohugo.io</generator>
-    <managingEditor>mailto:zhaohevip@gmail.com (HunterZhao)</managingEditor>
-    <webMaster>mailto:zhaohevip@gmail.com (HunterZhao)</webMaster>
+    <managingEditor>zhaohevip@gmail.com (HunterZhao)</managingEditor>
+    <webMaster>zhaohevip@gmail.com (HunterZhao)</webMaster>
     <lastBuildDate>Fri, 21 Jul 2017 15:30:02 +0000</lastBuildDate>
     
 	<atom:link href="https://hunterzhao.io/tags/mybatis/index.xml" rel="self" type="application/rss+xml" />
@@ -16,7 +16,7 @@
       <title>关于MyBatis通用代码生成器CoffeeMaker的设计思路</title>
       <link>https://hunterzhao.io/post/2017/07/21/design-of-universal-code-generator-coffee-maker/</link>
       <pubDate>Fri, 21 Jul 2017 15:30:02 +0000</pubDate>
-      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <author>zhaohevip@gmail.com (HunterZhao)</author>
       <guid>https://hunterzhao.io/post/2017/07/21/design-of-universal-code-generator-coffee-maker/</guid>
       <description>&lt;p&gt;CoffeeMaker是一款经过良好设计的代码生成器，可快速生成通用CRUD代码模板，使用方便且易于扩展。于2017年7月开发完成，源代码托管于&lt;a href=&#34;https://github.com/hzio/CoffeeMaker&#34;&gt;GitHub&lt;/a&gt;仓库。&lt;/p&gt;
 

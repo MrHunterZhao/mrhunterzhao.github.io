@@ -5,8 +5,8 @@
     <link>https://hunterzhao.io/tags/redis/</link>
     <description>Recent content in Redis on WorkHoliday</description>
     <generator>Hugo -- gohugo.io</generator>
-    <managingEditor>mailto:zhaohevip@gmail.com (HunterZhao)</managingEditor>
-    <webMaster>mailto:zhaohevip@gmail.com (HunterZhao)</webMaster>
+    <managingEditor>zhaohevip@gmail.com (HunterZhao)</managingEditor>
+    <webMaster>zhaohevip@gmail.com (HunterZhao)</webMaster>
     <lastBuildDate>Mon, 20 Nov 2017 21:03:26 +0000</lastBuildDate>
     
 	<atom:link href="https://hunterzhao.io/tags/redis/index.xml" rel="self" type="application/rss+xml" />
@@ -16,7 +16,7 @@
       <title>SpringCloud集成Redis哨兵</title>
       <link>https://hunterzhao.io/post/2017/11/20/using-redis-in-spring-cloud/</link>
       <pubDate>Mon, 20 Nov 2017 21:03:26 +0000</pubDate>
-      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <author>zhaohevip@gmail.com (HunterZhao)</author>
       <guid>https://hunterzhao.io/post/2017/11/20/using-redis-in-spring-cloud/</guid>
       <description>&lt;p&gt;&lt;img src=&#34;https://hunterzhao.io/images/post/2017/11/10/spring-cloud-logo.jpg&#34; alt=&#34;spring-cloud&#34; /&gt;
 在SpringCloud中我们可以很容易地集成并使用Redis缓存，在pom.xml中加入依赖，
