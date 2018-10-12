@@ -5,8 +5,8 @@
     <link>https://hunterzhao.io/tags/intellij-idea/</link>
     <description>Recent content in Intellij Idea on WorkHoliday</description>
     <generator>Hugo -- gohugo.io</generator>
-    <managingEditor>mailto:zhaohevip@gmail.com (HunterZhao)</managingEditor>
-    <webMaster>mailto:zhaohevip@gmail.com (HunterZhao)</webMaster>
+    <managingEditor>zhaohevip@gmail.com (HunterZhao)</managingEditor>
+    <webMaster>zhaohevip@gmail.com (HunterZhao)</webMaster>
     <lastBuildDate>Thu, 03 Dec 2015 10:31:00 +0000</lastBuildDate>
     
 	<atom:link href="https://hunterzhao.io/tags/intellij-idea/index.xml" rel="self" type="application/rss+xml" />
@@ -16,7 +16,7 @@
       <title>关于IntelliJ IDEA插件Open Terminal Here的设计思路</title>
       <link>https://hunterzhao.io/post/2015/12/03/design-of-intellij-plugin-open-terminal-here/</link>
       <pubDate>Thu, 03 Dec 2015 10:31:00 +0000</pubDate>
-      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <author>zhaohevip@gmail.com (HunterZhao)</author>
       <guid>https://hunterzhao.io/post/2015/12/03/design-of-intellij-plugin-open-terminal-here/</guid>
       <description>&lt;p&gt;&lt;img src=&#34;https://hunterzhao.io/images/post/2015/12/03/intellij-plugin-banner.jpg&#34; alt=&#34;IntelliJ Plugin Repo&#34; /&gt;&lt;/p&gt;
 

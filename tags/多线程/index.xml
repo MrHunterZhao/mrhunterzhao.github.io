@@ -5,8 +5,8 @@
     <link>https://hunterzhao.io/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/</link>
     <description>Recent content in 多线程 on WorkHoliday</description>
     <generator>Hugo -- gohugo.io</generator>
-    <managingEditor>mailto:zhaohevip@gmail.com (HunterZhao)</managingEditor>
-    <webMaster>mailto:zhaohevip@gmail.com (HunterZhao)</webMaster>
+    <managingEditor>zhaohevip@gmail.com (HunterZhao)</managingEditor>
+    <webMaster>zhaohevip@gmail.com (HunterZhao)</webMaster>
     <lastBuildDate>Tue, 01 May 2018 03:27:18 +0000</lastBuildDate>
     
 	<atom:link href="https://hunterzhao.io/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/index.xml" rel="self" type="application/rss+xml" />
@@ -16,7 +16,7 @@
       <title>聊一聊使用多线程处理MQ消息的正确姿势</title>
       <link>https://hunterzhao.io/post/2018/05/01/consume-mq-message-with-multithreading/</link>
       <pubDate>Tue, 01 May 2018 03:27:18 +0000</pubDate>
-      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <author>zhaohevip@gmail.com (HunterZhao)</author>
       <guid>https://hunterzhao.io/post/2018/05/01/consume-mq-message-with-multithreading/</guid>
       <description>&lt;blockquote&gt;
 &lt;p&gt;Q：有这样一个场景，MQ的生产者生产消息能力是消费者的数倍。

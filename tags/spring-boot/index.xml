@@ -5,8 +5,8 @@
     <link>https://hunterzhao.io/tags/spring-boot/</link>
     <description>Recent content in Spring Boot on WorkHoliday</description>
     <generator>Hugo -- gohugo.io</generator>
-    <managingEditor>mailto:zhaohevip@gmail.com (HunterZhao)</managingEditor>
-    <webMaster>mailto:zhaohevip@gmail.com (HunterZhao)</webMaster>
+    <managingEditor>zhaohevip@gmail.com (HunterZhao)</managingEditor>
+    <webMaster>zhaohevip@gmail.com (HunterZhao)</webMaster>
     <lastBuildDate>Sat, 02 Dec 2017 22:53:26 +0000</lastBuildDate>
     
 	<atom:link href="https://hunterzhao.io/tags/spring-boot/index.xml" rel="self" type="application/rss+xml" />
@@ -16,7 +16,7 @@
       <title>SpringCloud自定义Feign解码器</title>
       <link>https://hunterzhao.io/post/2017/12/02/customize-feign-decoder-in-spring-cloud/</link>
       <pubDate>Sat, 02 Dec 2017 22:53:26 +0000</pubDate>
-      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <author>zhaohevip@gmail.com (HunterZhao)</author>
       <guid>https://hunterzhao.io/post/2017/12/02/customize-feign-decoder-in-spring-cloud/</guid>
       <description>&lt;p&gt;&lt;img src=&#34;https://hunterzhao.io/images/post/2017/11/10/spring-cloud-logo.jpg&#34; alt=&#34;spring-cloud&#34; /&gt;
 在SpringCloud微服务中，Feign组件帮我们把跨服务HTTP请求模板化，我们的FeignClient看上去可能是下面这样，&lt;/p&gt;
@@ -30,7 +30,7 @@
       <title>SpringCloud设置zuul网关跨域访问</title>
       <link>https://hunterzhao.io/post/2017/11/22/cors-filter-settings-in-zuul-of-spring-cloud/</link>
       <pubDate>Wed, 22 Nov 2017 21:53:26 +0000</pubDate>
-      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <author>zhaohevip@gmail.com (HunterZhao)</author>
       <guid>https://hunterzhao.io/post/2017/11/22/cors-filter-settings-in-zuul-of-spring-cloud/</guid>
       <description>&lt;p&gt;&lt;img src=&#34;https://hunterzhao.io/images/post/2017/11/10/spring-cloud-logo.jpg&#34; alt=&#34;spring-cloud&#34; /&gt;
 SpringCloud设置跨域访问只需在zuul网关服务中加入如下configuration即可。&lt;/p&gt;
@@ -42,7 +42,7 @@ SpringCloud设置跨域访问只需在zuul网关服务中加入如下configurati
       <title>SpringCloud集成Redis哨兵</title>
       <link>https://hunterzhao.io/post/2017/11/20/using-redis-in-spring-cloud/</link>
       <pubDate>Mon, 20 Nov 2017 21:03:26 +0000</pubDate>
-      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <author>zhaohevip@gmail.com (HunterZhao)</author>
       <guid>https://hunterzhao.io/post/2017/11/20/using-redis-in-spring-cloud/</guid>
       <description>&lt;p&gt;&lt;img src=&#34;https://hunterzhao.io/images/post/2017/11/10/spring-cloud-logo.jpg&#34; alt=&#34;spring-cloud&#34; /&gt;
 在SpringCloud中我们可以很容易地集成并使用Redis缓存，在pom.xml中加入依赖，
@@ -54,7 +54,7 @@ pom.xml&lt;/p&gt;</description>
       <title>SpringCloud设置HttpMessageConverter为fastjson格式化输出</title>
       <link>https://hunterzhao.io/post/2017/11/16/set-http-message-converter-as-fastjson-in-spring-cloud/</link>
       <pubDate>Thu, 16 Nov 2017 23:03:26 +0000</pubDate>
-      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <author>zhaohevip@gmail.com (HunterZhao)</author>
       <guid>https://hunterzhao.io/post/2017/11/16/set-http-message-converter-as-fastjson-in-spring-cloud/</guid>
       <description>&lt;p&gt;&lt;img src=&#34;https://hunterzhao.io/images/post/2017/11/10/spring-cloud-logo.jpg&#34; alt=&#34;spring-cloud&#34; /&gt;&lt;/p&gt;
 
@@ -69,7 +69,7 @@ pom.xml&lt;/p&gt;</description>
       <title>SpringCloud配置中心多级目录多文件匹配搜索</title>
       <link>https://hunterzhao.io/post/2017/11/14/multiple-files-and-directories-search-in-config-center-of-spring-cloud/</link>
       <pubDate>Tue, 14 Nov 2017 23:03:26 +0000</pubDate>
-      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <author>zhaohevip@gmail.com (HunterZhao)</author>
       <guid>https://hunterzhao.io/post/2017/11/14/multiple-files-and-directories-search-in-config-center-of-spring-cloud/</guid>
       <description>&lt;p&gt;&lt;img src=&#34;https://hunterzhao.io/images/post/2017/11/10/spring-cloud-logo.jpg&#34; alt=&#34;spring-cloud&#34; /&gt;&lt;/p&gt;
 
@@ -82,7 +82,7 @@ pom.xml&lt;/p&gt;</description>
       <title>SpringCloud中读取命令行参数或系统环境变量</title>
       <link>https://hunterzhao.io/post/2017/11/10/use-environment-variable-or-command-line-parameter-in-spring-cloud/</link>
       <pubDate>Fri, 10 Nov 2017 20:03:26 +0000</pubDate>
-      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <author>zhaohevip@gmail.com (HunterZhao)</author>
       <guid>https://hunterzhao.io/post/2017/11/10/use-environment-variable-or-command-line-parameter-in-spring-cloud/</guid>
       <description>&lt;p&gt;&lt;img src=&#34;https://hunterzhao.io/images/post/2017/11/10/spring-cloud-logo.jpg&#34; alt=&#34;spring-cloud&#34; /&gt;&lt;/p&gt;
 

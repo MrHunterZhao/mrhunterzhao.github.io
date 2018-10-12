@@ -48,7 +48,8 @@ a:focus {
 }
 blockquote {
   color: #808080;
-  font-style: italic;
+  font-size: 16px;
+  /*font-style: italic;*/
 }
 blockquote p:first-child {
   margin-top: 0;
@@ -336,7 +337,7 @@ footer .theme-by {
 
 @media only screen and (min-width: 768px) {
   footer {
-    padding: 100px 0;
+    padding: 150px 0;
   }
   footer .footer-links {
     font-size: 18px;
@@ -392,11 +393,11 @@ footer .theme-by {
 }
 .post-preview .post-meta,
 .post-heading .post-meta {
-  font-family: 'Lora', 'Times New Roman', serif;
-  color: #808080;
-  font-size: 14px;
-  font-style: italic;
-  margin: 0 0 10px;
+  margin: 3px 0 60px 0;
+  color: #999;
+  font-family: 'Lato', "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 16px;
+  /*text-align: center;*/
 }
 .post-preview .post-meta a,
 .post-heading .post-meta a {
@@ -405,6 +406,7 @@ footer .theme-by {
 }
 .post-preview .post-entry {
   font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 15px;
 }
 .post-entry-container {
   display: inline-block;
@@ -413,6 +415,7 @@ footer .theme-by {
 .post-entry {
   width: 100%;
   margin-top: 10px;
+  font-size: 15px;
 }
 .post-image {
   float: right;
@@ -431,7 +434,6 @@ footer .theme-by {
 }
 
 .post-preview .post-read-more {
-  /*font-weight: 700;*/
   float: right;
   display: inline-block;
   font-size: 14px;
@@ -466,11 +468,12 @@ footer .theme-by {
 
   .post-preview .post-meta,
   .post-heading .post-meta {
-    font-family: 'Lora', 'Times New Roman', serif;
-    color: #808080;
-    font-size: 18px;
-    font-style: italic;
-    margin: 0 0 10px;
+    margin: 3px 0 60px 0;
+    color: #999;
+    font-family: 'Lato', "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: 16px;
+    /*text-align: center;*/
+
   }
 
 
@@ -620,7 +623,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .blog-body a {
-  text-decoration: underline;
+  text-decoration: none;
+  border-bottom: 1px solid #999;
+  word-wrap: break-word;
 }
 
 .intro-header {
@@ -767,7 +772,7 @@ h1, h2, h3, h4, h5, h6 {
   text-align: center;
   font-size: 14px;
   padding: 10px;
-  font-style: italic;
+  /*font-style: italic;*/
   margin: 0;
   display: block;
   border-bottom-right-radius: 5px;
@@ -778,13 +783,13 @@ h1, h2, h3, h4, h5, h6 {
 
 .pager li a {
   font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  text-transform: uppercase;
+  /*text-transform: uppercase;*/
   font-size: 14px;
   font-weight: 800;
   letter-spacing: 1px;
   padding: 10px 5px;
   background: #FFF;
-  border-radius: 0;
+  border-radius: 30px;
   color: #404040;
 }
 @media only screen and (min-width: 768px) {

@@ -5,8 +5,8 @@
     <link>https://hunterzhao.io/tags/%E7%88%AC%E8%99%AB/</link>
     <description>Recent content in 爬虫 on WorkHoliday</description>
     <generator>Hugo -- gohugo.io</generator>
-    <managingEditor>mailto:zhaohevip@gmail.com (HunterZhao)</managingEditor>
-    <webMaster>mailto:zhaohevip@gmail.com (HunterZhao)</webMaster>
+    <managingEditor>zhaohevip@gmail.com (HunterZhao)</managingEditor>
+    <webMaster>zhaohevip@gmail.com (HunterZhao)</webMaster>
     <lastBuildDate>Sat, 05 May 2018 21:12:00 +0000</lastBuildDate>
     
 	<atom:link href="https://hunterzhao.io/tags/%E7%88%AC%E8%99%AB/index.xml" rel="self" type="application/rss+xml" />
@@ -16,7 +16,7 @@
       <title>使用Python十行代码打造简单爬虫</title>
       <link>https://hunterzhao.io/post/2018/05/05/parse_web_content_and_download_files_using_python/</link>
       <pubDate>Sat, 05 May 2018 21:12:00 +0000</pubDate>
-      <author>mailto:zhaohevip@gmail.com (HunterZhao)</author>
+      <author>zhaohevip@gmail.com (HunterZhao)</author>
       <guid>https://hunterzhao.io/post/2018/05/05/parse_web_content_and_download_files_using_python/</guid>
       <description>&lt;p&gt;今天从&lt;a href=&#34;http://docs.huihoo.com/javaone/2015/&#34;&gt;某网站&lt;/a&gt;上看到一些文档觉得还不错， 一共有300+篇，一个个手动下载？这简直是对一个程序员的侮辱。&lt;/p&gt;
 
