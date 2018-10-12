@@ -189,13 +189,13 @@
   </url>
   
   <url>
-    <loc>https://hunterzhao.io/tags/intellij-idea/</loc>
+    <loc>https://hunterzhao.io/categories/intellij-idea/</loc>
     <lastmod>2015-12-03T10:31:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://hunterzhao.io/categories/intellij-idea/</loc>
+    <loc>https://hunterzhao.io/tags/intellij-idea/</loc>
     <lastmod>2015-12-03T10:31:00+00:00</lastmod>
     <priority>0</priority>
   </url>
@@ -213,25 +213,25 @@
   </url>
   
   <url>
-    <loc>https://hunterzhao.io/tags/lua/</loc>
-    <lastmod>2017-10-15T02:19:27+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
     <loc>https://hunterzhao.io/categories/lua/</loc>
     <lastmod>2017-10-15T02:19:27+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://hunterzhao.io/tags/mac/</loc>
-    <lastmod>2014-01-20T12:06:34+00:00</lastmod>
+    <loc>https://hunterzhao.io/tags/lua/</loc>
+    <lastmod>2017-10-15T02:19:27+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://hunterzhao.io/categories/mac/</loc>
+    <lastmod>2014-01-20T12:06:34+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://hunterzhao.io/tags/mac/</loc>
     <lastmod>2014-01-20T12:06:34+00:00</lastmod>
     <priority>0</priority>
   </url>
@@ -243,25 +243,25 @@
   </url>
   
   <url>
-    <loc>https://hunterzhao.io/tags/mybatis/</loc>
-    <lastmod>2017-07-21T15:30:02+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
     <loc>https://hunterzhao.io/categories/mybatis/</loc>
     <lastmod>2017-07-21T15:30:02+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://hunterzhao.io/tags/mysql/</loc>
-    <lastmod>2014-01-20T12:06:34+00:00</lastmod>
+    <loc>https://hunterzhao.io/tags/mybatis/</loc>
+    <lastmod>2017-07-21T15:30:02+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://hunterzhao.io/categories/mysql/</loc>
+    <lastmod>2014-01-20T12:06:34+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://hunterzhao.io/tags/mysql/</loc>
     <lastmod>2014-01-20T12:06:34+00:00</lastmod>
     <priority>0</priority>
   </url>
@@ -279,13 +279,13 @@
   </url>
   
   <url>
-    <loc>https://hunterzhao.io/tags/openjdk/</loc>
+    <loc>https://hunterzhao.io/categories/openjdk/</loc>
     <lastmod>2018-06-11T13:30:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://hunterzhao.io/categories/openjdk/</loc>
+    <loc>https://hunterzhao.io/tags/openjdk/</loc>
     <lastmod>2018-06-11T13:30:00+00:00</lastmod>
     <priority>0</priority>
   </url>
@@ -302,13 +302,13 @@
   </url>
   
   <url>
-    <loc>https://hunterzhao.io/tags/python/</loc>
+    <loc>https://hunterzhao.io/categories/python/</loc>
     <lastmod>2018-05-05T21:12:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://hunterzhao.io/categories/python/</loc>
+    <loc>https://hunterzhao.io/tags/python/</loc>
     <lastmod>2018-05-05T21:12:00+00:00</lastmod>
     <priority>0</priority>
   </url>
@@ -326,13 +326,13 @@
   </url>
   
   <url>
-    <loc>https://hunterzhao.io/tags/spring-cloud/</loc>
+    <loc>https://hunterzhao.io/categories/spring-cloud/</loc>
     <lastmod>2017-12-02T22:53:26+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://hunterzhao.io/categories/spring-cloud/</loc>
+    <loc>https://hunterzhao.io/tags/spring-cloud/</loc>
     <lastmod>2017-12-02T22:53:26+00:00</lastmod>
     <priority>0</priority>
   </url>
@@ -356,13 +356,13 @@
   </url>
   
   <url>
-    <loc>https://hunterzhao.io/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/</loc>
+    <loc>https://hunterzhao.io/categories/%E5%A4%9A%E7%BA%BF%E7%A8%8B/</loc>
     <lastmod>2018-05-01T03:27:18+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://hunterzhao.io/categories/%E5%A4%9A%E7%BA%BF%E7%A8%8B/</loc>
+    <loc>https://hunterzhao.io/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/</loc>
     <lastmod>2018-05-01T03:27:18+00:00</lastmod>
     <priority>0</priority>
   </url>
@@ -386,13 +386,13 @@
   </url>
   
   <url>
-    <loc>https://hunterzhao.io/tags/%E6%9E%B6%E6%9E%84/</loc>
+    <loc>https://hunterzhao.io/categories/%E6%9E%B6%E6%9E%84/</loc>
     <lastmod>2018-05-06T23:40:47+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://hunterzhao.io/categories/%E6%9E%B6%E6%9E%84/</loc>
+    <loc>https://hunterzhao.io/tags/%E6%9E%B6%E6%9E%84/</loc>
     <lastmod>2018-05-06T23:40:47+00:00</lastmod>
     <priority>0</priority>
   </url>
